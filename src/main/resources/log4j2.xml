@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d [%-5p] [%30.30t] (%50.50c{32}) - %m%n" />
+		</Console>
+
+		<RollingRandomAccessFile name="RollingRandomAccessFile"
+			fileName="${sys:user.dir}/logs/TracerViewer.log" filePattern="logs/TracerViewer-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout pattern="%d [%-5p] [%30.30t] (%50.50c{32}) - %m%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="15 MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="10" />
+		</RollingRandomAccessFile>
+
+	</Appenders>
+	<Loggers>
+		<Logger name="com.pega.gcs" additivity="false" level="info">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="RollingRandomAccessFile" />
+		</Logger>
+		<Root level="warn">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="RollingRandomAccessFile" />
+		</Root>
+	</Loggers>
+</Configuration>
