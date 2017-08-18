@@ -44,8 +44,6 @@ public class TracerViewer extends BaseFrame {
 
 	private static final Log4j2Helper LOG = new Log4j2Helper(TracerViewer.class);
 
-	private static final String APPNAME = "Pega-TracerViewer v3.0b3";
-
 	public static final String FILE_CHOOSER_FILTER_DESC = "Tracer XML Files";
 
 	public static final String[] FILE_CHOOSER_FILTER_EXT = { "xml" };
@@ -53,6 +51,8 @@ public class TracerViewer extends BaseFrame {
 	public static final String FILE_CHOOSER_DIALOG_TITLE = "Select Tracer File";
 
 	public static final String RECENT_FILE_PREV_COMPARE_FILE = "prevCompareFile";
+
+	private String appName;
 
 	private RecentFileJMenu recentFileJMenu;
 
@@ -193,7 +193,20 @@ public class TracerViewer extends BaseFrame {
 	 */
 	@Override
 	protected String getAppName() {
-		return APPNAME;
+
+		if (appName == null) {
+
+			Package p = TracerViewer.class.getPackage();
+
+			StringBuffer sb = new StringBuffer();
+			sb.append(p.getImplementationTitle());
+			sb.append(" ");
+			sb.append(p.getImplementationVersion());
+
+			appName = sb.toString();
+		}
+
+		return appName;
 	}
 
 	/*
@@ -536,6 +549,14 @@ public class TracerViewer extends BaseFrame {
 								LOG.info("getopt() returned " + c);
 								break;
 							}
+						}
+
+						// handle non option arguments - for ex starting using open-with menu command on
+						// windows. assume them as file names
+						for (int i = getopt.getOptind(); i < args.length; i++) {
+							String filename = args[i];
+							LOG.info("Non option arg element: " + filename + "\n");
+							fileNameList.add(filename);
 						}
 
 						if (isReport) {
