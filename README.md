@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/pegasystems/pega-tracerviewer.svg?branch=master)](https://travis-ci.org/pegasystems/pega-tracerviewer)
+
 Pega-TracerViewer
 ==============
 Pega-TracerViewer is a Java Swing based tool to view Pega Tracer xml files.
