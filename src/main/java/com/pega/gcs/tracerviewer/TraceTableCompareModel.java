@@ -51,6 +51,12 @@ public class TraceTableCompareModel extends TraceTableModel {
 	}
 
 	@Override
+	protected void buildTree(TraceEvent currentTraceEvent) {
+		// fix Issue #1 - Compare functionality not working
+		// do nothing - compare model doesn't implements tree
+	}
+
+	@Override
 	public boolean isColumnFilterEnabled(int column) {
 		return false;
 	}

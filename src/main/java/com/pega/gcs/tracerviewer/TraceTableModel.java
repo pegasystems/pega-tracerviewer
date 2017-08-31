@@ -260,7 +260,9 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
 
 	}
 
-	private void buildTree(TraceEvent currentTraceEvent) {
+	// fix Issue #1 - Compare functionality not working
+	// to be overridden in TraceTableCompareModel to avoid building tree for compare view
+	protected void buildTree(TraceEvent currentTraceEvent) {
 
 		LinkedList<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
 		Map<TraceEventKey, TraceEventTreeNode> traceEventTreeNodeMap = getTraceEventTreeNodeMap();
