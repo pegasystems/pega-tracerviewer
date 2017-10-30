@@ -18,8 +18,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -107,13 +105,24 @@ public class TracerDataMainPanel extends JPanel {
 		this.recentFileContainer = recentFileContainer;
 		this.tracerViewerSetting = tracerViewerSetting;
 
-		this.recentFile = getRecentFile(selectedFile, recentFileContainer, tracerViewerSetting);
+		String charset = tracerViewerSetting.getCharset();
+
+		this.recentFile = recentFileContainer.getRecentFile(selectedFile, charset);
 
 		SearchData<TraceEventKey> searchData = new SearchData<>(SearchEventType.values());
 
 		this.traceTableModel = new TraceTableModel(recentFile, searchData);
 
 		BookmarkContainer<TraceEventKey> bookmarkContainer;
+		bookmarkContainer = (BookmarkContainer<TraceEventKey>) recentFile.getAttribute(RecentFile.KEY_BOOKMARK);
+
+		if (bookmarkContainer == null) {
+
+			bookmarkContainer = new BookmarkContainer<TraceEventKey>();
+
+			recentFile.setAttribute(RecentFile.KEY_BOOKMARK, bookmarkContainer);
+		}
+
 		bookmarkContainer = (BookmarkContainer<TraceEventKey>) recentFile.getAttribute(RecentFile.KEY_BOOKMARK);
 
 		BookmarkModel<TraceEventKey> bookmarkModel = new BookmarkModel<TraceEventKey>(bookmarkContainer,
@@ -511,54 +520,6 @@ public class TracerDataMainPanel extends JPanel {
 		incompleteTracerJLabel.setText(incompleteTracerStr);
 		charsetJLabel.setText(charset);
 		sizeJLabel.setText(sizeStr);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static RecentFile getRecentFile(File selectedFile, RecentFileContainer recentFileContainer,
-			TracerViewerSetting tracerViewerSetting) {
-
-		RecentFile recentFile = null;
-
-		// identify the recent file
-		for (RecentFile rf : recentFileContainer.getRecentFileList()) {
-
-			String file = (String) rf.getAttribute(RecentFile.KEY_FILE);
-
-			if ((file != null) && (file.toLowerCase().equals(selectedFile.getPath().toLowerCase()))) {
-				// found in recent files
-				recentFile = rf;
-				break;
-			}
-		}
-
-		if (recentFile == null) {
-			String charset = tracerViewerSetting.getCharset();
-			recentFile = new RecentFile(selectedFile.getPath(), charset);
-		}
-
-		BookmarkContainer<TraceEventKey> bookmarkContainer;
-		bookmarkContainer = (BookmarkContainer<TraceEventKey>) recentFile.getAttribute(RecentFile.KEY_BOOKMARK);
-
-		if (bookmarkContainer == null) {
-
-			bookmarkContainer = new BookmarkContainer<TraceEventKey>();
-
-			recentFile.setAttribute(RecentFile.KEY_BOOKMARK, bookmarkContainer);
-		}
-
-		try (FileInputStream fis = new FileInputStream(selectedFile)) {
-
-			long totalSize = fis.getChannel().size();
-			recentFile.setAttribute(RecentFile.KEY_SIZE, totalSize);
-
-		} catch (IOException e) {
-			LOG.error("Error reading file " + selectedFile.toString(), e);
-		}
-
-		// save and bring it to front
-		recentFileContainer.addRecentFile(recentFile);
-
-		return recentFile;
 	}
 
 	public static void loadFile(TraceTableModel traceTableModel, final JComponent parent, final boolean waitMode) {

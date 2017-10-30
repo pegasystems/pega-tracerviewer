@@ -440,9 +440,11 @@ public abstract class TracerDataCompareView extends TracerDataView {
 						TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) tracerDataTableRight
 								.getModel();
 
+						RecentFileContainer recentFileContainer = getRecentFileContainer();
+						String charset = getTracerViewerSetting().getCharset();
+						
 						RecentFile compareRecentFile;
-						compareRecentFile = TracerDataMainPanel.getRecentFile(aFile, getRecentFileContainer(),
-								getTracerViewerSetting());
+						compareRecentFile = recentFileContainer.getRecentFile(aFile, charset);
 
 						// also reset the model and clears old stuff
 						traceTableCompareModel.setRecentFile(compareRecentFile);

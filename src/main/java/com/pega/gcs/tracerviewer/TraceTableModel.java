@@ -170,7 +170,7 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
 
 				FilterColumn filterColumn = new FilterColumn(columnIndex);
 
-				filterColumn.setColumnFilterEnabled(true);
+				filterColumn.setColumnFilterEnabled(false);
 
 				columnFilterMap.put(filterColumn, null);
 			}
@@ -261,7 +261,8 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
 	}
 
 	// fix Issue #1 - Compare functionality not working
-	// to be overridden in TraceTableCompareModel to avoid building tree for compare view
+	// to be overridden in TraceTableCompareModel to avoid building tree for compare
+	// view
 	protected void buildTree(TraceEvent currentTraceEvent) {
 
 		LinkedList<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
@@ -623,6 +624,12 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
 
 				columnFilterEntry.addRowIndex(traceEventKey);
 
+				boolean filterable = traceTableModelColumn.isFilterable();
+				
+				if ((filterable) && (columnFilterEntryList.size() > 1)) {
+					filterColumn.setColumnFilterEnabled(true);
+				}
+
 				// boolean columnFilterEnabled =
 				// filterColumn.isColumnFilterEnabled();
 				//
@@ -795,8 +802,8 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
 
 	/**
 	 * alternate implementation to getEventForKey to use traceeventkey's
-	 * traceeventindex. used for reports where entries can change because of
-	 * compare view.
+	 * traceeventindex. used for reports where entries can change because of compare
+	 * view.
 	 */
 	public TraceEvent getTraceEventForKey(TraceEventKey traceEventKey) {
 
