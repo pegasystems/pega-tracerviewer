@@ -420,7 +420,9 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
 		} finally {
 
-			mProgressMonitor.close();
+			if (!mProgressMonitor.isCanceled()) {
+				mProgressMonitor.close();
+			}
 
 			System.gc();
 		}
