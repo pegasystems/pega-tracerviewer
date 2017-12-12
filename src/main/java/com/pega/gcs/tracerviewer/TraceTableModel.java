@@ -1162,15 +1162,11 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
 			searchModel = new SearchModel<TraceEventKey>(searchData) {
 
 				@Override
-				public boolean searchInEvents(final Object searchStrObj, final ModalProgressMonitor mProgressMonitor) {
-
-					boolean search = false;
+				public void searchInEvents(final Object searchStrObj, final ModalProgressMonitor mProgressMonitor) {
 
 					if ((searchStrObj != null) && (!((searchStrObj instanceof SearchEventType)
 							&& searchStrObj.equals(SearchEventType.SEPERATOR))
 							|| !("".equals(searchStrObj.toString())))) {
-
-						search = true;
 
 						TraceTableSearchTask ttst = new TraceTableSearchTask(mProgressMonitor, TraceTableModel.this,
 								searchStrObj) {
@@ -1218,8 +1214,6 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
 						ttst.execute();
 
 					}
-
-					return search;
 				}
 
 				@Override
@@ -1233,7 +1227,13 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
 					// nodes
 					clearTraceEventSearchResults();
 
-					fireTableDataChanged();
+					// general fire will reload the tree,
+					// collapsing the whole tree.
+					// hence generating a special to identify
+					// search action. used in
+					// TraceTreeTableModelAdapter
+					// fireTableDataChanged();
+					fireTableChanged(new SearchTableModelEvent(TraceTableModel.this));
 				}
 			};
 		}

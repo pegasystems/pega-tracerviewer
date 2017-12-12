@@ -16,8 +16,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CancellationException;
 
 import javax.swing.BorderFactory;
@@ -35,33 +33,31 @@ import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
 
-import com.pega.gcs.fringecommon.guiutilities.BaseFrame;
 import com.pega.gcs.fringecommon.guiutilities.Message;
 import com.pega.gcs.fringecommon.guiutilities.ModalProgressMonitor;
 import com.pega.gcs.fringecommon.guiutilities.MyColor;
+import com.pega.gcs.fringecommon.guiutilities.NavigationPanel;
+import com.pega.gcs.fringecommon.guiutilities.NavigationPanelController;
 import com.pega.gcs.fringecommon.guiutilities.NavigationTableController;
 import com.pega.gcs.fringecommon.guiutilities.RecentFile;
 import com.pega.gcs.fringecommon.guiutilities.RecentFileContainer;
 import com.pega.gcs.fringecommon.guiutilities.Searchable.SelectedRowPosition;
+import com.pega.gcs.fringecommon.guiutilities.TableCompareEntry;
 import com.pega.gcs.fringecommon.guiutilities.TableWidthColumnModelListener;
 import com.pega.gcs.fringecommon.guiutilities.markerbar.MarkerBar;
 import com.pega.gcs.fringecommon.guiutilities.markerbar.MarkerModel;
-import com.pega.gcs.fringecommon.guiutilities.search.SearchData;
 import com.pega.gcs.fringecommon.guiutilities.search.SearchPanel;
 import com.pega.gcs.fringecommon.log4j2.Log4j2Helper;
 import com.pega.gcs.fringecommon.utilities.FileUtilities;
 import com.pega.gcs.tracerviewer.CompareMarkerModel;
-import com.pega.gcs.tracerviewer.NavigationPanel;
-import com.pega.gcs.tracerviewer.NavigationPanelController;
 import com.pega.gcs.tracerviewer.TraceNavigationTableController;
 import com.pega.gcs.tracerviewer.TraceTable;
-import com.pega.gcs.tracerviewer.TraceTableCompareEntry;
 import com.pega.gcs.tracerviewer.TraceTableCompareModel;
 import com.pega.gcs.tracerviewer.TraceTableCompareMouseListener;
 import com.pega.gcs.tracerviewer.TraceTableCompareTask;
 import com.pega.gcs.tracerviewer.TraceTableModel;
-import com.pega.gcs.tracerviewer.TracerDataMainPanel;
 import com.pega.gcs.tracerviewer.TracerViewer;
 import com.pega.gcs.tracerviewer.TracerViewerSetting;
 import com.pega.gcs.tracerviewer.model.TraceEventKey;
@@ -83,7 +79,7 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
 	private MarkerBar<TraceEventKey> compareMarkerBar;
 
-	private NavigationPanel navigationPanel;
+	private NavigationPanel<TraceEventKey> navigationPanel;
 
 	private NavigationPanelController<TraceEventKey> navigationPanelController;
 
@@ -400,7 +396,9 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
 					File fileChooserBase = null;
 
-					RecentFile recentFile = getTraceTableModel().getRecentFile();
+					TraceTableModel traceTableModel = getTraceTableModel();
+
+					RecentFile recentFile = traceTableModel.getRecentFile();
 
 					// check for previous comparison folder
 					String leftPrevComparisionFilePath = (String) recentFile
@@ -417,19 +415,18 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
 					if (fileChooserBase == null) {
 						// file open on the same folder as left file.
-						String leftFilePath = (String) getTraceTableModel().getRecentFile()
-								.getAttribute(RecentFile.KEY_FILE);
+						String leftFilePath = traceTableModel.getFilePath();
 
 						if ((leftFilePath != null) && (!"".equals(leftFilePath))) {
 							fileChooserBase = new File(leftFilePath);
 						}
 					}
 
-					final List<String> fileExtList = Arrays.asList(TracerViewer.FILE_CHOOSER_FILTER_EXT);
+					FileFilter fileFilter = TracerViewer.getDefaultFileFilter(TracerViewer.FILE_CHOOSER_FILTER_DESC,
+							Arrays.asList(TracerViewer.FILE_CHOOSER_FILTER_EXT));
 
-					File aFile = BaseFrame.openFileChooser(getFileOpenJButton(), TracerViewer.class,
-							TracerViewer.FILE_CHOOSER_DIALOG_TITLE, fileExtList, TracerViewer.FILE_CHOOSER_FILTER_DESC,
-							fileChooserBase);
+					File aFile = TracerViewer.openFileChooser(getFileOpenJButton(), TracerViewer.class,
+							TracerViewer.FILE_CHOOSER_DIALOG_TITLE, fileFilter, fileChooserBase);
 
 					if (aFile != null) {
 
@@ -442,7 +439,7 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
 						RecentFileContainer recentFileContainer = getRecentFileContainer();
 						String charset = getTracerViewerSetting().getCharset();
-						
+
 						RecentFile compareRecentFile;
 						compareRecentFile = recentFileContainer.getRecentFile(aFile, charset);
 
@@ -452,9 +449,78 @@ public abstract class TracerDataCompareView extends TracerDataView {
 						// save the compare file path to main file
 						recentFile.setAttribute(TracerViewer.RECENT_FILE_PREV_COMPARE_FILE, aFile.getAbsolutePath());
 
-						TracerDataMainPanel.loadFile(traceTableCompareModel, TracerDataCompareView.this, true);
+						TraceTable tracerDataTableLeft = getTracerDataTableLeft();
 
-						applyTraceModelCompare();
+						UIManager.put("ModalProgressMonitor.progressText", "Loading Tracer XML file");
+
+						final ModalProgressMonitor progressMonitor = new ModalProgressMonitor(
+								TracerDataCompareView.this, "", "Loaded 0 trace events (0%)", 0, 100);
+
+						progressMonitor.setMillisToDecideToPopup(0);
+						progressMonitor.setMillisToPopup(0);
+
+						TraceTableCompareTask traceTableCompareTask = new TraceTableCompareTask(traceTableModel,
+								tracerDataTableLeft, tracerDataTableRight, progressMonitor,
+								TracerDataCompareView.this) {
+
+							@Override
+							protected void done() {
+
+								try {
+
+									get();
+
+									if (!isCancelled()) {
+
+										TraceTable tracerDataTableLeft = getTracerDataTableLeft();
+										TraceTable tracerDataTableRight = getTracerDataTableRight();
+
+										TraceTableCompareModel traceTableCompareModelLeft;
+										traceTableCompareModelLeft = (TraceTableCompareModel) tracerDataTableLeft
+												.getModel();
+
+										TraceTableCompareModel traceTableCompareModelRight;
+										traceTableCompareModelRight = (TraceTableCompareModel) tracerDataTableRight
+												.getModel();
+
+										getNavigationPanel().setEnabled(true);
+
+										MarkerModel<TraceEventKey> thisMarkerModel;
+										thisMarkerModel = new CompareMarkerModel(MyColor.LIGHT_GREEN,
+												traceTableCompareModelLeft);
+
+										MarkerModel<TraceEventKey> otherMarkerModel;
+										otherMarkerModel = new CompareMarkerModel(Color.LIGHT_GRAY,
+												traceTableCompareModelRight);
+
+										MarkerBar<TraceEventKey> markerBar = getCompareMarkerBar();
+										markerBar.addMarkerModel(thisMarkerModel);
+										markerBar.addMarkerModel(otherMarkerModel);
+
+										syncScrollBars();
+										getNavigationPanelController().updateState();
+									}
+								} catch (CancellationException ce) {
+									LOG.info("TraceTableCompareTask cancelled: ");
+
+								} catch (Exception e) {
+									JOptionPane.showMessageDialog(TracerDataCompareView.this,
+											"Error in comparing the tracer xmls.", "Compare Tracer XML Error",
+											JOptionPane.ERROR_MESSAGE);
+									LOG.error("Exception in TraceTableCompareTask.", e);
+
+								} finally {
+									progressMonitor.close();
+								}
+							}
+						};
+
+						traceTableCompareTask.execute();
+
+						// TracerDataMainPanel.loadFile(traceTableCompareModel,
+						// TracerDataCompareView.this, true);
+						//
+						// applyTraceModelCompare();
 					}
 				}
 			});
@@ -473,7 +539,7 @@ public abstract class TracerDataCompareView extends TracerDataView {
 		return compareMarkerBar;
 	}
 
-	protected NavigationPanel getNavigationPanel() {
+	protected NavigationPanel<TraceEventKey> getNavigationPanel() {
 
 		if (navigationPanel == null) {
 
@@ -481,7 +547,7 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
 			NavigationPanelController<TraceEventKey> compareNavigationPanelController = getNavigationPanelController();
 
-			navigationPanel = new NavigationPanel(label, compareNavigationPanelController);
+			navigationPanel = new NavigationPanel<>(label, compareNavigationPanelController);
 			navigationPanel.setEnabled(false);
 
 		}
@@ -514,7 +580,7 @@ public abstract class TracerDataCompareView extends TracerDataView {
 				@Override
 				public void updateState() {
 
-					NavigationPanel navigationPanel = getNavigationPanel();
+					NavigationPanel<TraceEventKey> navigationPanel = getNavigationPanel();
 
 					JLabel dataJLabel = navigationPanel.getDataJLabel();
 					JButton firstJButton = navigationPanel.getFirstJButton();
@@ -602,11 +668,11 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
 					TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
 
-					TraceTableCompareEntry traceTableCompareEntry;
-					traceTableCompareEntry = traceTableCompareModel.comparePrevious(selectedRow);
+					TableCompareEntry tableCompareEntry;
+					tableCompareEntry = traceTableCompareModel.comparePrevious(selectedRow);
 
-					int startEntry = traceTableCompareEntry.getStartEntry();
-					int endEntry = traceTableCompareEntry.getEndEntry();
+					int startEntry = tableCompareEntry.getStartEntry();
+					int endEntry = tableCompareEntry.getEndEntry();
 
 					navigateToRow(startEntry, endEntry);
 
@@ -628,11 +694,11 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
 					TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
 
-					TraceTableCompareEntry traceTableCompareEntry;
-					traceTableCompareEntry = traceTableCompareModel.compareNext(selectedRow);
+					TableCompareEntry tableCompareEntry;
+					tableCompareEntry = traceTableCompareModel.compareNext(selectedRow);
 
-					int startEntry = traceTableCompareEntry.getStartEntry();
-					int endEntry = traceTableCompareEntry.getEndEntry();
+					int startEntry = tableCompareEntry.getStartEntry();
+					int endEntry = tableCompareEntry.getEndEntry();
 
 					navigateToRow(startEntry, endEntry);
 
@@ -647,11 +713,11 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
 					TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
 
-					TraceTableCompareEntry traceTableCompareEntry;
-					traceTableCompareEntry = traceTableCompareModel.compareLast();
+					TableCompareEntry tableCompareEntry;
+					tableCompareEntry = traceTableCompareModel.compareLast();
 
-					int startEntry = traceTableCompareEntry.getStartEntry();
-					int endEntry = traceTableCompareEntry.getEndEntry();
+					int startEntry = tableCompareEntry.getStartEntry();
+					int endEntry = tableCompareEntry.getEndEntry();
 
 					navigateToRow(startEntry, endEntry);
 
@@ -666,11 +732,11 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
 					TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
 
-					TraceTableCompareEntry traceTableCompareEntry;
-					traceTableCompareEntry = traceTableCompareModel.compareFirst();
+					TableCompareEntry tableCompareEntry;
+					tableCompareEntry = traceTableCompareModel.compareFirst();
 
-					int startEntry = traceTableCompareEntry.getStartEntry();
-					int endEntry = traceTableCompareEntry.getEndEntry();
+					int startEntry = tableCompareEntry.getStartEntry();
+					int endEntry = tableCompareEntry.getEndEntry();
 
 					navigateToRow(startEntry, endEntry);
 
@@ -703,91 +769,4 @@ public abstract class TracerDataCompareView extends TracerDataView {
 		jScrollBarRightV.setModel(jScrollBarLeftV.getModel());
 	}
 
-	protected void applyTraceModelCompare() {
-
-		UIManager.put("ModalProgressMonitor.progressText", "Compare");
-
-		final ModalProgressMonitor mProgressMonitor = new ModalProgressMonitor(this, "", "Comparing...");
-
-		TraceTableModel traceTableModel = getTraceTableModel();
-
-		final TraceTable tracerDataTableLeft;
-		tracerDataTableLeft = getTracerDataTableLeft();
-
-		// built the left side compare model afresh for every compare
-		RecentFile recentFile = traceTableModel.getRecentFile();
-		SearchData<TraceEventKey> searchData = traceTableModel.getSearchData();
-
-		final TraceTableCompareModel traceTableCompareModelLeft;
-		traceTableCompareModelLeft = new TraceTableCompareModel(recentFile, searchData);
-
-		// traceTableCompareModelLeft = (TraceTableCompareModel)
-		// tracerDataTableLeft.getModel();
-
-		// right side model is built freshly for every load of the file
-		TraceTable tracerDataTableRight;
-		tracerDataTableRight = getTracerDataTableRight();
-
-		final TraceTableCompareModel traceTableCompareModelRight;
-		traceTableCompareModelRight = (TraceTableCompareModel) tracerDataTableRight.getModel();
-
-		TraceTableCompareTask ttct = new TraceTableCompareTask(mProgressMonitor, traceTableModel,
-				traceTableCompareModelLeft, traceTableCompareModelRight) {
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see javax.swing.SwingWorker#done()
-			 */
-			@Override
-			protected void done() {
-
-				try {
-
-					get();
-
-					if (!isCancelled()) {
-						Map<TraceEventKey, List<TraceEventKey>> compareNavIndexMap;
-						compareNavIndexMap = traceTableCompareModelLeft.getCompareNavIndexMap();
-
-						LOG.info("TraceTableCompareTask done " + compareNavIndexMap.size() + " chunks found");
-
-						// set the left table model as compare model
-						tracerDataTableLeft.setModel(traceTableCompareModelLeft);
-
-						getNavigationPanel().setEnabled(true);
-
-						MarkerModel<TraceEventKey> thisMarkerModel;
-						thisMarkerModel = new CompareMarkerModel(MyColor.LIGHT_GREEN, traceTableCompareModelLeft);
-
-						MarkerModel<TraceEventKey> otherMarkerModel;
-						otherMarkerModel = new CompareMarkerModel(Color.LIGHT_GRAY, traceTableCompareModelRight);
-
-						MarkerBar<TraceEventKey> markerBar = getCompareMarkerBar();
-						markerBar.addMarkerModel(thisMarkerModel);
-						markerBar.addMarkerModel(otherMarkerModel);
-
-						syncScrollBars();
-						getNavigationPanelController().updateState();
-					}
-				} catch (CancellationException ce) {
-					LOG.info("TraceTableCompareTask cancelled: ");
-
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog(TracerDataCompareView.this, "Error in comparing the tracer xmls.",
-							"Compare Tracer XML Error", JOptionPane.ERROR_MESSAGE);
-					LOG.error("Exception in TraceTableCompareTask.", e);
-
-				} finally {
-					mProgressMonitor.close();
-				}
-			}
-
-		};
-
-		ttct.execute();
-
-		mProgressMonitor.show();
-
-	}
 }

@@ -41,7 +41,7 @@ public class TracerDataCompareTableView extends TracerDataCompareView {
 
 			TraceTableModel traceTableModel = getTraceTableModel();
 
-			traceTableLeft = new TraceTable(traceTableModel);
+			traceTableLeft = new TraceTable(traceTableModel, false);
 			traceTableLeft.setFillsViewportHeight(true);
 
 			// mouse listener is setup in getCompareJSplitPane

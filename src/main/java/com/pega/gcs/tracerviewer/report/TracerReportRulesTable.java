@@ -110,7 +110,7 @@ public class TracerReportRulesTable extends FilterTable<Integer> {
 							dataSB.append(columnValue);
 							dataSB.append("\t");
 						}
-						dataSB.append("\n");
+						dataSB.append(System.getProperty("line.separator"));
 					}
 
 				}

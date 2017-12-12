@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import com.pega.gcs.fringecommon.guiutilities.FilterTableModelNavigation;
 import com.pega.gcs.fringecommon.guiutilities.RecentFile;
 import com.pega.gcs.fringecommon.guiutilities.Searchable.SelectedRowPosition;
+import com.pega.gcs.fringecommon.guiutilities.TableCompareEntry;
 import com.pega.gcs.fringecommon.guiutilities.search.SearchData;
 import com.pega.gcs.tracerviewer.model.TraceEvent;
 import com.pega.gcs.tracerviewer.model.TraceEventKey;
@@ -111,9 +112,9 @@ public class TraceTableCompareModel extends TraceTableModel {
 		return compareRowIndex;
 	}
 
-	public TraceTableCompareEntry compareFirst() {
+	public TableCompareEntry compareFirst() {
 
-		TraceTableCompareEntry traceTableCompareEntry;
+		TableCompareEntry tableCompareEntry;
 
 		int startEntry = getCompareRowIndex(0, false, true, false);
 		int endEntry = startEntry;
@@ -129,14 +130,14 @@ public class TraceTableCompareModel extends TraceTableModel {
 			endEntry = getIndexOfKey(endKey);
 		}
 
-		traceTableCompareEntry = new TraceTableCompareEntry(startEntry, endEntry);
+		tableCompareEntry = new TableCompareEntry(startEntry, endEntry);
 
-		return traceTableCompareEntry;
+		return tableCompareEntry;
 	}
 
-	public TraceTableCompareEntry comparePrevious(int currSelectedRow) {
+	public TableCompareEntry comparePrevious(int currSelectedRow) {
 
-		TraceTableCompareEntry traceTableCompareEntry;
+		TableCompareEntry tableCompareEntry;
 
 		int startEntry = getCompareRowIndex(currSelectedRow, false, false, false);
 		int endEntry = startEntry;
@@ -152,14 +153,14 @@ public class TraceTableCompareModel extends TraceTableModel {
 			endEntry = getIndexOfKey(endKey);
 		}
 
-		traceTableCompareEntry = new TraceTableCompareEntry(startEntry, endEntry);
+		tableCompareEntry = new TableCompareEntry(startEntry, endEntry);
 
-		return traceTableCompareEntry;
+		return tableCompareEntry;
 	}
 
-	public TraceTableCompareEntry compareNext(int currSelectedRow) {
+	public TableCompareEntry compareNext(int currSelectedRow) {
 
-		TraceTableCompareEntry traceTableCompareEntry;
+		TableCompareEntry tableCompareEntry;
 
 		int startEntry = getCompareRowIndex(currSelectedRow, true, false, false);
 		int endEntry = startEntry;
@@ -175,14 +176,14 @@ public class TraceTableCompareModel extends TraceTableModel {
 			endEntry = getIndexOfKey(endKey);
 		}
 
-		traceTableCompareEntry = new TraceTableCompareEntry(startEntry, endEntry);
+		tableCompareEntry = new TableCompareEntry(startEntry, endEntry);
 
-		return traceTableCompareEntry;
+		return tableCompareEntry;
 	}
 
-	public TraceTableCompareEntry compareLast() {
+	public TableCompareEntry compareLast() {
 
-		TraceTableCompareEntry traceTableCompareEntry;
+		TableCompareEntry tableCompareEntry;
 
 		int startEntry = getCompareRowIndex(0, false, false, true);
 		int endEntry = startEntry;
@@ -198,9 +199,9 @@ public class TraceTableCompareModel extends TraceTableModel {
 			endEntry = getIndexOfKey(endKey);
 		}
 
-		traceTableCompareEntry = new TraceTableCompareEntry(startEntry, endEntry);
+		tableCompareEntry = new TableCompareEntry(startEntry, endEntry);
 
-		return traceTableCompareEntry;
+		return tableCompareEntry;
 	}
 
 	public SelectedRowPosition getCompareSelectedRowPosition(int selectedRow) {

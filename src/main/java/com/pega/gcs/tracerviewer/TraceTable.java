@@ -16,8 +16,13 @@ public class TraceTable extends FilterTable<TraceEventKey> {
 	private static final long serialVersionUID = -3752172566327398734L;
 
 	public TraceTable(TraceTableModel traceTableModel) {
+		
+		this(traceTableModel, true);
+	}
+	
+	public TraceTable(TraceTableModel traceTableModel, boolean filterColumns) {
 
-		super(traceTableModel);
+		super(traceTableModel, filterColumns);
 
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
@@ -41,7 +46,7 @@ public class TraceTable extends FilterTable<TraceEventKey> {
 		// TraceEvent traceEvent = (TraceEvent) getValueAt(selectedRow, 0);
 		//
 		// dataSB.append(traceEvent.getTraceEventColumnString());
-		// dataSB.append("\n");
+		// dataSB.append(System.getProperty("line.separator"));
 		// }
 		//
 		// }

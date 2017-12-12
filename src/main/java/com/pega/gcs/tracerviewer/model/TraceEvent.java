@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
@@ -778,7 +779,7 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
 		if (compressedTraceEventBytes != null) {
 			try {
 
-				byte[] byteArray = (byte[]) KryoSerializer.decompress(compressedTraceEventBytes,
+				byte[] byteArray = KryoSerializer.decompress(compressedTraceEventBytes,
 						compressedTraceEventBytes.getClass());
 
 				traceEventStr = new String(byteArray, charset);
@@ -1497,10 +1498,30 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
 				if (index != -1) {
 					found = true;
 				}
+
+				// double searching - because some data is escaped. but user can use escaped or
+				// unescaped text for search.
+				if (!found) {
+
+					// if the unescaped string is same as orig, then dont do second search
+					String unescTraceEventStr = StringEscapeUtils.unescapeHtml4(traceEventStr);
+
+					if (!unescTraceEventStr.equals(traceEventStr)) {
+						
+						data = unescTraceEventStr.getBytes();
+
+						index = KnuthMorrisPrattAlgorithm.indexOf(data, pattern);
+
+						if (index != -1) {
+							found = true;
+						}
+					}
+				}
 			}
 		}
 
 		searchFound = found;
+		
 		return found;
 	}
 
@@ -1681,11 +1702,11 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
 			matchingStartTraceEvent = true;
 		}
 
-//		Boolean endEvent = isEndEvent();
-//
-//		if (matchingStartTraceEvent && (endEvent != null) && (endEvent == false)) {
-//			matchingStartTraceEvent = checkStart();
-//		}
+		// Boolean endEvent = isEndEvent();
+		//
+		// if (matchingStartTraceEvent && (endEvent != null) && (endEvent == false)) {
+		// matchingStartTraceEvent = checkStart();
+		// }
 
 		return matchingStartTraceEvent;
 	}

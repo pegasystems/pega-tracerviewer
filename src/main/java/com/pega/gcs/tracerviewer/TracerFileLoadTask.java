@@ -7,14 +7,18 @@
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.dom4j.io.SAXReader;
@@ -27,7 +31,6 @@ import com.pega.gcs.fringecommon.guiutilities.Message;
 import com.pega.gcs.fringecommon.guiutilities.Message.MessageType;
 import com.pega.gcs.fringecommon.guiutilities.ModalProgressMonitor;
 import com.pega.gcs.fringecommon.guiutilities.ReadCounterTaskInfo;
-import com.pega.gcs.fringecommon.guiutilities.RecentFile;
 import com.pega.gcs.fringecommon.log4j2.Log4j2Helper;
 import com.pega.gcs.fringecommon.utilities.KnuthMorrisPrattAlgorithm;
 import com.pega.gcs.tracerviewer.model.TraceEvent;
@@ -42,6 +45,10 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
 	private static final String TRACEEVENT_END = "</TraceEvent>";
 
+	private boolean wait;
+
+	private Component parent;
+
 	private ModalProgressMonitor mProgressMonitor;
 
 	private TraceTableModel traceTableModel;
@@ -50,17 +57,16 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
 	private int errorCount;
 
-	public TracerFileLoadTask(ModalProgressMonitor mProgressMonitor, TraceTableModel traceTableModel) {
+	public TracerFileLoadTask(ModalProgressMonitor mProgressMonitor, TraceTableModel traceTableModel, boolean wait,
+			Component parent) {
 
 		this.mProgressMonitor = mProgressMonitor;
 		this.traceTableModel = traceTableModel;
+		this.wait = wait;
+		this.parent = parent;
 
 		processedCount = 0;
 		errorCount = 0;
-		// sha256 = null;
-
-		// traceEventTypeKeyListMap = new HashMap<TraceEventType,
-		// List<TraceEventKey>>();
 
 	}
 
@@ -85,10 +91,9 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 		int traceEventIndex = 0;
 		String charset = traceTableModel.getCharset();
 
-		RecentFile recentFile = traceTableModel.getRecentFile();
-		String tracerFilePath = (String) recentFile.getAttribute(RecentFile.KEY_FILE);
+		String filePath = traceTableModel.getFilePath();
 
-		File tracerFile = new File(tracerFilePath);
+		File tracerFile = new File(filePath);
 
 		LOG.info("TracerFileLoadTask - Using Charset: " + charset);
 		LOG.info("TracerFileLoadTask - Loading file: " + tracerFile);
@@ -342,4 +347,82 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
 	}
 
+	@Override
+	protected void done() {
+		if (!wait) {
+			completeLoad();
+		}
+	}
+
+	public void completeTask() {
+
+		if (wait) {
+			completeLoad();
+		}
+	}
+
+	private void completeLoad() {
+
+		String filePath = traceTableModel.getFilePath();
+
+		try {
+
+			get();
+
+			System.gc();
+
+			int processedCount = getProcessedCount();
+
+			traceTableModel.fireTableDataChanged();
+
+			LOG.info("TracerFileLoadTask - Done: " + filePath + " processedCount:" + processedCount);
+
+		} catch (CancellationException ce) {
+
+			LOG.error("TracerFileLoadTask - Cancelled " + filePath);
+
+			MessageType messageType = MessageType.ERROR;
+			Message modelmessage = new Message(messageType, filePath + " - file loading cancelled.");
+			traceTableModel.setMessage(modelmessage);
+
+		} catch (ExecutionException ee) {
+
+			LOG.error("Execution Error during TracerFileLoadTask", ee);
+
+			String message = null;
+
+			if (ee.getCause() instanceof OutOfMemoryError) {
+
+				message = "Out Of Memory Error has occured while loading " + filePath
+						+ ".\nPlease increase the JVM's max heap size (-Xmx) and try again.";
+
+				JOptionPane.showMessageDialog(parent, message, "Out Of Memory Error", JOptionPane.ERROR_MESSAGE);
+			} else {
+				message = ee.getCause().getMessage() + " has occured while loading " + filePath + ".";
+
+				JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
+			}
+
+			MessageType messageType = MessageType.ERROR;
+			Message modelmessage = new Message(messageType, message);
+			traceTableModel.setMessage(modelmessage);
+
+		} catch (Exception e) {
+			LOG.error("Error loading file: " + filePath, e);
+			MessageType messageType = MessageType.ERROR;
+
+			StringBuffer messageB = new StringBuffer();
+			messageB.append("Error loading file: ");
+			messageB.append(filePath);
+
+			Message message = new Message(messageType, messageB.toString());
+			traceTableModel.setMessage(message);
+
+		} finally {
+
+			mProgressMonitor.close();
+
+			System.gc();
+		}
+	}
 }

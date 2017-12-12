@@ -26,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
 
 import com.pega.gcs.fringecommon.guiutilities.BaseFrame;
 import com.pega.gcs.fringecommon.guiutilities.RecentFile;
@@ -107,6 +108,7 @@ public class TracerViewer extends BaseFrame {
 	 * 
 	 * @see com.pega.fringe.common.gui.BaseFrame#initialize()
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void initialize() throws Exception {
 
@@ -117,8 +119,7 @@ public class TracerViewer extends BaseFrame {
 
 		if (byteArray != null) {
 			try {
-				tracerViewerSetting = (TracerViewerSetting) KryoSerializer.decompress(byteArray,
-						TracerViewerSetting.class);
+				tracerViewerSetting = KryoSerializer.decompress(byteArray, TracerViewerSetting.class);
 			} catch (Exception e) {
 				LOG.error("Error in decompressing tracerviewersetting", e);
 			}
@@ -135,7 +136,7 @@ public class TracerViewer extends BaseFrame {
 
 		if (byteArray != null) {
 			try {
-				openFileList = (ArrayList<String>) KryoSerializer.decompress(byteArray, ArrayList.class);
+				openFileList = KryoSerializer.decompress(byteArray, ArrayList.class);
 			} catch (Exception e) {
 				LOG.error("Error decompressing open file list.", e);
 			}
@@ -292,8 +293,11 @@ public class TracerViewer extends BaseFrame {
 
 				File selectedFile = getSelectedFile();
 
+				FileFilter fileFilter = TracerViewer.getDefaultFileFilter(FILE_CHOOSER_FILTER_DESC,
+						Arrays.asList(FILE_CHOOSER_FILTER_EXT));
+
 				File aFile = openFileChooser(TracerViewer.this, TracerViewer.class, FILE_CHOOSER_DIALOG_TITLE,
-						Arrays.asList(FILE_CHOOSER_FILTER_EXT), FILE_CHOOSER_FILTER_DESC, selectedFile);
+						fileFilter, selectedFile);
 
 				if (aFile != null) {
 					loadFile(aFile);

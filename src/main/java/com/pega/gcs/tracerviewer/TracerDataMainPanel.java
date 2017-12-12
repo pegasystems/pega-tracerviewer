@@ -8,6 +8,7 @@ package com.pega.gcs.tracerviewer;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -20,18 +21,14 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.event.TableModelEvent;
@@ -66,8 +63,6 @@ public class TracerDataMainPanel extends JPanel {
 
 	private RecentFileContainer recentFileContainer;
 
-	private TracerViewerSetting tracerViewerSetting;
-
 	private TraceTableModel traceTableModel;
 
 	private RecentFile recentFile;
@@ -77,6 +72,8 @@ public class TracerDataMainPanel extends JPanel {
 	private JComboBox<TracerDataViewMode> tracerDataViewModeJComboBox;
 
 	private JLabel incompleteTracerJLabel;
+
+	private TracerViewerSetting tracerViewerSetting;
 
 	private JLabel charsetJLabel;
 
@@ -522,108 +519,33 @@ public class TracerDataMainPanel extends JPanel {
 		sizeJLabel.setText(sizeStr);
 	}
 
-	public static void loadFile(TraceTableModel traceTableModel, final JComponent parent, final boolean waitMode) {
+	public static void loadFile(TraceTableModel traceTableModel, Component parent, final boolean wait) {
+
+		UIManager.put("ModalProgressMonitor.progressText", "Loading Tracer XML file");
+
+		final ModalProgressMonitor progressMonitor = new ModalProgressMonitor(parent, "", "Loaded 0 trace events (0%)",
+				0, 100);
+
+		progressMonitor.setMillisToDecideToPopup(0);
+		progressMonitor.setMillisToPopup(0);
+
+		loadFile(traceTableModel, progressMonitor, wait, parent);
+	}
+
+	public static void loadFile(TraceTableModel traceTableModel, ModalProgressMonitor progressMonitor, boolean wait,
+			Component parent) {
 
 		RecentFile recentFile = traceTableModel.getRecentFile();
 
 		if (recentFile != null) {
 
-			final String tracerFilePath = (String) recentFile.getAttribute(RecentFile.KEY_FILE);
-
-			UIManager.put("ModalProgressMonitor.progressText", "Loading Tracer XML file");
-
-			final ModalProgressMonitor mProgressMonitor = new ModalProgressMonitor(parent, "",
-					"Loaded 0 trace events (0%)", 0, 100);
-			mProgressMonitor.setMillisToDecideToPopup(0);
-			mProgressMonitor.setMillisToPopup(0);
-
-			TracerFileLoadTask tflt = new TracerFileLoadTask(mProgressMonitor, traceTableModel) {
-
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see javax.swing.SwingWorker#done()
-				 */
-				@Override
-				protected void done() {
-
-					if (!waitMode) {
-						completeLoad(this, mProgressMonitor, tracerFilePath, parent, traceTableModel);
-					}
-				}
-			};
+			TracerFileLoadTask tflt = new TracerFileLoadTask(progressMonitor, traceTableModel, wait, parent);
 
 			tflt.execute();
+			tflt.completeTask();
 
-			if (waitMode) {
-				completeLoad(tflt, mProgressMonitor, tracerFilePath, parent, traceTableModel);
-			}
 		} else {
 			traceTableModel.setMessage(new Message(MessageType.ERROR, "No file selected for model"));
-		}
-	}
-
-	protected static void completeLoad(TracerFileLoadTask tflt, ModalProgressMonitor mProgressMonitor,
-			String tracerFilePath, JComponent parent, TraceTableModel traceTableModel) {
-
-		try {
-
-			tflt.get();
-
-			System.gc();
-
-			int processedCount = tflt.getProcessedCount();
-
-			traceTableModel.fireTableDataChanged();
-
-			LOG.info("TracerFileLoadTask - Done: " + tracerFilePath + " processedCount:" + processedCount);
-
-		} catch (CancellationException ce) {
-
-			LOG.error("TracerFileLoadTask - Cancelled " + tracerFilePath);
-
-			MessageType messageType = MessageType.ERROR;
-			Message modelmessage = new Message(messageType, tracerFilePath + " - file loading cancelled.");
-			traceTableModel.setMessage(modelmessage);
-
-		} catch (ExecutionException ee) {
-
-			LOG.error("Execution Error during TracerFileLoadTask", ee);
-
-			String message = null;
-
-			if (ee.getCause() instanceof OutOfMemoryError) {
-
-				message = "Out Of Memory Error has occured while loading " + tracerFilePath
-						+ ".\nPlease increase the JVM's max heap size (-Xmx) and try again.";
-
-				JOptionPane.showMessageDialog(parent, message, "Out Of Memory Error", JOptionPane.ERROR_MESSAGE);
-			} else {
-				message = ee.getCause().getMessage() + " has occured while loading " + tracerFilePath + ".";
-
-				JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
-			}
-
-			MessageType messageType = MessageType.ERROR;
-			Message modelmessage = new Message(messageType, message);
-			traceTableModel.setMessage(modelmessage);
-
-		} catch (Exception e) {
-			LOG.error("Error loading file: " + tracerFilePath, e);
-			MessageType messageType = MessageType.ERROR;
-
-			StringBuffer messageB = new StringBuffer();
-			messageB.append("Error loading file: ");
-			messageB.append(tracerFilePath);
-
-			Message message = new Message(messageType, messageB.toString());
-			traceTableModel.setMessage(message);
-
-		} finally {
-
-			mProgressMonitor.close();
-
-			System.gc();
 		}
 	}
 

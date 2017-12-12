@@ -7,8 +7,10 @@
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -17,6 +19,8 @@ import javax.swing.SwingWorker;
 
 import com.pega.gcs.fringecommon.guiutilities.ModalProgressMonitor;
 import com.pega.gcs.fringecommon.guiutilities.MyColor;
+import com.pega.gcs.fringecommon.guiutilities.RecentFile;
+import com.pega.gcs.fringecommon.guiutilities.search.SearchData;
 import com.pega.gcs.fringecommon.log4j2.Log4j2Helper;
 import com.pega.gcs.fringecommon.utilities.diff.EditCommand;
 import com.pega.gcs.fringecommon.utilities.diff.Matcher;
@@ -25,27 +29,48 @@ import com.pega.gcs.tracerviewer.model.TraceEvent;
 import com.pega.gcs.tracerviewer.model.TraceEventEmpty;
 import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
-public class TraceTableCompareTask extends SwingWorker<Void, Void> {
+public class TraceTableCompareTask extends SwingWorker<Void, String> {
 
 	private static final Log4j2Helper LOG = new Log4j2Helper(TraceTableCompareTask.class);
 
-	private ModalProgressMonitor mProgressMonitor;
+	private static final String PROGRESS_MONITOR_STATUS_CHANGE = "indeterminate";
 
 	private TraceTableModel traceTableModel;
 
-	private TraceTableCompareModel traceTableCompareModelLeft;
+	private TraceTable tracerDataTableLeft;
 
-	private TraceTableCompareModel traceTableCompareModelRight;
+	private TraceTable tracerDataTableRight;
 
-	public TraceTableCompareTask(ModalProgressMonitor mProgressMonitor, TraceTableModel traceTableModel,
-			TraceTableCompareModel traceTableCompareModelLeft, TraceTableCompareModel traceTableCompareModelRight) {
+	private ModalProgressMonitor progressMonitor;
+
+	private Component parent;
+
+	public TraceTableCompareTask(TraceTableModel traceTableModel, TraceTable tracerDataTableLeft,
+			TraceTable tracerDataTableRight, ModalProgressMonitor progressMonitor, Component parent) {
 
 		super();
 
-		this.mProgressMonitor = mProgressMonitor;
 		this.traceTableModel = traceTableModel;
-		this.traceTableCompareModelLeft = traceTableCompareModelLeft;
-		this.traceTableCompareModelRight = traceTableCompareModelRight;
+		this.tracerDataTableLeft = tracerDataTableLeft;
+		this.tracerDataTableRight = tracerDataTableRight;
+		this.progressMonitor = progressMonitor;
+		this.parent = parent;
+	}
+
+	private ModalProgressMonitor getProgressMonitor() {
+		return progressMonitor;
+	}
+
+	private TraceTableModel getTraceTableModel() {
+		return traceTableModel;
+	}
+
+	private TraceTable getTracerDataTableLeft() {
+		return tracerDataTableLeft;
+	}
+
+	private TraceTable getTracerDataTableRight() {
+		return tracerDataTableRight;
 	}
 
 	/*
@@ -57,6 +82,27 @@ public class TraceTableCompareTask extends SwingWorker<Void, Void> {
 	protected Void doInBackground() throws Exception {
 
 		LOG.info("Tracetable compare task - Started");
+
+		TraceTableModel traceTableModel = getTraceTableModel();
+		TraceTable tracerDataTableLeft = getTracerDataTableLeft();
+		TraceTable tracerDataTableRight = getTracerDataTableRight();
+
+		ModalProgressMonitor progressMonitor = getProgressMonitor();
+
+		// right side model is built freshly for every load of the file
+		TraceTableCompareModel traceTableCompareModelRight;
+		traceTableCompareModelRight = (TraceTableCompareModel) tracerDataTableRight.getModel();
+
+		TracerDataMainPanel.loadFile(traceTableCompareModelRight, progressMonitor, true, parent);
+
+		// trigger changing progress monitor to indeterminate
+		publish(PROGRESS_MONITOR_STATUS_CHANGE);
+
+		// built the left side compare model afresh for every compare
+		RecentFile recentFile = traceTableModel.getRecentFile();
+		SearchData<TraceEventKey> searchData = traceTableModel.getSearchData();
+		TraceTableCompareModel traceTableCompareModelLeft;
+		traceTableCompareModelLeft = new TraceTableCompareModel(recentFile, searchData);
 
 		TreeMap<TraceEventKey, List<TraceEventKey>> compareNavIndexMap;
 		compareNavIndexMap = new TreeMap<TraceEventKey, List<TraceEventKey>>();
@@ -90,7 +136,7 @@ public class TraceTableCompareTask extends SwingWorker<Void, Void> {
 
 			long before = System.currentTimeMillis();
 
-			List<EditCommand> editScript = MyersDifferenceAlgorithm.diffGreedyLCS(mProgressMonitor, thisTraceEventList,
+			List<EditCommand> editScript = MyersDifferenceAlgorithm.diffGreedyLCS(progressMonitor, thisTraceEventList,
 					otherTraceEventList, matcher);
 
 			long diff = System.currentTimeMillis() - before;
@@ -100,7 +146,7 @@ public class TraceTableCompareTask extends SwingWorker<Void, Void> {
 
 			LOG.info("MyersDifferenceAlgorithm diffGreedyLCS took " + time + "s.");
 
-			if (!mProgressMonitor.isCanceled()) {
+			if (!progressMonitor.isCanceled()) {
 
 				traceTableCompareModelLeft.resetModel();
 				traceTableCompareModelRight.resetModel();
@@ -220,12 +266,18 @@ public class TraceTableCompareTask extends SwingWorker<Void, Void> {
 
 			}
 
-			if (!mProgressMonitor.isCanceled()) {
+			if (!progressMonitor.isCanceled()) {
 
 				traceTableCompareModelLeft.setCompareMarkerList(thisMarkerTraceEventKeyList);
 				traceTableCompareModelRight.setCompareMarkerList(otherMarkerTraceEventKeyList);
 
 				traceTableCompareModelLeft.setCompareNavIndexMap(compareNavIndexMap);
+
+				LOG.info("TraceTableCompareTask done " + compareNavIndexMap.size() + " chunks found");
+
+				// set the left table model as compare model
+				tracerDataTableLeft.setModel(traceTableCompareModelLeft);
+
 			}
 			// }
 
@@ -241,6 +293,29 @@ public class TraceTableCompareTask extends SwingWorker<Void, Void> {
 		return null;
 	}
 
+	@Override
+	protected void process(List<String> chunks) {
+
+		if ((isDone()) || (isCancelled()) || (chunks == null) || (chunks.size() == 0)) {
+			return;
+		}
+
+		Collections.sort(chunks);
+
+		String changeStatus = chunks.get(chunks.size() - 1);
+
+		ModalProgressMonitor progressMonitor = getProgressMonitor();
+
+		if ((changeStatus.equals(PROGRESS_MONITOR_STATUS_CHANGE))
+				&& ((progressMonitor != null) && (!progressMonitor.isIndeterminate()))) {
+
+			progressMonitor.setIndeterminate(true);
+			progressMonitor.setNote("Comparing ...");
+			progressMonitor.show();
+
+		}
+	}
+	
 	private void getKeyAndTraceEventList(Map<TraceEventKey, TraceEvent> traceEventMap,
 			List<TraceEventKey> traceEventKeyList, List<TraceEvent> traceEventList) {
 
