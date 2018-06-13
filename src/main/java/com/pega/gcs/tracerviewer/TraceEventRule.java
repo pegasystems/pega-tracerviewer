@@ -15,115 +15,115 @@ import com.pega.gcs.tracerviewer.model.TraceEventType;
 
 public class TraceEventRule implements Comparable<TraceEventRule> {
 
-	private String insKey;
+    private String insKey;
 
-	private TraceEventType traceEventType;
+    private TraceEventType traceEventType;
 
-	private Color background;
+    private Color background;
 
-	private int executionCount;
+    private int executionCount;
 
-	private double maxOwnElapsed;
+    private double maxOwnElapsed;
 
-	private double minOwnElapsed;
+    private double minOwnElapsed;
 
-	private double totalOwnElapsed;
+    private double totalOwnElapsed;
 
-	public TraceEventRule(String insKey, TraceEventType traceEventType, Color background) {
-		super();
-		this.insKey = insKey;
-		this.traceEventType = traceEventType;
-		this.background = background;
+    public TraceEventRule(String insKey, TraceEventType traceEventType, Color background) {
+        super();
+        this.insKey = insKey;
+        this.traceEventType = traceEventType;
+        this.background = background;
 
-		executionCount = 0;
-		maxOwnElapsed = 0;
-		minOwnElapsed = 0;
-		totalOwnElapsed = 0;
-	}
+        executionCount = 0;
+        maxOwnElapsed = 0;
+        minOwnElapsed = 0;
+        totalOwnElapsed = 0;
+    }
 
-	/**
-	 * @return the inskey
-	 */
-	public String getInsKey() {
-		return insKey;
-	}
+    /**
+     * @return the inskey
+     */
+    public String getInsKey() {
+        return insKey;
+    }
 
-	public TraceEventType getTraceEventType() {
-		return traceEventType;
-	}
+    public TraceEventType getTraceEventType() {
+        return traceEventType;
+    }
 
-	public Color getBackground() {
-		return background;
-	}
+    public Color getBackground() {
+        return background;
+    }
 
-	public int getExecutionCount() {
-		return executionCount;
-	}
+    public int getExecutionCount() {
+        return executionCount;
+    }
 
-	public double getMaxOwnElapsed() {
-		return maxOwnElapsed;
-	}
+    public double getMaxOwnElapsed() {
+        return maxOwnElapsed;
+    }
 
-	public double getMinOwnElapsed() {
-		return minOwnElapsed;
-	}
+    public double getMinOwnElapsed() {
+        return minOwnElapsed;
+    }
 
-	public double getTotalOwnElapsed() {
-		return totalOwnElapsed;
-	}
+    public double getTotalOwnElapsed() {
+        return totalOwnElapsed;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((insKey == null) ? 0 : insKey.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((insKey == null) ? 0 : insKey.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TraceEventRule other = (TraceEventRule) obj;
-		if (insKey == null) {
-			if (other.insKey != null)
-				return false;
-		} else if (!insKey.equals(other.insKey))
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        TraceEventRule other = (TraceEventRule) obj;
+        if (insKey == null) {
+            if (other.insKey != null)
+                return false;
+        } else if (!insKey.equals(other.insKey))
+            return false;
+        return true;
+    }
 
-	@Override
-	public String toString() {
-		return insKey;
-	}
+    @Override
+    public String toString() {
+        return insKey;
+    }
 
-	@Override
-	public int compareTo(TraceEventRule o) {
-		return getInsKey().compareTo(o.getInsKey());
-	}
+    @Override
+    public int compareTo(TraceEventRule o) {
+        return getInsKey().compareTo(o.getInsKey());
+    }
 
-	public void incrementExecutionCount() {
-		executionCount++;
-	}
+    public void incrementExecutionCount() {
+        executionCount++;
+    }
 
-	public void processElapsed(double ownElapsed) {
+    public void processElapsed(double ownElapsed) {
 
-		if (ownElapsed > 0) {
+        if (ownElapsed > 0) {
 
-			totalOwnElapsed += ownElapsed;
+            totalOwnElapsed += ownElapsed;
 
-			maxOwnElapsed = Math.max(maxOwnElapsed, ownElapsed);
+            maxOwnElapsed = Math.max(maxOwnElapsed, ownElapsed);
 
-			if (minOwnElapsed == 0) {
-				minOwnElapsed = ownElapsed;
-			} else {
-				minOwnElapsed = Math.min(minOwnElapsed, ownElapsed);
-			}
-		}
-	}
+            if (minOwnElapsed == 0) {
+                minOwnElapsed = ownElapsed;
+            } else {
+                minOwnElapsed = Math.min(minOwnElapsed, ownElapsed);
+            }
+        }
+    }
 }

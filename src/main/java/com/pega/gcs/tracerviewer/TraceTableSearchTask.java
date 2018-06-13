@@ -22,252 +22,252 @@ import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public class TraceTableSearchTask extends SwingWorker<List<TraceEventKey>, ProgressTaskInfo> {
 
-	private static final Log4j2Helper LOG = new Log4j2Helper(TraceTableSearchTask.class);
+    private static final Log4j2Helper LOG = new Log4j2Helper(TraceTableSearchTask.class);
 
-	private TraceTableModel traceTableModel;
+    private TraceTableModel traceTableModel;
 
-	private ModalProgressMonitor mProgressMonitor;
+    private ModalProgressMonitor mProgressMonitor;
 
-	private Object searchStrObj;
+    private Object searchStrObj;
 
-	public TraceTableSearchTask(ModalProgressMonitor mProgressMonitor, TraceTableModel traceTableModel,
-			Object searchStrObj) {
-		super();
-		this.mProgressMonitor = mProgressMonitor;
-		this.traceTableModel = traceTableModel;
-		this.searchStrObj = searchStrObj;
-	}
+    public TraceTableSearchTask(ModalProgressMonitor mProgressMonitor, TraceTableModel traceTableModel,
+            Object searchStrObj) {
+        super();
+        this.mProgressMonitor = mProgressMonitor;
+        this.traceTableModel = traceTableModel;
+        this.searchStrObj = searchStrObj;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.SwingWorker#doInBackground()
-	 */
-	@Override
-	protected List<TraceEventKey> doInBackground() throws Exception {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.swing.SwingWorker#doInBackground()
+     */
+    @Override
+    protected List<TraceEventKey> doInBackground() throws Exception {
 
-		List<TraceEventKey> searchResultList = null;
+        List<TraceEventKey> searchResultList = null;
 
-		if (traceTableModel != null) {
+        if (traceTableModel != null) {
 
-			searchResultList = traceTableModel.getSearchModel().getSearchResultList(searchStrObj);
+            searchResultList = traceTableModel.getSearchModel().getSearchResultList(searchStrObj);
 
-			if (searchResultList == null) {
-				searchResultList = search();
-			} else {
-				update();
-			}
+            if (searchResultList == null) {
+                searchResultList = search();
+            } else {
+                update();
+            }
 
-			TraceEventTreeNode rootTraceEventTreeNode = traceTableModel.getRootTraceEventTreeNode();
-			TraceEventCombinedTreeNode rootMergedTraceEventTreeNode = traceTableModel
-					.getRootTraceEventCombinedTreeNode();
+            TraceEventTreeNode rootTraceEventTreeNode = traceTableModel.getRootTraceEventTreeNode();
+            TraceEventCombinedTreeNode rootMergedTraceEventTreeNode = traceTableModel
+                    .getRootTraceEventCombinedTreeNode();
 
-			updateTraceEventTreeNode(rootTraceEventTreeNode, searchResultList);
-			updateMergedTraceEventTreeNode(rootMergedTraceEventTreeNode, searchResultList);
-		}
+            updateTraceEventTreeNode(rootTraceEventTreeNode, searchResultList);
+            updateMergedTraceEventTreeNode(rootMergedTraceEventTreeNode, searchResultList);
+        }
 
-		// Collections.reverse(searchResultList);
-		return searchResultList;
-	}
+        // Collections.reverse(searchResultList);
+        return searchResultList;
+    }
 
-	private List<TraceEventKey> search() {
+    private List<TraceEventKey> search() {
 
-		List<TraceEventKey> searchResultList = new ArrayList<TraceEventKey>();
+        List<TraceEventKey> searchResultList = new ArrayList<TraceEventKey>();
 
-		long before = System.currentTimeMillis();
+        long before = System.currentTimeMillis();
 
-		try {
+        try {
 
-			int traceEventCount = 0;
+            int traceEventCount = 0;
 
-			List<TraceEventKey> filteredList = traceTableModel.getFtmEntryKeyList();
+            List<TraceEventKey> filteredList = traceTableModel.getFtmEntryKeyList();
 
-			int totalSize = filteredList.size();
+            int totalSize = filteredList.size();
 
-			Iterator<TraceEventKey> fListIterator = filteredList.iterator();
+            Iterator<TraceEventKey> fListIterator = filteredList.iterator();
 
-			while ((!isCancelled()) && (fListIterator.hasNext())) {
+            while ((!isCancelled()) && (fListIterator.hasNext())) {
 
-				if (mProgressMonitor.isCanceled()) {
-					cancel(true);
-				}
+                if (mProgressMonitor.isCanceled()) {
+                    cancel(true);
+                }
 
-				TraceEventKey key = fListIterator.next();
+                TraceEventKey key = fListIterator.next();
 
-				boolean found = traceTableModel.search(key, searchStrObj);
+                boolean found = traceTableModel.search(key, searchStrObj);
 
-				if (found) {
-					searchResultList.add(key);
-				}
+                if (found) {
+                    searchResultList.add(key);
+                }
 
-				traceEventCount++;
+                traceEventCount++;
 
-				ProgressTaskInfo progressTaskInfo = new ProgressTaskInfo(totalSize, traceEventCount);
-				publish(progressTaskInfo);
+                ProgressTaskInfo progressTaskInfo = new ProgressTaskInfo(totalSize, traceEventCount);
+                publish(progressTaskInfo);
 
-			}
+            }
 
-		} finally {
-			long diff = System.currentTimeMillis() - before;
+        } finally {
+            long diff = System.currentTimeMillis() - before;
 
-			int secs = (int) Math.ceil((double) diff / 1E3);
+            int secs = (int) Math.ceil((double) diff / 1E3);
 
-			LOG.info("Search '" + searchStrObj + "' completed in " + secs + " secs. " + searchResultList.size()
-					+ " results found.");
-		}
+            LOG.info("Search '" + searchStrObj + "' completed in " + secs + " secs. " + searchResultList.size()
+                    + " results found.");
+        }
 
-		return searchResultList;
-	}
+        return searchResultList;
+    }
 
-	private void update() {
+    private void update() {
 
-		long before = System.currentTimeMillis();
+        long before = System.currentTimeMillis();
 
-		List<TraceEventKey> searchResultList = traceTableModel.getSearchModel().getSearchResultList(searchStrObj);
+        List<TraceEventKey> searchResultList = traceTableModel.getSearchModel().getSearchResultList(searchStrObj);
 
-		try {
+        try {
 
-			int traceEventCount = 0;
+            int traceEventCount = 0;
 
-			List<TraceEventKey> filteredList = traceTableModel.getFtmEntryKeyList();
+            List<TraceEventKey> filteredList = traceTableModel.getFtmEntryKeyList();
 
-			int totalSize = filteredList.size();
+            int totalSize = filteredList.size();
 
-			Iterator<TraceEventKey> fListIterator = filteredList.iterator();
+            Iterator<TraceEventKey> fListIterator = filteredList.iterator();
 
-			while ((!isCancelled()) && (fListIterator.hasNext())) {
+            while ((!isCancelled()) && (fListIterator.hasNext())) {
 
-				if (mProgressMonitor.isCanceled()) {
-					cancel(true);
-				}
+                if (mProgressMonitor.isCanceled()) {
+                    cancel(true);
+                }
 
-				TraceEventKey key = fListIterator.next();
+                TraceEventKey key = fListIterator.next();
 
-				int index = Collections.binarySearch(searchResultList, key);
+                int index = Collections.binarySearch(searchResultList, key);
 
-				boolean searchFound = false;
+                boolean searchFound = false;
 
-				if (index >= 0) {
-					searchFound = true;
-				}
+                if (index >= 0) {
+                    searchFound = true;
+                }
 
-				TraceEvent traceEvent = traceTableModel.getEventForKey(key);
-				traceEvent.setSearchFound(searchFound);
+                TraceEvent traceEvent = traceTableModel.getEventForKey(key);
+                traceEvent.setSearchFound(searchFound);
 
-				traceEventCount++;
+                traceEventCount++;
 
-				ProgressTaskInfo progressTaskInfo = new ProgressTaskInfo(totalSize, traceEventCount);
-				publish(progressTaskInfo);
+                ProgressTaskInfo progressTaskInfo = new ProgressTaskInfo(totalSize, traceEventCount);
+                publish(progressTaskInfo);
 
-			}
+            }
 
-		} finally {
-			long diff = System.currentTimeMillis() - before;
+        } finally {
+            long diff = System.currentTimeMillis() - before;
 
-			int secs = (int) Math.ceil((double) diff / 1E3);
+            int secs = (int) Math.ceil((double) diff / 1E3);
 
-			LOG.info("Search updated '" + searchStrObj + "' completed in " + secs + " secs. " + searchResultList.size()
-					+ " results found.");
-		}
-	}
+            LOG.info("Search updated '" + searchStrObj + "' completed in " + secs + " secs. " + searchResultList.size()
+                    + " results found.");
+        }
+    }
 
-	private boolean updateTraceEventTreeNode(AbstractTraceEventTreeNode treeNode,
-			List<TraceEventKey> searchResultList) {
+    private boolean updateTraceEventTreeNode(AbstractTraceEventTreeNode treeNode,
+            List<TraceEventKey> searchResultList) {
 
-		boolean searchFound = false;
+        boolean searchFound = false;
 
-		if (!isCancelled()) {
+        if (!isCancelled()) {
 
-			Object userObject = treeNode.getUserObject();
+            Object userObject = treeNode.getUserObject();
 
-			if ((userObject != null) && (userObject instanceof TraceEvent)) {
+            if ((userObject != null) && (userObject instanceof TraceEvent)) {
 
-				TraceEvent traceEvent = (TraceEvent) userObject;
+                TraceEvent traceEvent = (TraceEvent) userObject;
 
-				searchFound = traceEvent.isSearchFound();
+                searchFound = traceEvent.isSearchFound();
 
-			}
+            }
 
-			for (Enumeration<?> e = treeNode.children(); e.hasMoreElements();) {
+            for (Enumeration<?> e = treeNode.children(); e.hasMoreElements();) {
 
-				AbstractTraceEventTreeNode childNode = (AbstractTraceEventTreeNode) e.nextElement();
+                AbstractTraceEventTreeNode childNode = (AbstractTraceEventTreeNode) e.nextElement();
 
-				boolean childSearchFound = false;
+                boolean childSearchFound = false;
 
-				childSearchFound = updateTraceEventTreeNode(childNode, searchResultList);
+                childSearchFound = updateTraceEventTreeNode(childNode, searchResultList);
 
-				if ((!searchFound) && childSearchFound) {
-					searchFound = true;
-				}
-			}
+                if ((!searchFound) && childSearchFound) {
+                    searchFound = true;
+                }
+            }
 
-			treeNode.setSearchFound(searchFound);
-		}
+            treeNode.setSearchFound(searchFound);
+        }
 
-		return searchFound;
-	}
+        return searchFound;
+    }
 
-	private boolean updateMergedTraceEventTreeNode(TraceEventCombinedTreeNode treeNode,
-			List<TraceEventKey> searchResultList) {
+    private boolean updateMergedTraceEventTreeNode(TraceEventCombinedTreeNode treeNode,
+            List<TraceEventKey> searchResultList) {
 
-		boolean searchFound = false;
+        boolean searchFound = false;
 
-		if (!isCancelled()) {
+        if (!isCancelled()) {
 
-			TraceEvent startEvent = treeNode.getStartEvent();
-			TraceEvent endEvent = treeNode.getEndEvent();
+            TraceEvent startEvent = treeNode.getStartEvent();
+            TraceEvent endEvent = treeNode.getEndEvent();
 
-			if (startEvent != null) {
-				searchFound = startEvent.isSearchFound();
-			}
+            if (startEvent != null) {
+                searchFound = startEvent.isSearchFound();
+            }
 
-			if (endEvent != null) {
-				searchFound = searchFound || endEvent.isSearchFound();
-			}
+            if (endEvent != null) {
+                searchFound = searchFound || endEvent.isSearchFound();
+            }
 
-			for (Enumeration<?> e = treeNode.children(); e.hasMoreElements();) {
+            for (Enumeration<?> e = treeNode.children(); e.hasMoreElements();) {
 
-				TraceEventCombinedTreeNode childNode = (TraceEventCombinedTreeNode) e.nextElement();
+                TraceEventCombinedTreeNode childNode = (TraceEventCombinedTreeNode) e.nextElement();
 
-				boolean childSearchFound = false;
+                boolean childSearchFound = false;
 
-				childSearchFound = updateMergedTraceEventTreeNode(childNode, searchResultList);
+                childSearchFound = updateMergedTraceEventTreeNode(childNode, searchResultList);
 
-				if ((!searchFound) && childSearchFound) {
-					searchFound = true;
-				}
-			}
+                if ((!searchFound) && childSearchFound) {
+                    searchFound = true;
+                }
+            }
 
-			treeNode.setSearchFound(searchFound);
-		}
+            treeNode.setSearchFound(searchFound);
+        }
 
-		return searchFound;
-	}
+        return searchFound;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.SwingWorker#process(java.util.List)
-	 */
-	@Override
-	protected void process(List<ProgressTaskInfo> chunks) {
-		if ((isDone()) || (isCancelled()) || (chunks == null) || (chunks.size() == 0)) {
-			return;
-		}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.swing.SwingWorker#process(java.util.List)
+     */
+    @Override
+    protected void process(List<ProgressTaskInfo> chunks) {
+        if ((isDone()) || (isCancelled()) || (chunks == null) || (chunks.size() == 0)) {
+            return;
+        }
 
-		Collections.sort(chunks);
+        Collections.sort(chunks);
 
-		ProgressTaskInfo progressTaskInfo = chunks.get(chunks.size() - 1);
+        ProgressTaskInfo progressTaskInfo = chunks.get(chunks.size() - 1);
 
-		long total = progressTaskInfo.getTotal();
-		long count = progressTaskInfo.getCount();
+        long total = progressTaskInfo.getTotal();
+        long count = progressTaskInfo.getCount();
 
-		int progress = (int) ((count * 100) / total);
+        int progress = (int) ((count * 100) / total);
 
-		mProgressMonitor.setProgress(progress);
+        mProgressMonitor.setProgress(progress);
 
-		String message = String.format("Searching %d trace events (%d%%)", count, progress);
+        String message = String.format("Searching %d trace events (%d%%)", count, progress);
 
-		mProgressMonitor.setNote(message);
-	}
+        mProgressMonitor.setNote(message);
+    }
 }

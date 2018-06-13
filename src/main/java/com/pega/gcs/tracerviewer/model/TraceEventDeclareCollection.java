@@ -10,11 +10,11 @@ import org.dom4j.Element;
 
 public class TraceEventDeclareCollection extends TraceEventNonActivity {
 
-	public TraceEventDeclareCollection(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventDeclareCollection(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.DECLARE_COLLECTION;
-	}
+        traceEventType = TraceEventType.DECLARE_COLLECTION;
+    }
 
 }

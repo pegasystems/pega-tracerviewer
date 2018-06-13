@@ -10,11 +10,11 @@ import org.dom4j.Element;
 
 public class TraceEventSOAPMessages extends TraceEventNonActivity {
 
-	public TraceEventSOAPMessages(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventSOAPMessages(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.SOAP_MESSAGES;
-	}
+        traceEventType = TraceEventType.SOAP_MESSAGES;
+    }
 
 }

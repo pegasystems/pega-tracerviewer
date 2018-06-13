@@ -10,10 +10,10 @@ import org.dom4j.Element;
 
 public class TraceEventPushNotifications extends TraceEventNonActivity {
 
-	public TraceEventPushNotifications(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventPushNotifications(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.PUSH_NOTIFICATIONS;
-	}
+        traceEventType = TraceEventType.PUSH_NOTIFICATIONS;
+    }
 }

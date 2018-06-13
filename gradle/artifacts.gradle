@@ -1,0 +1,40 @@
+jar {
+    manifest {
+        attributes 'Implementation-Title': "${project.name}",
+                   'Implementation-Version': "${->project.version}",
+                   'Built-By': System.getProperty('user.name'),
+                   'Built-Date': new Date(),
+                   'Built-JDK': System.getProperty('java.version'),
+                   'Built-Gradle': gradle.gradleVersion
+    }
+}
+
+task sourcesJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task docsJar(type: Jar, dependsOn: javadoc) {
+    classifier 'docs'
+    from javadoc.destinationDir
+}
+
+task testsJar(type: Jar) {
+    classifier = 'tests'
+    from sourceSets.test.output
+}
+
+shadowJar {
+    classifier = 'all'
+    mergeServiceFiles()
+    relocate 'org.aopalliance', "${group}.shaded.org.aopalliance"
+    relocate 'org.objectweb', "${group}.shaded.org.objectweb"
+    relocate 'com.google', "${group}.shaded.com.google"
+    relocate 'net.sf', "${group}.shaded.net.sf"
+    relocate 'javax.inject', "${group}.shaded.javax.inject"
+    relocate 'org.jclouds', "${group}.shaded.org.jclouds"
+    relocate 'javax.inject', "${group}.shaded.javax.inject"
+    relocate 'javax.annotation', "${group}.shaded.javax.annotation"
+    relocate 'javax.ws.rs', "${group}.shaded.javax.ws.rs"
+}
+

@@ -20,52 +20,52 @@ import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public class TracerDataCompareTableView extends TracerDataCompareView {
 
-	private static final long serialVersionUID = -6381481706035754170L;
+    private static final long serialVersionUID = -6381481706035754170L;
 
-	private TraceTable traceTableLeft;
+    private TraceTable traceTableLeft;
 
-	private TraceTable traceTableRight;
+    private TraceTable traceTableRight;
 
-	public TracerDataCompareTableView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
-			TraceNavigationTableController traceNavigationTableController, RecentFileContainer recentFileContainer,
-			TracerViewerSetting tracerViewerSetting) {
+    public TracerDataCompareTableView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
+            TraceNavigationTableController traceNavigationTableController, RecentFileContainer recentFileContainer,
+            TracerViewerSetting tracerViewerSetting) {
 
-		super(traceTableModel, supplementUtilityJPanel, traceNavigationTableController, recentFileContainer,
-				tracerViewerSetting);
-	}
+        super(traceTableModel, supplementUtilityJPanel, traceNavigationTableController, recentFileContainer,
+                tracerViewerSetting);
+    }
 
-	@Override
-	protected TraceTable getTracerDataTableLeft() {
+    @Override
+    protected TraceTable getTracerDataTableLeft() {
 
-		if (traceTableLeft == null) {
+        if (traceTableLeft == null) {
 
-			TraceTableModel traceTableModel = getTraceTableModel();
+            TraceTableModel traceTableModel = getTraceTableModel();
 
-			traceTableLeft = new TraceTable(traceTableModel, false);
-			traceTableLeft.setFillsViewportHeight(true);
+            traceTableLeft = new TraceTable(traceTableModel, false);
+            traceTableLeft.setFillsViewportHeight(true);
 
-			// mouse listener is setup in getCompareJSplitPane
-		}
+            // mouse listener is setup in getCompareJSplitPane
+        }
 
-		return traceTableLeft;
-	}
+        return traceTableLeft;
+    }
 
-	@Override
-	protected TraceTable getTracerDataTableRight() {
+    @Override
+    protected TraceTable getTracerDataTableRight() {
 
-		if (traceTableRight == null) {
+        if (traceTableRight == null) {
 
-			SearchData<TraceEventKey> searchData = new SearchData<>(SearchEventType.values());
+            SearchData<TraceEventKey> searchData = new SearchData<>(SearchEventType.values());
 
-			TraceTableCompareModel traceTableCompareModel = new TraceTableCompareModel(null, searchData);
+            TraceTableCompareModel traceTableCompareModel = new TraceTableCompareModel(null, searchData);
 
-			traceTableRight = new TraceTable(traceTableCompareModel);
-			traceTableRight.setFillsViewportHeight(true);
+            traceTableRight = new TraceTable(traceTableCompareModel);
+            traceTableRight.setFillsViewportHeight(true);
 
-			// mouse listener is setup in getCompareJSplitPane
-		}
+            // mouse listener is setup in getCompareJSplitPane
+        }
 
-		return traceTableRight;
-	}
+        return traceTableRight;
+    }
 
 }

@@ -13,41 +13,41 @@ import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public class TraceNavigationTableController extends NavigationTableController<TraceEventKey> {
 
-	public TraceNavigationTableController(TraceTableModel traceTableModel) {
-		super(traceTableModel);
+    public TraceNavigationTableController(TraceTableModel traceTableModel) {
+        super(traceTableModel);
 
-	}
+    }
 
-	@Override
-	public void scrollToKey(TraceEventKey key) {
+    @Override
+    public void scrollToKey(TraceEventKey key) {
 
-		TraceTableModel traceTableModel = (TraceTableModel) getFilterTableModel();
+        TraceTableModel traceTableModel = (TraceTableModel) getFilterTableModel();
 
-		int rowNumber = traceTableModel.getIndexOfKey(key);
+        int rowNumber = traceTableModel.getIndexOfKey(key);
 
-		for (CustomJTable customJTable : getCustomJTableList()) {
+        for (CustomJTable customJTable : getCustomJTableList()) {
 
-			if (customJTable instanceof TraceTreeCombinedTable) {
-				TraceEventCombinedTreeNode traceEventCombinedTreeNode = traceTableModel.getTraceEventCombinedTreeNodeForKey(key);
+            if (customJTable instanceof TraceTreeCombinedTable) {
+                TraceEventCombinedTreeNode traceEventCombinedTreeNode = traceTableModel.getTraceEventCombinedTreeNodeForKey(key);
 
-				if (traceEventCombinedTreeNode != null) {
-					((AbstractTreeTable) customJTable).scrollNodeToVisible(traceEventCombinedTreeNode);
-				}
-			} else if (customJTable instanceof TraceTreeTable) {
-				TraceEventTreeNode traceEventTreeNode = traceTableModel.getTreeNodeForKey(key);
+                if (traceEventCombinedTreeNode != null) {
+                    ((AbstractTreeTable) customJTable).scrollNodeToVisible(traceEventCombinedTreeNode);
+                }
+            } else if (customJTable instanceof TraceTreeTable) {
+                TraceEventTreeNode traceEventTreeNode = traceTableModel.getTreeNodeForKey(key);
 
-				if (traceEventTreeNode != null) {
-					((AbstractTreeTable) customJTable).scrollNodeToVisible(traceEventTreeNode);
-				}
+                if (traceEventTreeNode != null) {
+                    ((AbstractTreeTable) customJTable).scrollNodeToVisible(traceEventTreeNode);
+                }
 
-			} else {
+            } else {
 
-				if (rowNumber != -1) {
-					customJTable.setRowSelectionInterval(rowNumber, rowNumber);
-					customJTable.scrollRowToVisible(rowNumber);
-				}
-			}
-		}
-	}
+                if (rowNumber != -1) {
+                    customJTable.setRowSelectionInterval(rowNumber, rowNumber);
+                    customJTable.scrollRowToVisible(rowNumber);
+                }
+            }
+        }
+    }
 
 }

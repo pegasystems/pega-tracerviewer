@@ -10,11 +10,11 @@ import org.dom4j.Element;
 
 public class TraceEventDBQuery extends TraceEventDBTrace {
 
-	public TraceEventDBQuery(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventDBQuery(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.DB_QUERY;
-	}
+        traceEventType = TraceEventType.DB_QUERY;
+    }
 
 }

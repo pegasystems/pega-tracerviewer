@@ -27,137 +27,137 @@ import com.pega.gcs.tracerviewer.TraceTreeTableMouseListener;
 
 public class TracerDataTreeTableView extends TracerDataSingleView {
 
-	private static final long serialVersionUID = -2065567512444191531L;
+    private static final long serialVersionUID = -2065567512444191531L;
 
-	private static final String EXPAND_ALL_ACTION = "Expand all nodes";
+    private static final String EXPAND_ALL_ACTION = "Expand all nodes";
 
-	private static final String COLLAPSE_ALL_ACTION = "Collapse all nodes";
+    private static final String COLLAPSE_ALL_ACTION = "Collapse all nodes";
 
-	private TraceTreeTable traceTreeTable;
+    private TraceTreeTable traceTreeTable;
 
-	private JButton expandAllJButton;
+    private JButton expandAllJButton;
 
-	public TracerDataTreeTableView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
-			TraceNavigationTableController traceNavigationTableController) {
-		super(traceTableModel, supplementUtilityJPanel, traceNavigationTableController);
-	}
+    public TracerDataTreeTableView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
+            TraceNavigationTableController traceNavigationTableController) {
+        super(traceTableModel, supplementUtilityJPanel, traceNavigationTableController);
+    }
 
-	@Override
-	protected CustomJTable getTracerDataTable() {
+    @Override
+    protected CustomJTable getTracerDataTable() {
 
-		if (traceTreeTable == null) {
+        if (traceTreeTable == null) {
 
-			TraceTableModel traceTableModel = getTraceTableModel();
+            TraceTableModel traceTableModel = getTraceTableModel();
 
-			TraceEventTreeNode root = traceTableModel.getRootTraceEventTreeNode();
+            TraceEventTreeNode root = traceTableModel.getRootTraceEventTreeNode();
 
-			TraceTableModelColumn[] traceTreeTableModelColumnArray;
-			traceTreeTableModelColumnArray = TraceTableModelColumn.getTraceTreeTableModelColumnArray();
+            TraceTableModelColumn[] traceTreeTableModelColumnArray;
+            traceTreeTableModelColumnArray = TraceTableModelColumn.getTraceTreeTableModelColumnArray();
 
-			TreeTableColumn[] columns = getTreeTableColumnArray(traceTreeTableModelColumnArray);
+            TreeTableColumn[] columns = getTreeTableColumnArray(traceTreeTableModelColumnArray);
 
-			DefaultTreeTableTreeModel dtttm = new DefaultTreeTableTreeModel(root, columns);
+            DefaultTreeTableTreeModel dtttm = new DefaultTreeTableTreeModel(root, columns);
 
-			traceTreeTable = new TraceTreeTable(dtttm, traceTableModel);
+            traceTreeTable = new TraceTreeTable(dtttm, traceTableModel);
 
-			TraceTreeTableMouseListener traceTreeTableMouseListener = new TraceTreeTableMouseListener(this);
+            TraceTreeTableMouseListener traceTreeTableMouseListener = new TraceTreeTableMouseListener(this);
 
-			traceTreeTableMouseListener.addTraceTreeTable(traceTreeTable);
+            traceTreeTableMouseListener.addTraceTreeTable(traceTreeTable);
 
-			traceTreeTable.addMouseListener(traceTreeTableMouseListener);
-		}
+            traceTreeTable.addMouseListener(traceTreeTableMouseListener);
+        }
 
-		return traceTreeTable;
-	}
+        return traceTreeTable;
+    }
 
-	@Override
-	protected JPanel getAdditionalUtilityPanel() {
+    @Override
+    protected JPanel getAdditionalUtilityPanel() {
 
-		JPanel additionalUtilityPanel = new JPanel();
+        JPanel additionalUtilityPanel = new JPanel();
 
-		LayoutManager layout = new BoxLayout(additionalUtilityPanel, BoxLayout.LINE_AXIS);
+        LayoutManager layout = new BoxLayout(additionalUtilityPanel, BoxLayout.LINE_AXIS);
 
-		additionalUtilityPanel.setLayout(layout);
+        additionalUtilityPanel.setLayout(layout);
 
-		JButton expandAllJButton = getExpandAllJButton();
+        JButton expandAllJButton = getExpandAllJButton();
 
-		additionalUtilityPanel.add(expandAllJButton);
+        additionalUtilityPanel.add(expandAllJButton);
 
-		return additionalUtilityPanel;
+        return additionalUtilityPanel;
 
-	}
+    }
 
-	protected JButton getExpandAllJButton() {
+    protected JButton getExpandAllJButton() {
 
-		if (expandAllJButton == null) {
+        if (expandAllJButton == null) {
 
-			expandAllJButton = new JButton(EXPAND_ALL_ACTION);
-			expandAllJButton.setActionCommand(EXPAND_ALL_ACTION);
+            expandAllJButton = new JButton(EXPAND_ALL_ACTION);
+            expandAllJButton.setActionCommand(EXPAND_ALL_ACTION);
 
-			Dimension dim = new Dimension(150, 20);
-			expandAllJButton.setPreferredSize(dim);
-			expandAllJButton.setMaximumSize(dim);
+            Dimension dim = new Dimension(150, 20);
+            expandAllJButton.setPreferredSize(dim);
+            expandAllJButton.setMaximumSize(dim);
 
-			expandAllJButton.addActionListener(new ActionListener() {
+            expandAllJButton.addActionListener(new ActionListener() {
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
 
-					JButton expandAllJButton = getExpandAllJButton();
+                    JButton expandAllJButton = getExpandAllJButton();
 
-					TraceTreeTable traceTreeTable = (TraceTreeTable) getTracerDataTable();
+                    TraceTreeTable traceTreeTable = (TraceTreeTable) getTracerDataTable();
 
-					if (EXPAND_ALL_ACTION.equals(e.getActionCommand())) {
+                    if (EXPAND_ALL_ACTION.equals(e.getActionCommand())) {
 
-						if (traceTreeTable != null) {
-							traceTreeTable.expandAll(true);
-						}
+                        if (traceTreeTable != null) {
+                            traceTreeTable.expandAll(true);
+                        }
 
-						expandAllJButton.setText(COLLAPSE_ALL_ACTION);
-						expandAllJButton.setActionCommand(COLLAPSE_ALL_ACTION);
+                        expandAllJButton.setText(COLLAPSE_ALL_ACTION);
+                        expandAllJButton.setActionCommand(COLLAPSE_ALL_ACTION);
 
-					} else {
+                    } else {
 
-						if (traceTreeTable != null) {
-							traceTreeTable.expandAll(false);
-						}
+                        if (traceTreeTable != null) {
+                            traceTreeTable.expandAll(false);
+                        }
 
-						expandAllJButton.setText(EXPAND_ALL_ACTION);
-						expandAllJButton.setActionCommand(EXPAND_ALL_ACTION);
+                        expandAllJButton.setText(EXPAND_ALL_ACTION);
+                        expandAllJButton.setActionCommand(EXPAND_ALL_ACTION);
 
-					}
+                    }
 
-				}
-			});
-		}
+                }
+            });
+        }
 
-		return expandAllJButton;
-	}
+        return expandAllJButton;
+    }
 
-	protected TreeTableColumn[] getTreeTableColumnArray(TraceTableModelColumn[] traceTableModelColumnArray) {
+    protected TreeTableColumn[] getTreeTableColumnArray(TraceTableModelColumn[] traceTableModelColumnArray) {
 
-		TreeTableColumn[] columns = null;
-		int columnIndex = 0;
-		String columnName;
-		int prefColumnWidth;
-		int alignment;
-		Class<?> columnClass;
+        TreeTableColumn[] columns = null;
+        int columnIndex = 0;
+        String columnName;
+        int prefColumnWidth;
+        int alignment;
+        Class<?> columnClass;
 
-		int size = traceTableModelColumnArray.length;
-		columns = new TreeTableColumn[size];
+        int size = traceTableModelColumnArray.length;
+        columns = new TreeTableColumn[size];
 
-		for (TraceTableModelColumn traceTableModelColumn : traceTableModelColumnArray) {
+        for (TraceTableModelColumn traceTableModelColumn : traceTableModelColumnArray) {
 
-			columnName = traceTableModelColumn.getName();
-			prefColumnWidth = traceTableModelColumn.getPrefColumnWidth();
-			alignment = traceTableModelColumn.getHorizontalAlignment();
-			columnClass = traceTableModelColumn.getColumnClass();
+            columnName = traceTableModelColumn.getName();
+            prefColumnWidth = traceTableModelColumn.getPrefColumnWidth();
+            alignment = traceTableModelColumn.getHorizontalAlignment();
+            columnClass = traceTableModelColumn.getColumnClass();
 
-			TreeTableColumn column = new TreeTableColumn(columnName, prefColumnWidth, alignment, columnClass);
-			columns[columnIndex] = column;
-			columnIndex++;
-		}
+            TreeTableColumn column = new TreeTableColumn(columnName, prefColumnWidth, alignment, columnClass);
+            columns[columnIndex] = column;
+            columnIndex++;
+        }
 
-		return columns;
-	}
+        return columns;
+    }
 }

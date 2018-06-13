@@ -34,392 +34,392 @@ import com.pega.gcs.tracerviewer.model.TraceEventType;
 
 public abstract class TraceEventTypePopupMenu extends JPopupMenu {
 
-	private static final long serialVersionUID = 3225142996534047809L;
+    private static final long serialVersionUID = 3225142996534047809L;
 
-	public abstract void applyJButtonAction();
+    public abstract void applyJButtonAction();
 
-	private TraceTableModel traceTableModel;
+    private TraceTableModel traceTableModel;
 
-	private List<CheckBoxLabelMenuItem<TraceEventKey>> checkBoxLabelMenuItemList;
+    private List<CheckBoxLabelMenuItem<TraceEventKey>> checkBoxLabelMenuItemList;
 
-	private JPanel checkBoxLabelMenuItemListJPanel;
+    private JPanel checkBoxLabelMenuItemListJPanel;
 
-	public TraceEventTypePopupMenu(TraceTableModel traceTableModel) {
-		super();
+    public TraceEventTypePopupMenu(TraceTableModel traceTableModel) {
+        super();
 
-		this.traceTableModel = traceTableModel;
+        this.traceTableModel = traceTableModel;
 
-		this.checkBoxLabelMenuItemList = new ArrayList<CheckBoxLabelMenuItem<TraceEventKey>>();
-		this.checkBoxLabelMenuItemListJPanel = null;
+        this.checkBoxLabelMenuItemList = new ArrayList<CheckBoxLabelMenuItem<TraceEventKey>>();
+        this.checkBoxLabelMenuItemListJPanel = null;
 
-		setLayout(new GridBagLayout());
+        setLayout(new GridBagLayout());
 
-		GridBagConstraints gbc1 = new GridBagConstraints();
-		gbc1.gridx = 0;
-		gbc1.gridy = 0;
-		gbc1.weightx = 1.0D;
-		gbc1.weighty = 0.0D;
-		gbc1.fill = GridBagConstraints.BOTH;
-		gbc1.anchor = GridBagConstraints.NORTHWEST;
-		gbc1.insets = new Insets(2, 0, 2, 0);
+        GridBagConstraints gbc1 = new GridBagConstraints();
+        gbc1.gridx = 0;
+        gbc1.gridy = 0;
+        gbc1.weightx = 1.0D;
+        gbc1.weighty = 0.0D;
+        gbc1.fill = GridBagConstraints.BOTH;
+        gbc1.anchor = GridBagConstraints.NORTHWEST;
+        gbc1.insets = new Insets(2, 0, 2, 0);
 
-		GridBagConstraints gbc2 = new GridBagConstraints();
-		gbc2.gridx = 0;
-		gbc2.gridy = 1;
-		gbc2.weightx = 1.0D;
-		gbc2.weighty = 1.0D;
-		gbc2.fill = GridBagConstraints.BOTH;
-		gbc2.anchor = GridBagConstraints.NORTHWEST;
-		gbc2.insets = new Insets(2, 0, 2, 0);
+        GridBagConstraints gbc2 = new GridBagConstraints();
+        gbc2.gridx = 0;
+        gbc2.gridy = 1;
+        gbc2.weightx = 1.0D;
+        gbc2.weighty = 1.0D;
+        gbc2.fill = GridBagConstraints.BOTH;
+        gbc2.anchor = GridBagConstraints.NORTHWEST;
+        gbc2.insets = new Insets(2, 0, 2, 0);
 
-		GridBagConstraints gbc3 = new GridBagConstraints();
-		gbc3.gridx = 0;
-		gbc3.gridy = 2;
-		gbc3.weightx = 1.0D;
-		gbc3.weighty = 0.0D;
-		gbc3.fill = GridBagConstraints.BOTH;
-		gbc3.anchor = GridBagConstraints.NORTHWEST;
-		gbc3.insets = new Insets(2, 0, 2, 0);
+        GridBagConstraints gbc3 = new GridBagConstraints();
+        gbc3.gridx = 0;
+        gbc3.gridy = 2;
+        gbc3.weightx = 1.0D;
+        gbc3.weighty = 0.0D;
+        gbc3.fill = GridBagConstraints.BOTH;
+        gbc3.anchor = GridBagConstraints.NORTHWEST;
+        gbc3.insets = new Insets(2, 0, 2, 0);
 
-		JPanel clearAllButtonJPanel = getClearAllButtonJPanel();
-		JComponent checkBoxLabelMenuItemListJComponent = getCheckBoxLabelMenuItemListJComponent();
-		JPanel applyCancelButtonJPanel = getApplyCancelButtonJPanel();
+        JPanel clearAllButtonJPanel = getClearAllButtonJPanel();
+        JComponent checkBoxLabelMenuItemListJComponent = getCheckBoxLabelMenuItemListJComponent();
+        JPanel applyCancelButtonJPanel = getApplyCancelButtonJPanel();
 
-		add(clearAllButtonJPanel, gbc1);
-		add(checkBoxLabelMenuItemListJComponent, gbc2);
-		add(applyCancelButtonJPanel, gbc3);
+        add(clearAllButtonJPanel, gbc1);
+        add(checkBoxLabelMenuItemListJComponent, gbc2);
+        add(applyCancelButtonJPanel, gbc3);
 
-	}
+    }
 
-	private JPanel getClearAllButtonJPanel() {
+    private JPanel getClearAllButtonJPanel() {
 
-		JPanel clearAllButtonJPanel = new JPanel();
+        JPanel clearAllButtonJPanel = new JPanel();
 
-		clearAllButtonJPanel.setLayout(new GridBagLayout());
+        clearAllButtonJPanel.setLayout(new GridBagLayout());
 
-		GridBagConstraints gbc1 = new GridBagConstraints();
-		gbc1.gridx = 0;
-		gbc1.gridy = 0;
-		// gbc1.weightx = 0.0D;
-		// gbc1.weighty = 0.0D;
-		gbc1.fill = GridBagConstraints.BOTH;
-		gbc1.anchor = GridBagConstraints.CENTER;
-		gbc1.insets = new Insets(0, 0, 0, 3);
+        GridBagConstraints gbc1 = new GridBagConstraints();
+        gbc1.gridx = 0;
+        gbc1.gridy = 0;
+        // gbc1.weightx = 0.0D;
+        // gbc1.weighty = 0.0D;
+        gbc1.fill = GridBagConstraints.BOTH;
+        gbc1.anchor = GridBagConstraints.CENTER;
+        gbc1.insets = new Insets(0, 0, 0, 3);
 
-		GridBagConstraints gbc2 = new GridBagConstraints();
-		gbc2.gridx = 1;
-		gbc2.gridy = 0;
-		// gbc2.weightx = 0.0D;
-		// gbc2.weighty = 0.0D;
-		gbc2.fill = GridBagConstraints.BOTH;
-		gbc2.anchor = GridBagConstraints.CENTER;
-		gbc2.insets = new Insets(0, 3, 0, 0);
+        GridBagConstraints gbc2 = new GridBagConstraints();
+        gbc2.gridx = 1;
+        gbc2.gridy = 0;
+        // gbc2.weightx = 0.0D;
+        // gbc2.weighty = 0.0D;
+        gbc2.fill = GridBagConstraints.BOTH;
+        gbc2.anchor = GridBagConstraints.CENTER;
+        gbc2.insets = new Insets(0, 3, 0, 0);
 
-		JButton selectAllJButton = getSelectAllJButton();
-		JButton clearAllJButton = getClearAllJButton();
+        JButton selectAllJButton = getSelectAllJButton();
+        JButton clearAllJButton = getClearAllJButton();
 
-		clearAllButtonJPanel.add(selectAllJButton, gbc1);
-		clearAllButtonJPanel.add(clearAllJButton, gbc2);
+        clearAllButtonJPanel.add(selectAllJButton, gbc1);
+        clearAllButtonJPanel.add(clearAllJButton, gbc2);
 
-		return clearAllButtonJPanel;
-	}
+        return clearAllButtonJPanel;
+    }
 
-	private JButton getSelectAllJButton() {
-		JButton selectAllJButton = new JButton("Select All");
+    private JButton getSelectAllJButton() {
+        JButton selectAllJButton = new JButton("Select All");
 
-		Dimension size = new Dimension(80, 20);
-		selectAllJButton.setPreferredSize(size);
-		selectAllJButton.setMinimumSize(size);
-		selectAllJButton.setMaximumSize(size);
+        Dimension size = new Dimension(80, 20);
+        selectAllJButton.setPreferredSize(size);
+        selectAllJButton.setMinimumSize(size);
+        selectAllJButton.setMaximumSize(size);
 
-		selectAllJButton.addActionListener(new ActionListener() {
+        selectAllJButton.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
-				applySelectAll();
-			}
-		});
+                applySelectAll();
+            }
+        });
 
-		return selectAllJButton;
-	}
+        return selectAllJButton;
+    }
 
-	private JButton getClearAllJButton() {
-		JButton clearAllJButton = new JButton("Clear All");
+    private JButton getClearAllJButton() {
+        JButton clearAllJButton = new JButton("Clear All");
 
-		Dimension size = new Dimension(80, 20);
-		clearAllJButton.setPreferredSize(size);
-		clearAllJButton.setMinimumSize(size);
-		clearAllJButton.setMaximumSize(size);
+        Dimension size = new Dimension(80, 20);
+        clearAllJButton.setPreferredSize(size);
+        clearAllJButton.setMinimumSize(size);
+        clearAllJButton.setMaximumSize(size);
 
-		clearAllJButton.addActionListener(new ActionListener() {
+        clearAllJButton.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
-				// applyColumnHeaderFilter(columnIndex, true);
-				// clearAllJButtonAction();
-				//
-				// setVisible(false);
-				applyClearAll();
-			}
-		});
+                // applyColumnHeaderFilter(columnIndex, true);
+                // clearAllJButtonAction();
+                //
+                // setVisible(false);
+                applyClearAll();
+            }
+        });
 
-		return clearAllJButton;
-	}
+        return clearAllJButton;
+    }
 
-	public JComponent getCheckBoxLabelMenuItemListJComponent() {
+    public JComponent getCheckBoxLabelMenuItemListJComponent() {
 
-		JPanel checkBoxLabelMenuItemListJPanel = getCheckBoxLabelMenuItemListJPanel();
+        JPanel checkBoxLabelMenuItemListJPanel = getCheckBoxLabelMenuItemListJPanel();
 
-		JScrollPane jScrollPane = new JScrollPane(checkBoxLabelMenuItemListJPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane jScrollPane = new JScrollPane(checkBoxLabelMenuItemListJPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		int vBarWidth = jScrollPane.getVerticalScrollBar().getPreferredSize().width;
-		int hBarHeight = jScrollPane.getHorizontalScrollBar().getPreferredSize().height + 3/* border size */;
+        int vBarWidth = jScrollPane.getVerticalScrollBar().getPreferredSize().width;
+        int hBarHeight = jScrollPane.getHorizontalScrollBar().getPreferredSize().height + 3/* border size */;
 
-		int compWidth = checkBoxLabelMenuItemListJPanel.getPreferredSize().width;
-		int compHeight = checkBoxLabelMenuItemListJPanel.getPreferredSize().height;
+        int compWidth = checkBoxLabelMenuItemListJPanel.getPreferredSize().width;
+        int compHeight = checkBoxLabelMenuItemListJPanel.getPreferredSize().height;
 
-		int newCompWidth = compWidth + vBarWidth;
-		int newCompHeight = compHeight + hBarHeight;
+        int newCompWidth = compWidth + vBarWidth;
+        int newCompHeight = compHeight + hBarHeight;
 
-		Dimension newDim = new Dimension(newCompWidth, newCompHeight);
+        Dimension newDim = new Dimension(newCompWidth, newCompHeight);
 
-		jScrollPane.setPreferredSize(newDim);
+        jScrollPane.setPreferredSize(newDim);
 
-		jScrollPane.getVerticalScrollBar().setUnitIncrement(14);
+        jScrollPane.getVerticalScrollBar().setUnitIncrement(14);
 
-		return jScrollPane;
-	}
+        return jScrollPane;
+    }
 
-	private JPanel getCheckBoxLabelMenuItemListJPanel() {
+    private JPanel getCheckBoxLabelMenuItemListJPanel() {
 
-		if (checkBoxLabelMenuItemListJPanel == null) {
+        if (checkBoxLabelMenuItemListJPanel == null) {
 
-			checkBoxLabelMenuItemListJPanel = new JPanel();
-			checkBoxLabelMenuItemListJPanel.setLayout(new GridBagLayout());
+            checkBoxLabelMenuItemListJPanel = new JPanel();
+            checkBoxLabelMenuItemListJPanel.setLayout(new GridBagLayout());
 
-			populateCheckBoxLabelMenuItemListJPanel();
+            populateCheckBoxLabelMenuItemListJPanel();
 
-		}
+        }
 
-		return checkBoxLabelMenuItemListJPanel;
-	}
+        return checkBoxLabelMenuItemListJPanel;
+    }
 
-	private void populateCheckBoxLabelMenuItemListJPanel() {
+    private void populateCheckBoxLabelMenuItemListJPanel() {
 
-		JPanel checkBoxLabelMenuItemListJPanel = getCheckBoxLabelMenuItemListJPanel();
+        JPanel checkBoxLabelMenuItemListJPanel = getCheckBoxLabelMenuItemListJPanel();
 
-		checkBoxLabelMenuItemList.clear();
-		checkBoxLabelMenuItemListJPanel.removeAll();
+        checkBoxLabelMenuItemList.clear();
+        checkBoxLabelMenuItemListJPanel.removeAll();
 
-		JPanel traceEventTypesJPanel = new JPanel();
-		traceEventTypesJPanel.setLayout(new GridBagLayout());
+        JPanel traceEventTypesJPanel = new JPanel();
+        traceEventTypesJPanel.setLayout(new GridBagLayout());
 
-		JPanel traceEventJPanel = new JPanel();
-		traceEventJPanel.setLayout(new GridBagLayout());
+        JPanel traceEventJPanel = new JPanel();
+        traceEventJPanel.setLayout(new GridBagLayout());
 
-		int eventIndex = 0;
-		int eventTypeIndex = 0;
+        int eventIndex = 0;
+        int eventTypeIndex = 0;
 
-		for (TraceEventType traceEventType : traceTableModel.getTraceEventTypeList()) {
+        for (TraceEventType traceEventType : traceTableModel.getTraceEventTypeList()) {
 
-			CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe = traceTableModel.getCheckBoxMenuItem(traceEventType);
+            CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe = traceTableModel.getCheckBoxMenuItem(traceEventType);
 
-			if (cbmipe.isVisible()) {
+            if (cbmipe.isVisible()) {
 
-				GridBagConstraints gbc = new GridBagConstraints();
-				gbc.gridx = 0;
-				gbc.weightx = 1.0D;
-				gbc.weighty = 0.0D;
-				gbc.fill = GridBagConstraints.BOTH;
-				gbc.anchor = GridBagConstraints.NORTHWEST;
-				gbc.insets = new Insets(0, 0, 0, 0);
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.gridx = 0;
+                gbc.weightx = 1.0D;
+                gbc.weighty = 0.0D;
+                gbc.fill = GridBagConstraints.BOTH;
+                gbc.anchor = GridBagConstraints.NORTHWEST;
+                gbc.insets = new Insets(0, 0, 0, 0);
 
-				CheckBoxLabelMenuItem<TraceEventKey> cblmi;
-				cblmi = new CheckBoxLabelMenuItem<TraceEventKey>(cbmipe, true);
+                CheckBoxLabelMenuItem<TraceEventKey> cblmi;
+                cblmi = new CheckBoxLabelMenuItem<TraceEventKey>(cbmipe, true);
 
-				checkBoxLabelMenuItemList.add(cblmi);
+                checkBoxLabelMenuItemList.add(cblmi);
 
-				if (traceEventType.isEventType()) {
-					gbc.gridy = eventTypeIndex;
-					traceEventTypesJPanel.add(cblmi, gbc);
-					eventTypeIndex++;
-				} else {
-					gbc.gridy = eventIndex;
-					traceEventJPanel.add(cblmi, gbc);
-					eventIndex++;
-				}
-			}
-		}
+                if (traceEventType.isEventType()) {
+                    gbc.gridy = eventTypeIndex;
+                    traceEventTypesJPanel.add(cblmi, gbc);
+                    eventTypeIndex++;
+                } else {
+                    gbc.gridy = eventIndex;
+                    traceEventJPanel.add(cblmi, gbc);
+                    eventIndex++;
+                }
+            }
+        }
 
-		Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+        Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 
-		traceEventJPanel.setBorder(BorderFactory.createTitledBorder(loweredetched, "Events"));
+        traceEventJPanel.setBorder(BorderFactory.createTitledBorder(loweredetched, "Events"));
 
-		traceEventTypesJPanel.setBorder(BorderFactory.createTitledBorder(loweredetched, "Event Types"));
+        traceEventTypesJPanel.setBorder(BorderFactory.createTitledBorder(loweredetched, "Event Types"));
 
-		GridBagConstraints gbc1 = new GridBagConstraints();
-		gbc1.gridx = 0;
-		gbc1.gridy = 0;
-		gbc1.weightx = 1.0D;
-		gbc1.weighty = 1.0D;
-		gbc1.fill = GridBagConstraints.BOTH;
-		gbc1.anchor = GridBagConstraints.NORTHWEST;
-		gbc1.insets = new Insets(0, 0, 0, 0);
+        GridBagConstraints gbc1 = new GridBagConstraints();
+        gbc1.gridx = 0;
+        gbc1.gridy = 0;
+        gbc1.weightx = 1.0D;
+        gbc1.weighty = 1.0D;
+        gbc1.fill = GridBagConstraints.BOTH;
+        gbc1.anchor = GridBagConstraints.NORTHWEST;
+        gbc1.insets = new Insets(0, 0, 0, 0);
 
-		GridBagConstraints gbc2 = new GridBagConstraints();
-		gbc2.gridx = 0;
-		gbc2.gridy = 1;
-		gbc2.weightx = 1.0D;
-		gbc2.weighty = 1.0D;
-		gbc2.fill = GridBagConstraints.BOTH;
-		gbc2.anchor = GridBagConstraints.NORTHWEST;
-		gbc2.insets = new Insets(0, 0, 0, 0);
+        GridBagConstraints gbc2 = new GridBagConstraints();
+        gbc2.gridx = 0;
+        gbc2.gridy = 1;
+        gbc2.weightx = 1.0D;
+        gbc2.weighty = 1.0D;
+        gbc2.fill = GridBagConstraints.BOTH;
+        gbc2.anchor = GridBagConstraints.NORTHWEST;
+        gbc2.insets = new Insets(0, 0, 0, 0);
 
-		checkBoxLabelMenuItemListJPanel.add(traceEventJPanel, gbc1);
-		checkBoxLabelMenuItemListJPanel.add(traceEventTypesJPanel, gbc2);
+        checkBoxLabelMenuItemListJPanel.add(traceEventJPanel, gbc1);
+        checkBoxLabelMenuItemListJPanel.add(traceEventTypesJPanel, gbc2);
 
-		revalidate();
-		repaint();
-	}
+        revalidate();
+        repaint();
+    }
 
-	private JPanel getApplyCancelButtonJPanel() {
+    private JPanel getApplyCancelButtonJPanel() {
 
-		JPanel applyCancelButtonJPanel = new JPanel();
+        JPanel applyCancelButtonJPanel = new JPanel();
 
-		applyCancelButtonJPanel.setLayout(new GridBagLayout());
+        applyCancelButtonJPanel.setLayout(new GridBagLayout());
 
-		GridBagConstraints gbc1 = new GridBagConstraints();
-		gbc1.gridx = 0;
-		gbc1.gridy = 0;
-		gbc1.weightx = 0.0D;
-		gbc1.weighty = 0.0D;
-		gbc1.fill = GridBagConstraints.BOTH;
-		gbc1.anchor = GridBagConstraints.CENTER;
-		gbc1.insets = new Insets(0, 10, 0, 10);
+        GridBagConstraints gbc1 = new GridBagConstraints();
+        gbc1.gridx = 0;
+        gbc1.gridy = 0;
+        gbc1.weightx = 0.0D;
+        gbc1.weighty = 0.0D;
+        gbc1.fill = GridBagConstraints.BOTH;
+        gbc1.anchor = GridBagConstraints.CENTER;
+        gbc1.insets = new Insets(0, 10, 0, 10);
 
-		GridBagConstraints gbc2 = new GridBagConstraints();
-		gbc2.gridx = 1;
-		gbc2.gridy = 0;
-		gbc2.weightx = 0.0D;
-		gbc2.weighty = 0.0D;
-		gbc2.fill = GridBagConstraints.BOTH;
-		gbc2.anchor = GridBagConstraints.CENTER;
-		gbc2.insets = new Insets(0, 10, 0, 10);
+        GridBagConstraints gbc2 = new GridBagConstraints();
+        gbc2.gridx = 1;
+        gbc2.gridy = 0;
+        gbc2.weightx = 0.0D;
+        gbc2.weighty = 0.0D;
+        gbc2.fill = GridBagConstraints.BOTH;
+        gbc2.anchor = GridBagConstraints.CENTER;
+        gbc2.insets = new Insets(0, 10, 0, 10);
 
-		JButton applyJButton = getApplyJButton();
-		JButton cancelJButton = getCancelJButton();
+        JButton applyJButton = getApplyJButton();
+        JButton cancelJButton = getCancelJButton();
 
-		applyCancelButtonJPanel.add(applyJButton, gbc1);
+        applyCancelButtonJPanel.add(applyJButton, gbc1);
 
-		applyCancelButtonJPanel.add(cancelJButton, gbc2);
+        applyCancelButtonJPanel.add(cancelJButton, gbc2);
 
-		return applyCancelButtonJPanel;
-	}
+        return applyCancelButtonJPanel;
+    }
 
-	private JButton getApplyJButton() {
+    private JButton getApplyJButton() {
 
-		JButton applyJButton = new JButton("Apply");
+        JButton applyJButton = new JButton("Apply");
 
-		Dimension size = new Dimension(70, 20);
-		applyJButton.setPreferredSize(size);
-		applyJButton.setMinimumSize(size);
-		applyJButton.setMaximumSize(size);
+        Dimension size = new Dimension(70, 20);
+        applyJButton.setPreferredSize(size);
+        applyJButton.setMinimumSize(size);
+        applyJButton.setMaximumSize(size);
 
-		applyJButton.addActionListener(new ActionListener() {
+        applyJButton.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
-				// applyColumnHeaderFilter(columnIndex, false);
-				// applyJButtonAction();
-				apply();
-				setVisible(false);
-			}
-		});
+                // applyColumnHeaderFilter(columnIndex, false);
+                // applyJButtonAction();
+                apply();
+                setVisible(false);
+            }
+        });
 
-		return applyJButton;
-	}
+        return applyJButton;
+    }
 
-	private JButton getCancelJButton() {
+    private JButton getCancelJButton() {
 
-		JButton cancelJButton = new JButton("Cancel");
+        JButton cancelJButton = new JButton("Cancel");
 
-		Dimension size = new Dimension(70, 20);
-		cancelJButton.setPreferredSize(size);
-		cancelJButton.setMinimumSize(size);
-		cancelJButton.setMaximumSize(size);
+        Dimension size = new Dimension(70, 20);
+        cancelJButton.setPreferredSize(size);
+        cancelJButton.setMinimumSize(size);
+        cancelJButton.setMaximumSize(size);
 
-		cancelJButton.addActionListener(new ActionListener() {
+        cancelJButton.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-			}
-		});
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(false);
+            }
+        });
 
-		return cancelJButton;
-	}
+        return cancelJButton;
+    }
 
-	protected void applySelectAll() {
+    protected void applySelectAll() {
 
-		for (TraceEventType traceEventType : traceTableModel.getTraceEventTypeList()) {
+        for (TraceEventType traceEventType : traceTableModel.getTraceEventTypeList()) {
 
-			CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe = traceTableModel.getCheckBoxMenuItem(traceEventType);
+            CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe = traceTableModel.getCheckBoxMenuItem(traceEventType);
 
-			cbmipe.setSelected(true);
-		}
+            cbmipe.setSelected(true);
+        }
 
-		populateCheckBoxLabelMenuItemListJPanel();
-	}
+        populateCheckBoxLabelMenuItemListJPanel();
+    }
 
-	protected void applyClearAll() {
+    protected void applyClearAll() {
 
-		for (TraceEventType traceEventType : traceTableModel.getTraceEventTypeList()) {
+        for (TraceEventType traceEventType : traceTableModel.getTraceEventTypeList()) {
 
-			CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe = traceTableModel.getCheckBoxMenuItem(traceEventType);
+            CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe = traceTableModel.getCheckBoxMenuItem(traceEventType);
 
-			cbmipe.setSelected(false);
-		}
+            cbmipe.setSelected(false);
+        }
 
-		populateCheckBoxLabelMenuItemListJPanel();
-	}
+        populateCheckBoxLabelMenuItemListJPanel();
+    }
 
-	protected void apply() {
+    protected void apply() {
 
-		// Dissociating the checkbox action with the underlying object. the
-		// action with be completed when user confirms
-		for (CheckBoxLabelMenuItem<TraceEventKey> cblmi : checkBoxLabelMenuItemList) {
-			CheckBoxMenuItemPopupEntry<TraceEventKey> fthcEntry;
+        // Dissociating the checkbox action with the underlying object. the
+        // action with be completed when user confirms
+        for (CheckBoxLabelMenuItem<TraceEventKey> cblmi : checkBoxLabelMenuItemList) {
+            CheckBoxMenuItemPopupEntry<TraceEventKey> fthcEntry;
 
-			fthcEntry = (CheckBoxMenuItemPopupEntry<TraceEventKey>) cblmi.getFilterTableHeaderPopupEntry();
+            fthcEntry = (CheckBoxMenuItemPopupEntry<TraceEventKey>) cblmi.getFilterTableHeaderPopupEntry();
 
-			boolean selected = cblmi.isSelected();
-			fthcEntry.setSelected(selected);
-			// fthcEntry.setVisible(selected);
-		}
+            boolean selected = cblmi.isSelected();
+            fthcEntry.setSelected(selected);
+            // fthcEntry.setVisible(selected);
+        }
 
-		applyJButtonAction();
+        applyJButtonAction();
 
-	}
+    }
 
-	public Set<TraceEventType> createFilterEventSet() {
+    public Set<TraceEventType> createFilterEventSet() {
 
-		Set<TraceEventType> filterEventSet = new HashSet<TraceEventType>();
+        Set<TraceEventType> filterEventSet = new HashSet<TraceEventType>();
 
-		for (TraceEventType traceEventType : traceTableModel.getTraceEventTypeList()) {
+        for (TraceEventType traceEventType : traceTableModel.getTraceEventTypeList()) {
 
-			CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe = traceTableModel.getCheckBoxMenuItem(traceEventType);
+            CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe = traceTableModel.getCheckBoxMenuItem(traceEventType);
 
-			if (cbmipe.isSelected()) {
+            if (cbmipe.isSelected()) {
 
-				filterEventSet.add(traceEventType);
-			}
-		}
+                filterEventSet.add(traceEventType);
+            }
+        }
 
-		return filterEventSet;
+        return filterEventSet;
 
-	}
+    }
 }

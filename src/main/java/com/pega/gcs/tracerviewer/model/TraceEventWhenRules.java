@@ -10,38 +10,38 @@ import org.dom4j.Element;
 
 public class TraceEventWhenRules extends TraceEvent {
 
-	public TraceEventWhenRules(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+    public TraceEventWhenRules(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
 
-		super(traceEventKey, bytes, traceEventElement);
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.WHEN_RULES;
-	}
+        traceEventType = TraceEventType.WHEN_RULES;
+    }
 
-	@Override
-	protected boolean checkStart() {
+    @Override
+    protected boolean checkStart() {
 
-		boolean start = false;
+        boolean start = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("When Begin".equals(eventName)) {
-			start = true;
-		}
+        if ("When Begin".equals(eventName)) {
+            start = true;
+        }
 
-		return start;
-	}
+        return start;
+    }
 
-	@Override
-	protected boolean checkEnd() {
+    @Override
+    protected boolean checkEnd() {
 
-		boolean end = false;
+        boolean end = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("When End".equals(eventName)) {
-			end = true;
-		}
+        if ("When End".equals(eventName)) {
+            end = true;
+        }
 
-		return end;
-	}
+        return end;
+    }
 }

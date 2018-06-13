@@ -15,13 +15,13 @@ import java.awt.Color;
  */
 public class TraceEventEmpty extends TraceEvent {
 
-	public TraceEventEmpty(TraceEventKey traceEventKey, Color background) {
+    public TraceEventEmpty(TraceEventKey traceEventKey, Color background) {
 
-		super(traceEventKey, null, null);
+        super(traceEventKey, null, null);
 
-		traceEventType = null;
+        traceEventType = null;
 
-		fillColumnBackground(background);
-	}
+        fillColumnBackground(background);
+    }
 
 }

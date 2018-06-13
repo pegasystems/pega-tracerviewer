@@ -10,10 +10,10 @@ import org.dom4j.Element;
 
 public class TraceEventException extends TraceEvent {
 
-	public TraceEventException(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventException(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.EXCEPTION;
-	}
+        traceEventType = TraceEventType.EXCEPTION;
+    }
 }

@@ -10,11 +10,11 @@ import org.dom4j.Element;
 
 public class TraceEventReferenceProperties extends TraceEvent {
 
-	public TraceEventReferenceProperties(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventReferenceProperties(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.REFERENCE_PROPERTIES;
-	}
+        traceEventType = TraceEventType.REFERENCE_PROPERTIES;
+    }
 
 }

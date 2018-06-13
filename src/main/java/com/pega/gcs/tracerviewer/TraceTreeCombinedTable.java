@@ -22,78 +22,78 @@ import com.pega.gcs.fringecommon.guiutilities.treetable.TreeTableModelAdapter;
 
 public class TraceTreeCombinedTable extends TraceTreeTable {
 
-	private static final long serialVersionUID = -5697655931346278629L;
+    private static final long serialVersionUID = -5697655931346278629L;
 
-	public TraceTreeCombinedTable(DefaultTreeTableTreeModel traceTreeTableModel, TraceTableModel traceTableModel) {
-		super(traceTreeTableModel, traceTableModel);
-	}
+    public TraceTreeCombinedTable(DefaultTreeTableTreeModel traceTreeTableModel, TraceTableModel traceTableModel) {
+        super(traceTreeTableModel, traceTableModel);
+    }
 
-	@Override
-	protected DefaultTreeTableTree constructTree(AbstractTreeTableTreeModel abstractTreeTableModel) {
+    @Override
+    protected DefaultTreeTableTree constructTree(AbstractTreeTableTreeModel abstractTreeTableModel) {
 
-		DefaultTreeTableTreeCellRenderer defaultTreeTableTreeCellRenderer;
+        DefaultTreeTableTreeCellRenderer defaultTreeTableTreeCellRenderer;
 
-		defaultTreeTableTreeCellRenderer = new DefaultTreeTableTreeCellRenderer(this);
-		defaultTreeTableTreeCellRenderer.setOpenIcon(null);
-		defaultTreeTableTreeCellRenderer.setClosedIcon(null);
-		defaultTreeTableTreeCellRenderer.setLeafIcon(null);
+        defaultTreeTableTreeCellRenderer = new DefaultTreeTableTreeCellRenderer(this);
+        defaultTreeTableTreeCellRenderer.setOpenIcon(null);
+        defaultTreeTableTreeCellRenderer.setClosedIcon(null);
+        defaultTreeTableTreeCellRenderer.setLeafIcon(null);
 
-		TraceTreeTableTree defaultTreeTableTree = new TraceTreeTableCombinedTree(this, abstractTreeTableModel,
-				defaultTreeTableTreeCellRenderer);
+        TraceTreeTableTree defaultTreeTableTree = new TraceTreeTableCombinedTree(this, abstractTreeTableModel,
+                defaultTreeTableTreeCellRenderer);
 
-		defaultTreeTableTree.setRootVisible(false);
-		defaultTreeTableTree.setShowsRootHandles(true);
+        defaultTreeTableTree.setRootVisible(false);
+        defaultTreeTableTree.setShowsRootHandles(true);
 
-		return defaultTreeTableTree;
-	}
+        return defaultTreeTableTree;
+    }
 
-	@Override
-	protected void setTreeTableColumnModel() {
+    @Override
+    protected void setTreeTableColumnModel() {
 
-		TreeTableModelAdapter model = (TreeTableModelAdapter) getModel();
-		TableColumnModel tableColumnModel = new DefaultTableColumnModel();
+        TreeTableModelAdapter model = (TreeTableModelAdapter) getModel();
+        TableColumnModel tableColumnModel = new DefaultTableColumnModel();
 
-		for (int i = 0; i < model.getColumnCount(); i++) {
+        for (int i = 0; i < model.getColumnCount(); i++) {
 
-			TableColumn tableColumn = new TableColumn(i);
+            TableColumn tableColumn = new TableColumn(i);
 
-			TreeTableColumn treeTableColumn = model.getColumn(i);
+            TreeTableColumn treeTableColumn = model.getColumn(i);
 
-			String text = treeTableColumn.getDisplayName();
+            String text = treeTableColumn.getDisplayName();
 
-			Class<?> columnClass = treeTableColumn.getColumnClass();
+            Class<?> columnClass = treeTableColumn.getColumnClass();
 
-			int preferredWidth = treeTableColumn.getPrefColumnWidth();
+            int preferredWidth = treeTableColumn.getPrefColumnWidth();
 
-			tableColumn.setHeaderValue(text);
-			tableColumn.setPreferredWidth(preferredWidth);
+            tableColumn.setHeaderValue(text);
+            tableColumn.setPreferredWidth(preferredWidth);
 
-			TableCellRenderer tcr = null;
+            TableCellRenderer tcr = null;
 
-			if (TreeTableColumn.TREE_COLUMN_CLASS.equals(columnClass)) {
+            if (TreeTableColumn.TREE_COLUMN_CLASS.equals(columnClass)) {
 
-				DefaultTreeTableTree treeTableTree = getTree();
-				tcr = treeTableTree;
-				tableColumn.setCellEditor(new TreeTableCellEditor(treeTableTree));
-			} else {
+                DefaultTreeTableTree treeTableTree = getTree();
+                tcr = treeTableTree;
+                tableColumn.setCellEditor(new TreeTableCellEditor(treeTableTree));
+            } else {
 
-				TraceTreeTableCombinedCellRenderer ltcr = new TraceTreeTableCombinedCellRenderer();
-				ltcr.setBorder(new EmptyBorder(1, 3, 1, 1));
-				ltcr.setHorizontalAlignment(treeTableColumn.getHorizontalAlignment());
+                TraceTreeTableCombinedCellRenderer ltcr = new TraceTreeTableCombinedCellRenderer();
+                ltcr.setBorder(new EmptyBorder(1, 3, 1, 1));
+                ltcr.setHorizontalAlignment(treeTableColumn.getHorizontalAlignment());
 
-				tableColumn.setCellEditor(new TreeTableCellEditor(ltcr));
+                tableColumn.setCellEditor(new TreeTableCellEditor(ltcr));
 
-				tcr = ltcr;
-			}
+                tcr = ltcr;
+            }
 
-			tableColumn.setCellRenderer(tcr);
+            tableColumn.setCellRenderer(tcr);
 
-			tableColumn.setResizable(true);
+            tableColumn.setResizable(true);
 
-			tableColumnModel.addColumn(tableColumn);
-		}
+            tableColumnModel.addColumn(tableColumn);
+        }
 
-		setColumnModel(tableColumnModel);
-	}
+        setColumnModel(tableColumnModel);
+    }
 
 }

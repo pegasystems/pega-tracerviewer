@@ -19,58 +19,58 @@ import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public class TraceTreeTableModelAdapter extends TreeTableModelAdapter {
 
-	private static final long serialVersionUID = -4334926703683969380L;
+    private static final long serialVersionUID = -4334926703683969380L;
 
-	private TraceTableModel traceTableModel;
+    private TraceTableModel traceTableModel;
 
-	public TraceTreeTableModelAdapter(DefaultTreeTableTree tree) {
+    public TraceTreeTableModelAdapter(DefaultTreeTableTree tree) {
 
-		super(tree);
+        super(tree);
 
-		this.traceTableModel = null;
-	}
+        this.traceTableModel = null;
+    }
 
-	/**
-	 * @param traceTableModel
-	 *            the traceTableModel to set
-	 */
-	public void setTraceTableModel(TraceTableModel traceTableModel) {
+    /**
+     * @param traceTableModel
+     *            the traceTableModel to set
+     */
+    public void setTraceTableModel(TraceTableModel traceTableModel) {
 
-		this.traceTableModel = traceTableModel;
-		this.traceTableModel.addTableModelListener(new TableModelListener() {
+        this.traceTableModel = traceTableModel;
+        this.traceTableModel.addTableModelListener(new TableModelListener() {
 
-			@Override
-			public void tableChanged(TableModelEvent e) {
+            @Override
+            public void tableChanged(TableModelEvent e) {
 
-				DefaultTreeTableTree defaultTreeTableTree = getTree();
+                DefaultTreeTableTree defaultTreeTableTree = getTree();
 
-				AbstractTreeTableTreeModel abstractTreeTableTreeModel;
-				abstractTreeTableTreeModel = (AbstractTreeTableTreeModel) defaultTreeTableTree.getModel();
+                AbstractTreeTableTreeModel abstractTreeTableTreeModel;
+                abstractTreeTableTreeModel = (AbstractTreeTableTreeModel) defaultTreeTableTree.getModel();
 
-				// in case of search action, just refresh. reload causes
-				// collapsing of tree.
-				if (e instanceof SearchTableModelEvent) {
-					abstractTreeTableTreeModel.nodeChanged(getRoot());
-				} else {
-					if (e.getType() == TableModelEvent.UPDATE) {
-						abstractTreeTableTreeModel.reload();
-					}
-				}
-			}
-		});
-	}
+                // in case of search action, just refresh. reload causes
+                // collapsing of tree.
+                if (e instanceof SearchTableModelEvent) {
+                    abstractTreeTableTreeModel.nodeChanged(getRoot());
+                } else {
+                    if (e.getType() == TableModelEvent.UPDATE) {
+                        abstractTreeTableTreeModel.reload();
+                    }
+                }
+            }
+        });
+    }
 
-	public String getModelName() {
-		return traceTableModel.getModelName();
-	}
+    public String getModelName() {
+        return traceTableModel.getModelName();
+    }
 
-	public SearchModel<TraceEventKey> getSearchModel() {
-		return traceTableModel.getSearchModel();
-	}
+    public SearchModel<TraceEventKey> getSearchModel() {
+        return traceTableModel.getSearchModel();
+    }
 
-	public BookmarkModel<TraceEventKey> getBookmarkModel() {
+    public BookmarkModel<TraceEventKey> getBookmarkModel() {
 
-		return traceTableModel.getBookmarkModel();
-	}
+        return traceTableModel.getBookmarkModel();
+    }
 
 }

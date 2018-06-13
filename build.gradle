@@ -1,0 +1,55 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            url artifactoryURL
+            credentials {
+                username = artifactoryUser
+                password = artifactoryPassword
+            }
+        }
+    }
+
+    dependencies {
+        classpath 'org.ajoberstar:gradle-git:1.4.2'
+        classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.13'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
+
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'com.pega.gcs'
+version = '3.2-SNAPSHOT'
+
+description = """Pega-TracerViewer"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+
+
+repositories {
+        
+     maven { url "http://dl.bintray.com/pegasystems/fringeutils" }
+     maven { url "http://repo.maven.apache.org/maven2" }
+}
+dependencies {
+    compile group: 'dom4j', name: 'dom4j', version:'1.6.1'
+    compile group: 'gnu.getopt', name: 'java-getopt', version:'1.0.13'
+    compile group: 'commons-io', name: 'commons-io', version:'2.5'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.8.2'
+    compile group: 'com.pega.gcs', name: 'fringeutils-common', version:'3.1'
+    compile group: 'net.ltgt.gradle', name:'gradle-errorprone-plugin', version:'0.0.13'
+}
+
+apply from: "$rootDir/gradle/projects.gradle"

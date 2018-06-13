@@ -18,56 +18,56 @@ import com.pega.gcs.tracerviewer.model.TraceEvent;
 
 public class TraceTreeTableCellRenderer extends DefaultTableCellRenderer {
 
-	private static final long serialVersionUID = -5768343434033636406L;
+    private static final long serialVersionUID = -5768343434033636406L;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent
-	 * (javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
-	 */
-	@Override
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent
+     * (javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+     */
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
-		TraceEventTreeNode traceEventTreeNode = null;
-		TraceEvent te = null;
+        TraceEventTreeNode traceEventTreeNode = null;
+        TraceEvent te = null;
 
-		if (value instanceof TraceEventTreeNode) {
-			traceEventTreeNode = (TraceEventTreeNode) value;
-			te = (TraceEvent) traceEventTreeNode.getUserObject();
-		}
+        if (value instanceof TraceEventTreeNode) {
+            traceEventTreeNode = (TraceEventTreeNode) value;
+            te = (TraceEvent) traceEventTreeNode.getUserObject();
+        }
 
-		if (te != null) {
+        if (te != null) {
 
-			String text = traceEventTreeNode.getNodeValue(column);
+            String text = traceEventTreeNode.getNodeValue(column);
 
-			super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);
+            super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);
 
-			if (!table.isRowSelected(row)) {
+            if (!table.isRowSelected(row)) {
 
-				boolean searchFound = traceEventTreeNode.isSearchFound();
-				boolean leafSearchFound = te.isSearchFound();
+                boolean searchFound = traceEventTreeNode.isSearchFound();
+                boolean leafSearchFound = te.isSearchFound();
 
-				if (leafSearchFound) {
-					setBackground(MyColor.LIGHT_YELLOW);
-				} else if (searchFound) {
-					setBackground(MyColor.LIGHTEST_YELLOW);
-				} else {
-					setBackground(te.getColumnBackground(column));
-				}
-			}
+                if (leafSearchFound) {
+                    setBackground(MyColor.LIGHT_YELLOW);
+                } else if (searchFound) {
+                    setBackground(MyColor.LIGHTEST_YELLOW);
+                } else {
+                    setBackground(te.getColumnBackground(column));
+                }
+            }
 
-			setBorder(new EmptyBorder(1, 3, 1, 1));
+            setBorder(new EmptyBorder(1, 3, 1, 1));
 
-			setToolTipText(text);
+            setToolTipText(text);
 
-		} else {
-			setBackground(Color.WHITE);
-			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		}
+        } else {
+            setBackground(Color.WHITE);
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        }
 
-		return this;
-	}
+        return this;
+    }
 
 }

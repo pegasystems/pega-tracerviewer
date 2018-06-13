@@ -27,111 +27,111 @@ import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public abstract class TracerDataView extends JPanel implements TableModelListener {
 
-	private static final long serialVersionUID = 3180116914194377351L;
+    private static final long serialVersionUID = 3180116914194377351L;
 
-	protected abstract void updateSupplementUtilityJPanel();
+    protected abstract void updateSupplementUtilityJPanel();
 
-	private TraceNavigationTableController traceNavigationTableController;
+    private TraceNavigationTableController traceNavigationTableController;
 
-	private TraceTableModel traceTableModel;
+    private TraceTableModel traceTableModel;
 
-	private JPanel supplementUtilityJPanel;
+    private JPanel supplementUtilityJPanel;
 
-	public TracerDataView(TraceTableModel traceTableModel,
-			TraceNavigationTableController traceNavigationTableController, JPanel supplementUtilityJPanel) {
+    public TracerDataView(TraceTableModel traceTableModel,
+            TraceNavigationTableController traceNavigationTableController, JPanel supplementUtilityJPanel) {
 
-		super();
+        super();
 
-		this.traceTableModel = traceTableModel;
-		this.traceTableModel.addTableModelListener(this);
+        this.traceTableModel = traceTableModel;
+        this.traceTableModel.addTableModelListener(this);
 
-		this.traceNavigationTableController = traceNavigationTableController;
-		this.supplementUtilityJPanel = supplementUtilityJPanel;
+        this.traceNavigationTableController = traceNavigationTableController;
+        this.supplementUtilityJPanel = supplementUtilityJPanel;
 
-	}
+    }
 
-	@Override
-	public void tableChanged(TableModelEvent e) {
+    @Override
+    public void tableChanged(TableModelEvent e) {
 
-		if (e.getType() == TableModelEvent.UPDATE) {
-			revalidate();
-			repaint();
-		}
-	}
+        if (e.getType() == TableModelEvent.UPDATE) {
+            revalidate();
+            repaint();
+        }
+    }
 
-	protected TraceTableModel getTraceTableModel() {
-		return traceTableModel;
-	}
+    protected TraceTableModel getTraceTableModel() {
+        return traceTableModel;
+    }
 
-	protected TraceNavigationTableController getTraceNavigationTableController() {
-		return traceNavigationTableController;
-	}
+    protected TraceNavigationTableController getTraceNavigationTableController() {
+        return traceNavigationTableController;
+    }
 
-	protected JPanel getSupplementUtilityJPanel() {
-		return supplementUtilityJPanel;
-	}
+    protected JPanel getSupplementUtilityJPanel() {
+        return supplementUtilityJPanel;
+    }
 
-	public void switchToFront() {
-		updateSupplementUtilityJPanel();
-	}
+    public void switchToFront() {
+        updateSupplementUtilityJPanel();
+    }
 
-	protected void setMessage(JTextField statusBar, Message message) {
+    protected void setMessage(JTextField statusBar, Message message) {
 
-		if (message != null) {
+        if (message != null) {
 
-			Color color = Color.BLUE;
+            Color color = Color.BLUE;
 
-			if (message.getMessageType().equals(Message.MessageType.ERROR)) {
-				color = Color.RED;
-			}
+            if (message.getMessageType().equals(Message.MessageType.ERROR)) {
+                color = Color.RED;
+            }
 
-			String text = message.getText();
+            String text = message.getText();
 
-			statusBar.setForeground(color);
-			statusBar.setText(text);
-		}
-	}
+            statusBar.setForeground(color);
+            statusBar.setText(text);
+        }
+    }
 
-	protected JPanel getMarkerBarPanel(TraceTableModel traceTableModel) {
+    protected JPanel getMarkerBarPanel(TraceTableModel traceTableModel) {
 
-		JPanel markerBarPanel = new JPanel();
-		markerBarPanel.setLayout(new BorderLayout());
+        JPanel markerBarPanel = new JPanel();
+        markerBarPanel.setLayout(new BorderLayout());
 
-		Dimension topDimension = new Dimension(16, 28);
+        Dimension topDimension = new Dimension(16, 28);
 
-		JLabel topSpacer = new JLabel();
-		topSpacer.setPreferredSize(topDimension);
-		topSpacer.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        JLabel topSpacer = new JLabel();
+        topSpacer.setPreferredSize(topDimension);
+        topSpacer.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		Dimension bottomDimension = new Dimension(16, 17);
+        Dimension bottomDimension = new Dimension(16, 17);
 
-		JLabel bottomSpacer = new JLabel();
-		bottomSpacer.setPreferredSize(bottomDimension);
-		bottomSpacer.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        JLabel bottomSpacer = new JLabel();
+        bottomSpacer.setPreferredSize(bottomDimension);
+        bottomSpacer.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		MarkerBar<TraceEventKey> markerBar = getMarkerBar(traceTableModel);
+        MarkerBar<TraceEventKey> markerBar = getMarkerBar(traceTableModel);
 
-		markerBarPanel.add(topSpacer, BorderLayout.NORTH);
-		markerBarPanel.add(markerBar, BorderLayout.CENTER);
-		markerBarPanel.add(bottomSpacer, BorderLayout.SOUTH);
+        markerBarPanel.add(topSpacer, BorderLayout.NORTH);
+        markerBarPanel.add(markerBar, BorderLayout.CENTER);
+        markerBarPanel.add(bottomSpacer, BorderLayout.SOUTH);
 
-		return markerBarPanel;
-	}
+        return markerBarPanel;
+    }
 
-	private MarkerBar<TraceEventKey> getMarkerBar(TraceTableModel traceTableModel) {
+    private MarkerBar<TraceEventKey> getMarkerBar(TraceTableModel traceTableModel) {
 
-		TraceNavigationTableController traceNavigationTableController = getTraceNavigationTableController();
+        TraceNavigationTableController traceNavigationTableController = getTraceNavigationTableController();
 
-		SearchMarkerModel<TraceEventKey> searchMarkerModel = new SearchMarkerModel<TraceEventKey>(traceTableModel);
+        SearchMarkerModel<TraceEventKey> searchMarkerModel = new SearchMarkerModel<TraceEventKey>(traceTableModel);
 
-		MarkerBar<TraceEventKey> markerBar = new MarkerBar<TraceEventKey>(traceNavigationTableController,
-				searchMarkerModel);
+        MarkerBar<TraceEventKey> markerBar = new MarkerBar<TraceEventKey>(traceNavigationTableController,
+                searchMarkerModel);
 
-		BookmarkModel<TraceEventKey> bookmarkModel;
-		bookmarkModel = traceTableModel.getBookmarkModel();
+        BookmarkModel<TraceEventKey> bookmarkModel;
+        bookmarkModel = traceTableModel.getBookmarkModel();
 
-		markerBar.addMarkerModel(bookmarkModel);
+        markerBar.addMarkerModel(bookmarkModel);
 
-		return markerBar;
-	}
+        return markerBar;
+    }
 }

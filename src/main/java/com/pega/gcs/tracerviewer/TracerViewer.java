@@ -41,549 +41,549 @@ import gnu.getopt.Getopt;
 
 public class TracerViewer extends BaseFrame {
 
-	private static final long serialVersionUID = -90660332725468972L;
+    private static final long serialVersionUID = -90660332725468972L;
 
-	private static final Log4j2Helper LOG = new Log4j2Helper(TracerViewer.class);
+    private static final Log4j2Helper LOG = new Log4j2Helper(TracerViewer.class);
 
-	public static final String FILE_CHOOSER_FILTER_DESC = "Tracer XML Files";
+    public static final String FILE_CHOOSER_FILTER_DESC = "Tracer XML Files";
 
-	public static final String[] FILE_CHOOSER_FILTER_EXT = { "xml" };
+    public static final String[] FILE_CHOOSER_FILTER_EXT = { "xml" };
 
-	public static final String FILE_CHOOSER_DIALOG_TITLE = "Select Tracer File";
+    public static final String FILE_CHOOSER_DIALOG_TITLE = "Select Tracer File";
 
-	public static final String RECENT_FILE_PREV_COMPARE_FILE = "prevCompareFile";
+    public static final String RECENT_FILE_PREV_COMPARE_FILE = "prevCompareFile";
 
-	private String appName;
+    private String appName;
 
-	private RecentFileJMenu recentFileJMenu;
+    private RecentFileJMenu recentFileJMenu;
 
-	private RecentFileContainer recentFileContainer;
+    private RecentFileContainer recentFileContainer;
 
-	private TraceTabbedPane traceTabbedPane;
+    private TraceTabbedPane traceTabbedPane;
 
-	// storing selected file so that open dialog known the last opened folder
-	private File selectedFile;
+    // storing selected file so that open dialog known the last opened folder
+    private File selectedFile;
 
-	private TracerViewerSetting tracerViewerSetting;
+    private TracerViewerSetting tracerViewerSetting;
 
-	private ArrayList<String> openFileList;
+    private ArrayList<String> openFileList;
 
-	protected TracerViewer() throws Exception {
+    protected TracerViewer() throws Exception {
 
-		super();
+        super();
 
-		// setPreferredSize(new Dimension(1200, 700));
+        // setPreferredSize(new Dimension(1200, 700));
 
-		setFocusTraversalKeysEnabled(false);
+        setFocusTraversalKeysEnabled(false);
 
-		pack();
+        pack();
 
-		// setLocationRelativeTo(null);
-		setExtendedState(Frame.MAXIMIZED_BOTH);
+        // setLocationRelativeTo(null);
+        setExtendedState(Frame.MAXIMIZED_BOTH);
 
-		setVisible(true);
+        setVisible(true);
 
-		// openFileList is loaded in initialize method
-		if ((openFileList != null) && (openFileList.size() > 0)) {
-			loadFile(openFileList);
-		}
+        // openFileList is loaded in initialize method
+        if ((openFileList != null) && (openFileList.size() > 0)) {
+            loadFile(openFileList);
+        }
 
-		LOG.info("TracerViewer - Started");
-	}
+        LOG.info("TracerViewer - Started");
+    }
 
-	protected File getSelectedFile() {
-		return selectedFile;
-	}
+    protected File getSelectedFile() {
+        return selectedFile;
+    }
 
-	protected TracerViewerSetting getTracerViewerSetting() {
-		return tracerViewerSetting;
-	}
+    protected TracerViewerSetting getTracerViewerSetting() {
+        return tracerViewerSetting;
+    }
 
-	protected RecentFileContainer getRecentFileContainer() {
-		return recentFileContainer;
-	}
+    protected RecentFileContainer getRecentFileContainer() {
+        return recentFileContainer;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.pega.fringe.common.gui.BaseFrame#initialize()
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	protected void initialize() throws Exception {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.pega.fringe.common.gui.BaseFrame#initialize()
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void initialize() throws Exception {
 
-		byte[] byteArray;
+        byte[] byteArray;
 
-		// get TracerViewerSetting
-		byteArray = GeneralUtilities.getPreferenceByteArray(TracerViewer.class, PREF_SETTINGS);
+        // get TracerViewerSetting
+        byteArray = GeneralUtilities.getPreferenceByteArray(TracerViewer.class, PREF_SETTINGS);
 
-		if (byteArray != null) {
-			try {
-				tracerViewerSetting = KryoSerializer.decompress(byteArray, TracerViewerSetting.class);
-			} catch (Exception e) {
-				LOG.error("Error in decompressing tracerviewersetting", e);
-			}
-		}
+        if (byteArray != null) {
+            try {
+                tracerViewerSetting = KryoSerializer.decompress(byteArray, TracerViewerSetting.class);
+            } catch (Exception e) {
+                LOG.error("Error in decompressing tracerviewersetting", e);
+            }
+        }
 
-		if (tracerViewerSetting == null) {
-			tracerViewerSetting = new TracerViewerSetting();
-			byteArray = KryoSerializer.compress(tracerViewerSetting);
-			GeneralUtilities.setPreferenceByteArray(TracerViewer.class, PREF_SETTINGS, byteArray);
-		}
+        if (tracerViewerSetting == null) {
+            tracerViewerSetting = new TracerViewerSetting();
+            byteArray = KryoSerializer.compress(tracerViewerSetting);
+            GeneralUtilities.setPreferenceByteArray(TracerViewer.class, PREF_SETTINGS, byteArray);
+        }
 
-		// get OpenFileList
-		byteArray = GeneralUtilities.getPreferenceByteArray(TracerViewer.class, PREF_OPEN_FILE_LIST);
+        // get OpenFileList
+        byteArray = GeneralUtilities.getPreferenceByteArray(TracerViewer.class, PREF_OPEN_FILE_LIST);
 
-		if (byteArray != null) {
-			try {
-				openFileList = KryoSerializer.decompress(byteArray, ArrayList.class);
-			} catch (Exception e) {
-				LOG.error("Error decompressing open file list.", e);
-			}
-		}
+        if (byteArray != null) {
+            try {
+                openFileList = KryoSerializer.decompress(byteArray, ArrayList.class);
+            } catch (Exception e) {
+                LOG.error("Error decompressing open file list.", e);
+            }
+        }
 
-		if (openFileList == null) {
-			openFileList = new ArrayList<>();
-			byteArray = KryoSerializer.compress(openFileList);
-			GeneralUtilities.setPreferenceByteArray(TracerViewer.class, PREF_OPEN_FILE_LIST, byteArray);
-		}
+        if (openFileList == null) {
+            openFileList = new ArrayList<>();
+            byteArray = KryoSerializer.compress(openFileList);
+            GeneralUtilities.setPreferenceByteArray(TracerViewer.class, PREF_OPEN_FILE_LIST, byteArray);
+        }
 
-		int capacity = tracerViewerSetting.getRecentItemsCount();
+        int capacity = tracerViewerSetting.getRecentItemsCount();
 
-		recentFileContainer = new RecentFileContainer(getClass(), capacity);
+        recentFileContainer = new RecentFileContainer(getClass(), capacity);
 
-	}
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.pega.fringe.common.gui.BaseFrame#getMainJPanel()
-	 */
-	@Override
-	protected JComponent getMainJPanel() {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.pega.fringe.common.gui.BaseFrame#getMainJPanel()
+     */
+    @Override
+    protected JComponent getMainJPanel() {
 
-		JPanel mainJPanel = new JPanel();
+        JPanel mainJPanel = new JPanel();
 
-		TraceTabbedPane traceTabbedPane = getTraceTabbedPane();
+        TraceTabbedPane traceTabbedPane = getTraceTabbedPane();
 
-		mainJPanel.setLayout(new BorderLayout());
+        mainJPanel.setLayout(new BorderLayout());
 
-		mainJPanel.add(traceTabbedPane, BorderLayout.CENTER);
+        mainJPanel.add(traceTabbedPane, BorderLayout.CENTER);
 
-		return mainJPanel;
+        return mainJPanel;
 
-	}
+    }
 
-	private TraceTabbedPane getTraceTabbedPane() {
+    private TraceTabbedPane getTraceTabbedPane() {
 
-		if (traceTabbedPane == null) {
+        if (traceTabbedPane == null) {
 
-			traceTabbedPane = new TraceTabbedPane(tracerViewerSetting, recentFileContainer);
-			traceTabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+            traceTabbedPane = new TraceTabbedPane(tracerViewerSetting, recentFileContainer);
+            traceTabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
-			// logTabbedPane.setBorder(BorderFactory.createLineBorder(
-			// MyColor.GRAY, 1));
-		}
-		return traceTabbedPane;
-	}
+            // logTabbedPane.setBorder(BorderFactory.createLineBorder(
+            // MyColor.GRAY, 1));
+        }
+        return traceTabbedPane;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.pega.fringe.common.gui.BaseFrame#getAppName()
-	 */
-	@Override
-	protected String getAppName() {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.pega.fringe.common.gui.BaseFrame#getAppName()
+     */
+    @Override
+    protected String getAppName() {
 
-		if (appName == null) {
+        if (appName == null) {
 
-			Package p = TracerViewer.class.getPackage();
+            Package p = TracerViewer.class.getPackage();
 
-			StringBuffer sb = new StringBuffer();
-			sb.append(p.getImplementationTitle());
-			sb.append(" ");
-			sb.append(p.getImplementationVersion());
+            StringBuffer sb = new StringBuffer();
+            sb.append(p.getImplementationTitle());
+            sb.append(" ");
+            sb.append(p.getImplementationVersion());
 
-			appName = sb.toString();
-		}
+            appName = sb.toString();
+        }
 
-		return appName;
-	}
+        return appName;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.pega.fringe.common.gui.BaseFrame#release()
-	 */
-	@Override
-	protected void release() {
-		savePreferences();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.pega.fringe.common.gui.BaseFrame#release()
+     */
+    @Override
+    protected void release() {
+        savePreferences();
+    }
 
-	protected void savePreferences() {
+    protected void savePreferences() {
 
-		recentFileContainer.saveRecentFilesPreferrence();
+        recentFileContainer.saveRecentFilesPreferrence();
 
-		// save TracerViewerSetting
-		try {
-			byte[] byteArray = KryoSerializer.compress(tracerViewerSetting);
+        // save TracerViewerSetting
+        try {
+            byte[] byteArray = KryoSerializer.compress(tracerViewerSetting);
 
-			LOG.info("TracerViewerSetting ByteSize: " + byteArray.length);
+            LOG.info("TracerViewerSetting ByteSize: " + byteArray.length);
 
-			GeneralUtilities.setPreferenceByteArray(this.getClass(), PREF_SETTINGS, byteArray);
-		} catch (Exception e) {
-			LOG.error("Error saving preferences.", e);
-		}
+            GeneralUtilities.setPreferenceByteArray(this.getClass(), PREF_SETTINGS, byteArray);
+        } catch (Exception e) {
+            LOG.error("Error saving preferences.", e);
+        }
 
-		// save openFileList
-		saveOpenFileList();
+        // save openFileList
+        saveOpenFileList();
 
-	}
+    }
 
-	private void saveOpenFileList() {
+    private void saveOpenFileList() {
 
-		try {
+        try {
 
-			boolean reloadPreviousFiles = tracerViewerSetting.isReloadPreviousFiles();
+            boolean reloadPreviousFiles = tracerViewerSetting.isReloadPreviousFiles();
 
-			if (reloadPreviousFiles) {
-				TraceTabbedPane traceTabbedPane = getTraceTabbedPane();
-				openFileList = traceTabbedPane.getOpenFileList();
-			} else {
-				openFileList = new ArrayList<>();
-			}
+            if (reloadPreviousFiles) {
+                TraceTabbedPane traceTabbedPane = getTraceTabbedPane();
+                openFileList = traceTabbedPane.getOpenFileList();
+            } else {
+                openFileList = new ArrayList<>();
+            }
 
-			byte[] byteArray = KryoSerializer.compress(openFileList);
+            byte[] byteArray = KryoSerializer.compress(openFileList);
 
-			LOG.info("Open File List ByteSize: " + byteArray.length);
+            LOG.info("Open File List ByteSize: " + byteArray.length);
 
-			GeneralUtilities.setPreferenceByteArray(this.getClass(), PREF_OPEN_FILE_LIST, byteArray);
+            GeneralUtilities.setPreferenceByteArray(this.getClass(), PREF_OPEN_FILE_LIST, byteArray);
 
-		} catch (Exception e) {
-			LOG.error("Error compressing open file list.", e);
-		}
-	}
+        } catch (Exception e) {
+            LOG.error("Error compressing open file list.", e);
+        }
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.pega.fringe.common.gui.BaseFrame#getMenuJMenuBar()
-	 */
-	@Override
-	protected JMenuBar getMenuJMenuBar() {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.pega.fringe.common.gui.BaseFrame#getMenuJMenuBar()
+     */
+    @Override
+    protected JMenuBar getMenuJMenuBar() {
 
-		// ---- FILE ----
-		JMenu fileJMenu = new JMenu("   File   ");
+        // ---- FILE ----
+        JMenu fileJMenu = new JMenu("   File   ");
 
-		fileJMenu.setMnemonic(KeyEvent.VK_F);
+        fileJMenu.setMnemonic(KeyEvent.VK_F);
 
-		JMenuItem fileOpenJMenuItem = new JMenuItem("Load Pega Tracer File");
+        JMenuItem fileOpenJMenuItem = new JMenuItem("Load Pega Tracer File");
 
-		fileOpenJMenuItem.setMnemonic(KeyEvent.VK_L);
-		fileOpenJMenuItem.setToolTipText("Load Pega Tracer XML File");
+        fileOpenJMenuItem.setMnemonic(KeyEvent.VK_L);
+        fileOpenJMenuItem.setToolTipText("Load Pega Tracer XML File");
 
-		ImageIcon ii = FileUtilities.getImageIcon(this.getClass(), "open.png");
+        ImageIcon ii = FileUtilities.getImageIcon(this.getClass(), "open.png");
 
-		fileOpenJMenuItem.setIcon(ii);
+        fileOpenJMenuItem.setIcon(ii);
 
-		fileOpenJMenuItem.addActionListener(new ActionListener() {
+        fileOpenJMenuItem.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent event) {
+            @Override
+            public void actionPerformed(ActionEvent event) {
 
-				File selectedFile = getSelectedFile();
+                File selectedFile = getSelectedFile();
 
-				FileFilter fileFilter = TracerViewer.getDefaultFileFilter(FILE_CHOOSER_FILTER_DESC,
-						Arrays.asList(FILE_CHOOSER_FILTER_EXT));
+                FileFilter fileFilter = TracerViewer.getDefaultFileFilter(FILE_CHOOSER_FILTER_DESC,
+                        Arrays.asList(FILE_CHOOSER_FILTER_EXT));
 
-				File aFile = openFileChooser(TracerViewer.this, TracerViewer.class, FILE_CHOOSER_DIALOG_TITLE,
-						fileFilter, selectedFile);
+                File aFile = openFileChooser(TracerViewer.this, TracerViewer.class, FILE_CHOOSER_DIALOG_TITLE,
+                        fileFilter, selectedFile);
 
-				if (aFile != null) {
-					loadFile(aFile);
-				}
-			}
-		});
+                if (aFile != null) {
+                    loadFile(aFile);
+                }
+            }
+        });
 
-		RecentFileJMenu recentFileJMenu = getRecentFileJMenu();
+        RecentFileJMenu recentFileJMenu = getRecentFileJMenu();
 
-		JMenuItem clearRecentJMenuItem = new JMenuItem("Clear Recent");
-		clearRecentJMenuItem.setMnemonic(KeyEvent.VK_C);
-		clearRecentJMenuItem.setToolTipText("Clear Recent");
+        JMenuItem clearRecentJMenuItem = new JMenuItem("Clear Recent");
+        clearRecentJMenuItem.setMnemonic(KeyEvent.VK_C);
+        clearRecentJMenuItem.setToolTipText("Clear Recent");
 
-		clearRecentJMenuItem.setIcon(ii);
+        clearRecentJMenuItem.setIcon(ii);
 
-		clearRecentJMenuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				clearRecentPreferences();
-				savePreferences();
-			}
-		});
+        clearRecentJMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                clearRecentPreferences();
+                savePreferences();
+            }
+        });
 
-		JMenuItem exitJMenuItem = new JMenuItem("Exit");
-		exitJMenuItem.setMnemonic(KeyEvent.VK_X);
-		exitJMenuItem.setToolTipText("Exit application");
+        JMenuItem exitJMenuItem = new JMenuItem("Exit");
+        exitJMenuItem.setMnemonic(KeyEvent.VK_X);
+        exitJMenuItem.setToolTipText("Exit application");
 
-		ii = FileUtilities.getImageIcon(this.getClass(), "exit.png");
+        ii = FileUtilities.getImageIcon(this.getClass(), "exit.png");
 
-		exitJMenuItem.setIcon(ii);
+        exitJMenuItem.setIcon(ii);
 
-		exitJMenuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				exit(0);
-			}
-		});
+        exitJMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                exit(0);
+            }
+        });
 
-		// fileJMenu.addSeparator();
-		fileJMenu.add(fileOpenJMenuItem);
-		fileJMenu.add(recentFileJMenu);
-		fileJMenu.add(clearRecentJMenuItem);
-		fileJMenu.add(exitJMenuItem);
+        // fileJMenu.addSeparator();
+        fileJMenu.add(fileOpenJMenuItem);
+        fileJMenu.add(recentFileJMenu);
+        fileJMenu.add(clearRecentJMenuItem);
+        fileJMenu.add(exitJMenuItem);
 
-		// ---- EDIT ----
-		JMenu editJMenu = new JMenu("   Edit   ");
-		editJMenu.setMnemonic(KeyEvent.VK_E);
+        // ---- EDIT ----
+        JMenu editJMenu = new JMenu("   Edit   ");
+        editJMenu.setMnemonic(KeyEvent.VK_E);
 
-		JMenuItem settingsJMenuItem = new JMenuItem("Settings");
-		settingsJMenuItem.setToolTipText("Settings");
+        JMenuItem settingsJMenuItem = new JMenuItem("Settings");
+        settingsJMenuItem.setToolTipText("Settings");
 
-		ii = FileUtilities.getImageIcon(this.getClass(), "settings.png");
-		settingsJMenuItem.setIcon(ii);
+        ii = FileUtilities.getImageIcon(this.getClass(), "settings.png");
+        settingsJMenuItem.setIcon(ii);
 
-		settingsJMenuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				TracerViewerSettingsDialog tracerViewerSettingsDialog;
-				tracerViewerSettingsDialog = new TracerViewerSettingsDialog(getTracerViewerSetting(), getAppIcon(),
-						TracerViewer.this);
+        settingsJMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                TracerViewerSettingsDialog tracerViewerSettingsDialog;
+                tracerViewerSettingsDialog = new TracerViewerSettingsDialog(getTracerViewerSetting(), getAppIcon(),
+                        TracerViewer.this);
 
-				if (tracerViewerSettingsDialog.isSettingUpdated()) {
+                if (tracerViewerSettingsDialog.isSettingUpdated()) {
 
-					int recentItemsCount = tracerViewerSettingsDialog.getRecentItemsCount();
-					String charset = tracerViewerSettingsDialog.getSelectedCharset();
-					boolean reloadPreviousFiles = tracerViewerSettingsDialog.isReloadPreviousFiles();
+                    int recentItemsCount = tracerViewerSettingsDialog.getRecentItemsCount();
+                    String charset = tracerViewerSettingsDialog.getSelectedCharset();
+                    boolean reloadPreviousFiles = tracerViewerSettingsDialog.isReloadPreviousFiles();
 
-					TracerViewerSetting tracerViewerSetting = getTracerViewerSetting();
+                    TracerViewerSetting tracerViewerSetting = getTracerViewerSetting();
 
-					tracerViewerSetting.setRecentItemsCount(recentItemsCount);
-					tracerViewerSetting.setCharset(charset);
-					tracerViewerSetting.setReloadPreviousFiles(reloadPreviousFiles);
-				}
-			}
-		});
+                    tracerViewerSetting.setRecentItemsCount(recentItemsCount);
+                    tracerViewerSetting.setCharset(charset);
+                    tracerViewerSetting.setReloadPreviousFiles(reloadPreviousFiles);
+                }
+            }
+        });
 
-		editJMenu.add(settingsJMenuItem);
+        editJMenu.add(settingsJMenuItem);
 
-		// ---- HELP ----
-		JMenu helpJMenu = getHelpAboutJMenu();
+        // ---- HELP ----
+        JMenu helpJMenu = getHelpAboutJMenu();
 
-		JMenuBar jMenuBar = new JMenuBar();
-		jMenuBar.add(fileJMenu);
-		jMenuBar.add(editJMenu);
-		jMenuBar.add(helpJMenu);
+        JMenuBar jMenuBar = new JMenuBar();
+        jMenuBar.add(fileJMenu);
+        jMenuBar.add(editJMenu);
+        jMenuBar.add(helpJMenu);
 
-		return jMenuBar;
+        return jMenuBar;
 
-	}
+    }
 
-	public RecentFileJMenu getRecentFileJMenu() {
+    public RecentFileJMenu getRecentFileJMenu() {
 
-		if (recentFileJMenu == null) {
+        if (recentFileJMenu == null) {
 
-			recentFileJMenu = new RecentFileJMenu(recentFileContainer) {
+            recentFileJMenu = new RecentFileJMenu(recentFileContainer) {
 
-				private static final long serialVersionUID = 5024129406924781237L;
+                private static final long serialVersionUID = 5024129406924781237L;
 
-				@Override
-				public void onSelect(RecentFile recentFile) {
+                @Override
+                public void onSelect(RecentFile recentFile) {
 
-					String file = (String) recentFile.getAttribute(RecentFile.KEY_FILE);
+                    String file = (String) recentFile.getAttribute(RecentFile.KEY_FILE);
 
-					File aFile = new File(file);
+                    File aFile = new File(file);
 
-					if (aFile.exists() && aFile.isFile() && aFile.canRead()) {
-						loadFile(aFile);
-					} else {
+                    if (aFile.exists() && aFile.isFile() && aFile.canRead()) {
+                        loadFile(aFile);
+                    } else {
 
-						JOptionPane.showMessageDialog(this, "File: " + aFile + " cannot be read.", "File not found",
-								JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "File: " + aFile + " cannot be read.", "File not found",
+                                JOptionPane.ERROR_MESSAGE);
 
-						getRecentFileContainer().deleteRecentFile(recentFile);
-					}
+                        getRecentFileContainer().deleteRecentFile(recentFile);
+                    }
 
-				}
-			};
-		}
+                }
+            };
+        }
 
-		return recentFileJMenu;
-	}
+        return recentFileJMenu;
+    }
 
-	protected void clearRecentPreferences() {
-		recentFileContainer.clearRecentFilesPreferrence();
-		tracerViewerSetting = new TracerViewerSetting();
-		openFileList = new ArrayList<>();
-	}
+    protected void clearRecentPreferences() {
+        recentFileContainer.clearRecentFilesPreferrence();
+        tracerViewerSetting = new TracerViewerSetting();
+        openFileList = new ArrayList<>();
+    }
 
-	protected void loadFile(List<String> fileNameList) {
+    protected void loadFile(List<String> fileNameList) {
 
-		for (String filename : fileNameList) {
+        for (String filename : fileNameList) {
 
-			LOG.info("Processing file: " + filename);
+            LOG.info("Processing file: " + filename);
 
-			File aFile = new File(filename);
+            File aFile = new File(filename);
 
-			if (aFile.exists() && aFile.isFile() && aFile.canRead()) {
-				loadFile(aFile);
-			} else {
-				LOG.info("\"" + filename + "\" is not a file.");
-			}
-		}
-	}
+            if (aFile.exists() && aFile.isFile() && aFile.canRead()) {
+                loadFile(aFile);
+            } else {
+                LOG.info("\"" + filename + "\" is not a file.");
+            }
+        }
+    }
 
-	protected void loadFile(File aFile) {
+    protected void loadFile(File aFile) {
 
-		this.selectedFile = aFile;
+        this.selectedFile = aFile;
 
-		TraceTabbedPane traceTabbedPane = getTraceTabbedPane();
+        TraceTabbedPane traceTabbedPane = getTraceTabbedPane();
 
-		try {
+        try {
 
-			traceTabbedPane.loadFile(selectedFile);
+            traceTabbedPane.loadFile(selectedFile);
 
-			saveOpenFileList();
+            saveOpenFileList();
 
-		} catch (Exception e) {
-			LOG.error("Error loading file - " + selectedFile.toString(), e);
+        } catch (Exception e) {
+            LOG.error("Error loading file - " + selectedFile.toString(), e);
 
-			JOptionPane.showMessageDialog(this, (e.getMessage() + " " + selectedFile), "Error loading file: ",
-					JOptionPane.ERROR_MESSAGE);
-		}
-	}
+            JOptionPane.showMessageDialog(this, (e.getMessage() + " " + selectedFile), "Error loading file: ",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-	public static void generateReport(List<String> fileNameList) {
+    public static void generateReport(List<String> fileNameList) {
 
-		if (fileNameList.size() == 0) {
-			LOG.info("no files to process");
-		}
+        if (fileNameList.size() == 0) {
+            LOG.info("no files to process");
+        }
 
-		for (String filename : fileNameList) {
+        for (String filename : fileNameList) {
 
-			LOG.info("Processing file: " + filename);
+            LOG.info("Processing file: " + filename);
 
-			File aFile = new File(filename);
+            File aFile = new File(filename);
 
-			if (aFile.exists() && aFile.isFile() && aFile.canRead()) {
-				generateReport(aFile);
-			} else {
-				LOG.info("\"" + filename + "\" is not a file.");
-			}
-		}
-	}
+            if (aFile.exists() && aFile.isFile() && aFile.canRead()) {
+                generateReport(aFile);
+            } else {
+                LOG.info("\"" + filename + "\" is not a file.");
+            }
+        }
+    }
 
-	private static void generateReport(File tracerFile) {
-		// TODO - generate report
-	}
+    private static void generateReport(File tracerFile) {
+        // TODO - generate report
+    }
 
-	/**
-	 * @param args
-	 */
-	public static void main(final String[] args) {
+    /**
+     * @param args
+     */
+    public static void main(final String[] args) {
 
-		LOG.info("Default Locale: " + Locale.getDefault() + " args length: " + args.length);
+        LOG.info("Default Locale: " + Locale.getDefault() + " args length: " + args.length);
 
-		SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeLater(new Runnable() {
 
-			@Override
-			public void run() {
-				try {
+            @Override
+            public void run() {
+                try {
 
-					if (args.length > 0) {
+                    if (args.length > 0) {
 
-						List<String> fileNameList = new ArrayList<String>();
+                        List<String> fileNameList = new ArrayList<String>();
 
-						boolean isReport = false;
+                        boolean isReport = false;
 
-						Getopt getopt = new Getopt("TracerViewer", args, "f:r:h:?;");
+                        Getopt getopt = new Getopt("TracerViewer", args, "f:r:h:?;");
 
-						int c;
-						String arg;
+                        int c;
+                        String arg;
 
-						while ((c = getopt.getopt()) != -1) {
+                        while ((c = getopt.getopt()) != -1) {
 
-							switch (c) {
+                            switch (c) {
 
-							case 'f':
+                            case 'f':
 
-								int index = getopt.getOptind() - 1;
-								// LOG.info("index -> " + index);
+                                int index = getopt.getOptind() - 1;
+                                // LOG.info("index -> " + index);
 
-								while (index < args.length) {
+                                while (index < args.length) {
 
-									String next = args[index];
-									index++;
+                                    String next = args[index];
+                                    index++;
 
-									if (next.startsWith("-")) {
-										break;
-									} else {
-										fileNameList.add(next);
-									}
-								}
+                                    if (next.startsWith("-")) {
+                                        break;
+                                    } else {
+                                        fileNameList.add(next);
+                                    }
+                                }
 
-								getopt.setOptind(index - 1);
+                                getopt.setOptind(index - 1);
 
-								break;
+                                break;
 
-							case 'r':
-								arg = getopt.getOptarg();
-								isReport = Boolean.parseBoolean(arg);
+                            case 'r':
+                                arg = getopt.getOptarg();
+                                isReport = Boolean.parseBoolean(arg);
 
-								break;
+                                break;
 
-							case 'h':
-								printUsageAndExit();
-								break;
+                            case 'h':
+                                printUsageAndExit();
+                                break;
 
-							case '?':
-								printUsageAndExit();
-								break;
+                            case '?':
+                                printUsageAndExit();
+                                break;
 
-							default:
-								LOG.info("getopt() returned " + c);
-								break;
-							}
-						}
+                            default:
+                                LOG.info("getopt() returned " + c);
+                                break;
+                            }
+                        }
 
-						// handle non option arguments - for ex starting using open-with menu command on
-						// windows. assume them as file names
-						for (int i = getopt.getOptind(); i < args.length; i++) {
-							String filename = args[i];
-							LOG.info("Non option arg element: " + filename + "\n");
-							fileNameList.add(filename);
-						}
+                        // handle non option arguments - for ex starting using open-with menu command on
+                        // windows. assume them as file names
+                        for (int i = getopt.getOptind(); i < args.length; i++) {
+                            String filename = args[i];
+                            LOG.info("Non option arg element: " + filename + "\n");
+                            fileNameList.add(filename);
+                        }
 
-						if (isReport) {
-							generateReport(fileNameList);
-						} else {
-							TracerViewer tracerViewer = new TracerViewer();
-							tracerViewer.loadFile(fileNameList);
-						}
-					} else {
-						TracerViewer tracerViewer = new TracerViewer();
-						tracerViewer.setVisible(true);
-					}
+                        if (isReport) {
+                            generateReport(fileNameList);
+                        } else {
+                            TracerViewer tracerViewer = new TracerViewer();
+                            tracerViewer.loadFile(fileNameList);
+                        }
+                    } else {
+                        TracerViewer tracerViewer = new TracerViewer();
+                        tracerViewer.setVisible(true);
+                    }
 
-				} catch (Exception e) {
-					LOG.error("TracerViewer error reading command line arguments.", e);
-				}
-			}
-		});
-	}
+                } catch (Exception e) {
+                    LOG.error("TracerViewer error reading command line arguments.", e);
+                }
+            }
+        });
+    }
 
-	protected static void printUsageAndExit() {
-		String usageStr = "\t-f <space seperated list of file path> \n\t-r <true|false generate report, no UI \n\t-h <print command usage>";
-		LOG.info("Usage Arguments: \n" + usageStr);
-		System.exit(0);
-	}
+    protected static void printUsageAndExit() {
+        String usageStr = "\t-f <space seperated list of file path> \n\t-r <true|false generate report, no UI \n\t-h <print command usage>";
+        LOG.info("Usage Arguments: \n" + usageStr);
+        System.exit(0);
+    }
 }

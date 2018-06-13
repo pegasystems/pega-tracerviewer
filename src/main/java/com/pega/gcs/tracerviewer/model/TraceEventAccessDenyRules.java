@@ -10,10 +10,10 @@ import org.dom4j.Element;
 
 public class TraceEventAccessDenyRules extends TraceEvent {
 
-	public TraceEventAccessDenyRules(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventAccessDenyRules(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.ACCESS_DENY_RULES;
-	}
+        traceEventType = TraceEventType.ACCESS_DENY_RULES;
+    }
 }

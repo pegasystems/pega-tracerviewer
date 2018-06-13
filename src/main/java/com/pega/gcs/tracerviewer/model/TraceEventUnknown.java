@@ -15,16 +15,16 @@ import org.dom4j.Element;
  */
 public class TraceEventUnknown extends TraceEvent {
 
-	public TraceEventUnknown(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventUnknown(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.UNKNOWN;
-	}
+        traceEventType = TraceEventType.UNKNOWN;
+    }
 
-	@Override
-	protected void setDefaultBackground() {
-		Color color = Color.WHITE;
-		fillColumnBackground(color);
-	}
+    @Override
+    protected void setDefaultBackground() {
+        Color color = Color.WHITE;
+        fillColumnBackground(color);
+    }
 }

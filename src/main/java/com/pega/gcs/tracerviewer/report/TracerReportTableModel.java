@@ -17,64 +17,64 @@ import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public class TracerReportTableModel extends AbstractTableModel {
 
-	private static final long serialVersionUID = -1734090615883541481L;
+    private static final long serialVersionUID = -1734090615883541481L;
 
-	private TraceTableModelColumn[] tracerReportTableColumns;
+    private TraceTableModelColumn[] tracerReportTableColumns;
 
-	private List<TraceEventKey> traceEventKeyList;
+    private List<TraceEventKey> traceEventKeyList;
 
-	private TraceTableModel traceTableModel;
+    private TraceTableModel traceTableModel;
 
-	public TracerReportTableModel(List<TraceEventKey> traceEventKeyList, TraceTableModel traceTableModel) {
-		super();
-		this.traceEventKeyList = traceEventKeyList;
-		this.traceTableModel = traceTableModel;
+    public TracerReportTableModel(List<TraceEventKey> traceEventKeyList, TraceTableModel traceTableModel) {
+        super();
+        this.traceEventKeyList = traceEventKeyList;
+        this.traceTableModel = traceTableModel;
 
-		this.tracerReportTableColumns = TraceTableModelColumn.getReportTraceTableModelColumnArray();
-	}
+        this.tracerReportTableColumns = TraceTableModelColumn.getReportTraceTableModelColumnArray();
+    }
 
-	@Override
-	public int getRowCount() {
-		return traceEventKeyList.size();
-	}
+    @Override
+    public int getRowCount() {
+        return traceEventKeyList.size();
+    }
 
-	@Override
-	public int getColumnCount() {
-		return tracerReportTableColumns.length;
-	}
+    @Override
+    public int getColumnCount() {
+        return tracerReportTableColumns.length;
+    }
 
-	@Override
-	public String getColumnName(int column) {
-		return getColumn(column).getName();
-	}
+    @Override
+    public String getColumnName(int column) {
+        return getColumn(column).getName();
+    }
 
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
 
-		TraceEventKey traceEventKey = getTraceEventKey(rowIndex);
+        TraceEventKey traceEventKey = getTraceEventKey(rowIndex);
 
-		TraceEvent traceEvent = traceTableModel.getTraceEventForKey(traceEventKey);
+        TraceEvent traceEvent = traceTableModel.getTraceEventForKey(traceEventKey);
 
-		return traceEvent;
-	}
+        return traceEvent;
+    }
 
-	public TraceTableModelColumn getColumn(int columnIndex) {
-		return tracerReportTableColumns[columnIndex];
-	}
+    public TraceTableModelColumn getColumn(int columnIndex) {
+        return tracerReportTableColumns[columnIndex];
+    }
 
-	public String getColumnValue(TraceEvent traceEvent, int columnIndex) {
+    public String getColumnValue(TraceEvent traceEvent, int columnIndex) {
 
-		String columnValue = null;
+        String columnValue = null;
 
-		TraceTableModelColumn traceTableModelColumn = getColumn(columnIndex);
+        TraceTableModelColumn traceTableModelColumn = getColumn(columnIndex);
 
-		columnValue = traceEvent.getColumnValueForTraceTableModelColumn(traceTableModelColumn);
+        columnValue = traceEvent.getColumnValueForTraceTableModelColumn(traceTableModelColumn);
 
-		return columnValue;
-	}
+        return columnValue;
+    }
 
-	public TraceEventKey getTraceEventKey(int rowIndex) {
-		TraceEventKey traceEventKey = traceEventKeyList.get(rowIndex);
-		return traceEventKey;
-	}
+    public TraceEventKey getTraceEventKey(int rowIndex) {
+        TraceEventKey traceEventKey = traceEventKeyList.get(rowIndex);
+        return traceEventKey;
+    }
 }

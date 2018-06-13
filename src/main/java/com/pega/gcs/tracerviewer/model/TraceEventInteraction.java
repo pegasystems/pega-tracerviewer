@@ -10,215 +10,215 @@ import org.dom4j.Element;
 
 public class TraceEventInteraction extends TraceEventNonActivity {
 
-	public TraceEventInteraction(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+    public TraceEventInteraction(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
 
-		super(traceEventKey, bytes, traceEventElement);
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.INTERACTION;
+        traceEventType = TraceEventType.INTERACTION;
 
-	}
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.fringe.tracerviewer.TraceEvent#getRule()
-	 */
-	@Override
-	protected void setRuleNo(Element traceEventElement) {
-		setRuleNo((Integer) null);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.fringe.tracerviewer.TraceEvent#getRule()
+     */
+    @Override
+    protected void setRuleNo(Element traceEventElement) {
+        setRuleNo((Integer) null);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.fringe.tracerviewer.TraceEvent#getStepMethod()
-	 */
-	@Override
-	protected void setStepMethod(Element traceEventElement) {
-		setStepMethod("");
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.fringe.tracerviewer.TraceEvent#getStepMethod()
+     */
+    @Override
+    protected void setStepMethod(Element traceEventElement) {
+        setStepMethod("");
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.fringe.tracerviewer.TraceEvent#getStepPage()
-	 */
-	@Override
-	protected void setStepPage(Element traceEventElement) {
-		setStepPage("");
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.fringe.tracerviewer.TraceEvent#getStepPage()
+     */
+    @Override
+    protected void setStepPage(Element traceEventElement) {
+        setStepPage("");
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.fringe.tracerviewer.TraceEvent#getStep()
-	 */
-	@Override
-	protected void setStep(Element traceEventElement) {
-		setStep("");
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.fringe.tracerviewer.TraceEvent#getStep()
+     */
+    @Override
+    protected void setStep(Element traceEventElement) {
+        setStep("");
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.fringe.tracerviewer.TraceEvent#getStatus()
-	 */
-	@Override
-	protected void setStatus(Element traceEventElement) {
-		String status = "";
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.fringe.tracerviewer.TraceEvent#getStatus()
+     */
+    @Override
+    protected void setStatus(Element traceEventElement) {
+        String status = "";
 
-		Element element = traceEventElement.element("InteractionBytes");
+        Element element = traceEventElement.element("InteractionBytes");
 
-		if (element != null) {
-			status = element.getText();
-			status += "(b)";
-		}
+        if (element != null) {
+            status = element.getText();
+            status += "(b)";
+        }
 
-		setStatus(status);
-	}
+        setStatus(status);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.fringe.tracerviewer.TraceEvent#getEventType()
-	 */
-	@Override
-	protected void setEventName(Element traceEventElement) {
-		String eventName = "";
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.fringe.tracerviewer.TraceEvent#getEventType()
+     */
+    @Override
+    protected void setEventName(Element traceEventElement) {
+        String eventName = "";
 
-		Element element = traceEventElement.element("EventName");
+        Element element = traceEventElement.element("EventName");
 
-		if (element != null) {
-			eventName = element.getText();
-		}
+        if (element != null) {
+            eventName = element.getText();
+        }
 
-		setEventName(eventName);
-	}
+        setEventName(eventName);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.fringe.tracerviewer.TraceEvent#getName()
-	 */
-	@Override
-	protected void setName(Element traceEventElement) {
-		String name = "";
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.fringe.tracerviewer.TraceEvent#getName()
+     */
+    @Override
+    protected void setName(Element traceEventElement) {
+        String name = "";
 
-		Element element = traceEventElement.element("InteractionQueryParam");
+        Element element = traceEventElement.element("InteractionQueryParam");
 
-		if (element != null) {
-			name = element.getText();
-		}
+        if (element != null) {
+            name = element.getText();
+        }
 
-		setName(name);
-	}
+        setName(name);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.fringe.tracerviewer.TraceEvent#getRuleSet()
-	 */
-	@Override
-	protected void setRuleSet(Element traceEventElement) {
-		setRuleSet("");
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.fringe.tracerviewer.TraceEvent#getRuleSet()
+     */
+    @Override
+    protected void setRuleSet(Element traceEventElement) {
+        setRuleSet("");
+    }
 
-	@Override
-	public Element getTraceEventPropertyElement() {
+    @Override
+    public Element getTraceEventPropertyElement() {
 
-		Element traceEventPropertyElement = null;
+        Element traceEventPropertyElement = null;
 
-		Element rootElement = getTraceEventRootElement();
+        Element rootElement = getTraceEventRootElement();
 
-		if (rootElement != null) {
+        if (rootElement != null) {
 
-			traceEventPropertyElement = getDefaultTraceEventPropertyElement(rootElement);
+            traceEventPropertyElement = getDefaultTraceEventPropertyElement(rootElement);
 
-			// Interaction
-			Element element = rootElement.element("InteractionBytes");
+            // Interaction
+            Element element = rootElement.element("InteractionBytes");
 
-			if (element != null) {
-				traceEventPropertyElement.add(createElement("Bytes", element));
-			}
+            if (element != null) {
+                traceEventPropertyElement.add(createElement("Bytes", element));
+            }
 
-			// InteractionQueryParam
-			element = rootElement.element("InteractionQueryParam");
+            // InteractionQueryParam
+            element = rootElement.element("InteractionQueryParam");
 
-			if (element != null) {
-				traceEventPropertyElement.add(createElement("Query Param", element));
-			}
+            if (element != null) {
+                traceEventPropertyElement.add(createElement("Query Param", element));
+            }
 
-			// InteractionQueryData
-			element = rootElement.element("InteractionQueryData");
+            // InteractionQueryData
+            element = rootElement.element("InteractionQueryData");
 
-			if (element != null) {
+            if (element != null) {
 
-				String queryData = element.getText();
+                String queryData = element.getText();
 
-				Element queryDataElem = createElement("Query Data", null, "QueryData");
+                Element queryDataElem = createElement("Query Data", null, "QueryData");
 
-				element = rootElement.element("JSONDataFlag");
+                element = rootElement.element("JSONDataFlag");
 
-				if (element != null) {
-					String jsonValue = element.getText();
+                if (element != null) {
+                    String jsonValue = element.getText();
 
-					// TODO: implement JSON parsing
-					if ("true".equals(jsonValue)) {
-						queryDataElem.setText(queryData);
-					} else {
-						queryDataElem = buildTokenTable(queryDataElem, queryData, "&");
-					}
-				} else {
-					queryDataElem = buildTokenTable(queryDataElem, queryData, "&");
-				}
+                    // TODO: implement JSON parsing
+                    if ("true".equals(jsonValue)) {
+                        queryDataElem.setText(queryData);
+                    } else {
+                        queryDataElem = buildTokenTable(queryDataElem, queryData, "&");
+                    }
+                } else {
+                    queryDataElem = buildTokenTable(queryDataElem, queryData, "&");
+                }
 
-				traceEventPropertyElement.add(queryDataElem);
+                traceEventPropertyElement.add(queryDataElem);
 
-			}
+            }
 
-			// InteractionPAL
-			element = rootElement.element("InteractionPAL");
+            // InteractionPAL
+            element = rootElement.element("InteractionPAL");
 
-			if (element != null) {
+            if (element != null) {
 
-				String palData = element.getText();
+                String palData = element.getText();
 
-				Element palDataElem = createElement("PAL", null, "PAL");
+                Element palDataElem = createElement("PAL", null, "PAL");
 
-				palDataElem = buildTokenTable(palDataElem, palData, ";");
+                palDataElem = buildTokenTable(palDataElem, palData, ";");
 
-				traceEventPropertyElement.add(palDataElem);
-			}
-		}
+                traceEventPropertyElement.add(palDataElem);
+            }
+        }
 
-		return traceEventPropertyElement;
-	}
+        return traceEventPropertyElement;
+    }
 
-	@Override
-	protected boolean checkStart() {
+    @Override
+    protected boolean checkStart() {
 
-		boolean start = false;
+        boolean start = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("Interaction Begin".equals(eventName)) {
-			start = true;
-		}
+        if ("Interaction Begin".equals(eventName)) {
+            start = true;
+        }
 
-		return start;
-	}
+        return start;
+    }
 
-	@Override
-	protected boolean checkEnd() {
+    @Override
+    protected boolean checkEnd() {
 
-		boolean end = false;
+        boolean end = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("Interaction End".equals(eventName)) {
-			end = true;
-		}
+        if ("Interaction End".equals(eventName)) {
+            end = true;
+        }
 
-		return end;
-	}
+        return end;
+    }
 }

@@ -10,38 +10,38 @@ import org.dom4j.Element;
 
 public class TraceEventScorecard extends TraceEventNonActivity {
 
-	public TraceEventScorecard(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+    public TraceEventScorecard(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
 
-		super(traceEventKey, bytes, traceEventElement);
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.SCORECARD;
-	}
+        traceEventType = TraceEventType.SCORECARD;
+    }
 
-	@Override
-	protected boolean checkStart() {
+    @Override
+    protected boolean checkStart() {
 
-		boolean start = false;
+        boolean start = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("Begin".equals(eventName)) {
-			start = true;
-		}
+        if ("Begin".equals(eventName)) {
+            start = true;
+        }
 
-		return start;
-	}
+        return start;
+    }
 
-	@Override
-	protected boolean checkEnd() {
+    @Override
+    protected boolean checkEnd() {
 
-		boolean end = false;
+        boolean end = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("End".equals(eventName)) {
-			end = true;
-		}
+        if ("End".equals(eventName)) {
+            end = true;
+        }
 
-		return end;
-	}
+        return end;
+    }
 }

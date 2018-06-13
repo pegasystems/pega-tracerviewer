@@ -64,709 +64,709 @@ import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public abstract class TracerDataCompareView extends TracerDataView {
 
-	private static final long serialVersionUID = -454998733253496709L;
+    private static final long serialVersionUID = -454998733253496709L;
 
-	private static final Log4j2Helper LOG = new Log4j2Helper(TracerDataCompareView.class);
+    private static final Log4j2Helper LOG = new Log4j2Helper(TracerDataCompareView.class);
 
-	// search panel for left table
-	private SearchPanel<TraceEventKey> searchPanel;
+    // search panel for left table
+    private SearchPanel<TraceEventKey> searchPanel;
 
-	private RecentFileContainer recentFileContainer;
+    private RecentFileContainer recentFileContainer;
 
-	private TracerViewerSetting tracerViewerSetting;
+    private TracerViewerSetting tracerViewerSetting;
 
-	private JButton fileOpenJButton;
+    private JButton fileOpenJButton;
 
-	private MarkerBar<TraceEventKey> compareMarkerBar;
+    private MarkerBar<TraceEventKey> compareMarkerBar;
 
-	private NavigationPanel<TraceEventKey> navigationPanel;
+    private NavigationPanel<TraceEventKey> navigationPanel;
 
-	private NavigationPanelController<TraceEventKey> navigationPanelController;
+    private NavigationPanelController<TraceEventKey> navigationPanelController;
 
-	protected abstract TraceTable getTracerDataTableLeft();
+    protected abstract TraceTable getTracerDataTableLeft();
 
-	protected abstract TraceTable getTracerDataTableRight();
+    protected abstract TraceTable getTracerDataTableRight();
 
-	private JScrollPane jScrollPaneLeft;
+    private JScrollPane jScrollPaneLeft;
 
-	private JScrollPane jScrollPaneRight;
+    private JScrollPane jScrollPaneRight;
 
-	public TracerDataCompareView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
-			TraceNavigationTableController traceNavigationTableController, RecentFileContainer recentFileContainer,
-			TracerViewerSetting tracerViewerSetting) {
+    public TracerDataCompareView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
+            TraceNavigationTableController traceNavigationTableController, RecentFileContainer recentFileContainer,
+            TracerViewerSetting tracerViewerSetting) {
 
-		super(traceTableModel, traceNavigationTableController, supplementUtilityJPanel);
+        super(traceTableModel, traceNavigationTableController, supplementUtilityJPanel);
 
-		this.recentFileContainer = recentFileContainer;
-		this.tracerViewerSetting = tracerViewerSetting;
+        this.recentFileContainer = recentFileContainer;
+        this.tracerViewerSetting = tracerViewerSetting;
 
-		TraceTable traceTableLeft = getTracerDataTableLeft();
-		traceNavigationTableController.addCustomJTable(traceTableLeft);
+        TraceTable traceTableLeft = getTracerDataTableLeft();
+        traceNavigationTableController.addCustomJTable(traceTableLeft);
 
-		searchPanel = new SearchPanel<TraceEventKey>(traceNavigationTableController, traceTableModel.getSearchModel());
+        searchPanel = new SearchPanel<TraceEventKey>(traceNavigationTableController, traceTableModel.getSearchModel());
 
-		// SearchModel<TraceEventKey> searchModel =
-		// traceTableModel.getSearchModel();
-		// searchModel.addSearchModelListener(searchPanel);
+        // SearchModel<TraceEventKey> searchModel =
+        // traceTableModel.getSearchModel();
+        // searchModel.addSearchModelListener(searchPanel);
 
-		setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
-		JSplitPane traceCompareJSplitPane = getCompareJSplitPane();
-		JPanel compareMarkerJPanel = getCompareMarkerJPanel();
+        JSplitPane traceCompareJSplitPane = getCompareJSplitPane();
+        JPanel compareMarkerJPanel = getCompareMarkerJPanel();
 
-		add(traceCompareJSplitPane, BorderLayout.CENTER);
-		add(compareMarkerJPanel, BorderLayout.EAST);
+        add(traceCompareJSplitPane, BorderLayout.CENTER);
+        add(compareMarkerJPanel, BorderLayout.EAST);
 
-		updateSupplementUtilityJPanel();
-	}
+        updateSupplementUtilityJPanel();
+    }
 
-	protected RecentFileContainer getRecentFileContainer() {
-		return recentFileContainer;
-	}
+    protected RecentFileContainer getRecentFileContainer() {
+        return recentFileContainer;
+    }
 
-	protected TracerViewerSetting getTracerViewerSetting() {
-		return tracerViewerSetting;
-	}
+    protected TracerViewerSetting getTracerViewerSetting() {
+        return tracerViewerSetting;
+    }
 
-	@Override
-	protected void updateSupplementUtilityJPanel() {
+    @Override
+    protected void updateSupplementUtilityJPanel() {
 
-		JPanel supplementUtilityJPanel = getSupplementUtilityJPanel();
+        JPanel supplementUtilityJPanel = getSupplementUtilityJPanel();
 
-		supplementUtilityJPanel.removeAll();
+        supplementUtilityJPanel.removeAll();
 
-		LayoutManager layout = new BoxLayout(supplementUtilityJPanel, BoxLayout.LINE_AXIS);
-		supplementUtilityJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(supplementUtilityJPanel, BoxLayout.LINE_AXIS);
+        supplementUtilityJPanel.setLayout(layout);
 
-		Dimension spacer = new Dimension(5, 10);
-		Dimension endspacer = new Dimension(15, 10);
+        Dimension spacer = new Dimension(5, 10);
+        Dimension endspacer = new Dimension(15, 10);
 
-		JButton compareFileOpenJButton = getFileOpenJButton();
+        JButton compareFileOpenJButton = getFileOpenJButton();
 
-		JPanel compareFileOpenPanel = new JPanel();
-		layout = new BoxLayout(compareFileOpenPanel, BoxLayout.LINE_AXIS);
+        JPanel compareFileOpenPanel = new JPanel();
+        layout = new BoxLayout(compareFileOpenPanel, BoxLayout.LINE_AXIS);
 
-		compareFileOpenPanel.add(Box.createRigidArea(spacer));
-		compareFileOpenPanel.add(compareFileOpenJButton);
-		compareFileOpenPanel.add(Box.createRigidArea(spacer));
-		// compareFileOpenPanel.setBorder(BorderFactory.createLineBorder(MyColor.LIGHT_GRAY,
-		// 1));
+        compareFileOpenPanel.add(Box.createRigidArea(spacer));
+        compareFileOpenPanel.add(compareFileOpenJButton);
+        compareFileOpenPanel.add(Box.createRigidArea(spacer));
+        // compareFileOpenPanel.setBorder(BorderFactory.createLineBorder(MyColor.LIGHT_GRAY,
+        // 1));
 
-		JPanel navigationPanel = getNavigationPanel();
+        JPanel navigationPanel = getNavigationPanel();
 
-		supplementUtilityJPanel.add(Box.createHorizontalGlue());
-		supplementUtilityJPanel.add(Box.createRigidArea(endspacer));
-		supplementUtilityJPanel.add(compareFileOpenPanel);
-		supplementUtilityJPanel.add(navigationPanel);
-		supplementUtilityJPanel.add(Box.createRigidArea(endspacer));
+        supplementUtilityJPanel.add(Box.createHorizontalGlue());
+        supplementUtilityJPanel.add(Box.createRigidArea(endspacer));
+        supplementUtilityJPanel.add(compareFileOpenPanel);
+        supplementUtilityJPanel.add(navigationPanel);
+        supplementUtilityJPanel.add(Box.createRigidArea(endspacer));
 
-		supplementUtilityJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        supplementUtilityJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		supplementUtilityJPanel.revalidate();
-		supplementUtilityJPanel.repaint();
-	}
+        supplementUtilityJPanel.revalidate();
+        supplementUtilityJPanel.repaint();
+    }
 
-	private JScrollPane getjScrollPaneLeft() {
+    private JScrollPane getjScrollPaneLeft() {
 
-		if (jScrollPaneLeft == null) {
+        if (jScrollPaneLeft == null) {
 
-			TraceTable traceTableLeft = getTracerDataTableLeft();
+            TraceTable traceTableLeft = getTracerDataTableLeft();
 
-			jScrollPaneLeft = getJScrollPane(traceTableLeft);
-		}
+            jScrollPaneLeft = getJScrollPane(traceTableLeft);
+        }
 
-		return jScrollPaneLeft;
-	}
+        return jScrollPaneLeft;
+    }
 
-	private JScrollPane getjScrollPaneRight() {
+    private JScrollPane getjScrollPaneRight() {
 
-		if (jScrollPaneRight == null) {
+        if (jScrollPaneRight == null) {
 
-			TraceTable traceTableRight = getTracerDataTableRight();
+            TraceTable traceTableRight = getTracerDataTableRight();
 
-			jScrollPaneRight = getJScrollPane(traceTableRight);
-		}
+            jScrollPaneRight = getJScrollPane(traceTableRight);
+        }
 
-		return jScrollPaneRight;
-	}
+        return jScrollPaneRight;
+    }
 
-	private JSplitPane getCompareJSplitPane() {
+    private JSplitPane getCompareJSplitPane() {
 
-		TraceTable traceTableLeft = getTracerDataTableLeft();
-		TraceTable traceTableRight = getTracerDataTableRight();
+        TraceTable traceTableLeft = getTracerDataTableLeft();
+        TraceTable traceTableRight = getTracerDataTableRight();
 
-		// set selection model
-		traceTableRight.setSelectionModel(traceTableLeft.getSelectionModel());
+        // set selection model
+        traceTableRight.setSelectionModel(traceTableLeft.getSelectionModel());
 
-		TraceTableCompareMouseListener traceTableCompareMouseListener = new TraceTableCompareMouseListener(this);
+        TraceTableCompareMouseListener traceTableCompareMouseListener = new TraceTableCompareMouseListener(this);
 
-		// add combined mouse listener
-		traceTableCompareMouseListener.addTraceTable(traceTableLeft);
-		traceTableCompareMouseListener.addTraceTable(traceTableRight);
+        // add combined mouse listener
+        traceTableCompareMouseListener.addTraceTable(traceTableLeft);
+        traceTableCompareMouseListener.addTraceTable(traceTableRight);
 
-		traceTableLeft.addMouseListener(traceTableCompareMouseListener);
-		traceTableRight.addMouseListener(traceTableCompareMouseListener);
+        traceTableLeft.addMouseListener(traceTableCompareMouseListener);
+        traceTableRight.addMouseListener(traceTableCompareMouseListener);
 
-		// setup column model listener
-		TableWidthColumnModelListener tableWidthColumnModelListener;
-		tableWidthColumnModelListener = new TableWidthColumnModelListener();
-		tableWidthColumnModelListener.addTable(traceTableLeft);
-		tableWidthColumnModelListener.addTable(traceTableRight);
+        // setup column model listener
+        TableWidthColumnModelListener tableWidthColumnModelListener;
+        tableWidthColumnModelListener = new TableWidthColumnModelListener();
+        tableWidthColumnModelListener.addTable(traceTableLeft);
+        tableWidthColumnModelListener.addTable(traceTableRight);
 
-		traceTableLeft.getColumnModel().addColumnModelListener(tableWidthColumnModelListener);
-		traceTableRight.getColumnModel().addColumnModelListener(tableWidthColumnModelListener);
+        traceTableLeft.getColumnModel().addColumnModelListener(tableWidthColumnModelListener);
+        traceTableRight.getColumnModel().addColumnModelListener(tableWidthColumnModelListener);
 
-		// setup JScrollBar
-		JScrollPane jScrollPaneLeft = getjScrollPaneLeft();
-		JScrollPane jScrollPaneRight = getjScrollPaneRight();
+        // setup JScrollBar
+        JScrollPane jScrollPaneLeft = getjScrollPaneLeft();
+        JScrollPane jScrollPaneRight = getjScrollPaneRight();
 
-		JPanel traceTablePanelLeft = getSingleTableJPanel(jScrollPaneLeft, traceTableLeft, false);
-		JPanel traceTablePanelRight = getSingleTableJPanel(jScrollPaneRight, traceTableRight, true);
+        JPanel traceTablePanelLeft = getSingleTableJPanel(jScrollPaneLeft, traceTableLeft, false);
+        JPanel traceTablePanelRight = getSingleTableJPanel(jScrollPaneRight, traceTableRight, true);
 
-		JSplitPane traceCompareJSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, traceTablePanelLeft,
-				traceTablePanelRight);
+        JSplitPane traceCompareJSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, traceTablePanelLeft,
+                traceTablePanelRight);
 
-		traceCompareJSplitPane.setContinuousLayout(true);
-		// traceCompareJComponent.setDividerLocation(260);
-		traceCompareJSplitPane.setResizeWeight(0.5);
+        traceCompareJSplitPane.setContinuousLayout(true);
+        // traceCompareJComponent.setDividerLocation(260);
+        traceCompareJSplitPane.setResizeWeight(0.5);
 
-		// not movable divider
-		// traceCompareJSplitPane.setEnabled(false);
+        // not movable divider
+        // traceCompareJSplitPane.setEnabled(false);
 
-		return traceCompareJSplitPane;
-	}
+        return traceCompareJSplitPane;
+    }
 
-	private JPanel getCompareMarkerJPanel() {
+    private JPanel getCompareMarkerJPanel() {
 
-		JPanel compareMarkerJPanel = new JPanel();
-		compareMarkerJPanel.setLayout(new BorderLayout());
+        JPanel compareMarkerJPanel = new JPanel();
+        compareMarkerJPanel.setLayout(new BorderLayout());
 
-		Dimension topDimension = new Dimension(16, 60);
+        Dimension topDimension = new Dimension(16, 60);
 
-		JLabel topSpacer = new JLabel();
-		topSpacer.setPreferredSize(topDimension);
-		topSpacer.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        JLabel topSpacer = new JLabel();
+        topSpacer.setPreferredSize(topDimension);
+        topSpacer.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		Dimension bottomDimension = new Dimension(16, 35);
+        Dimension bottomDimension = new Dimension(16, 35);
 
-		JLabel bottomSpacer = new JLabel();
-		bottomSpacer.setPreferredSize(bottomDimension);
-		bottomSpacer.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        JLabel bottomSpacer = new JLabel();
+        bottomSpacer.setPreferredSize(bottomDimension);
+        bottomSpacer.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		MarkerBar<TraceEventKey> compareMarkerBar = getCompareMarkerBar();
+        MarkerBar<TraceEventKey> compareMarkerBar = getCompareMarkerBar();
 
-		compareMarkerJPanel.add(topSpacer, BorderLayout.NORTH);
-		compareMarkerJPanel.add(compareMarkerBar, BorderLayout.CENTER);
-		compareMarkerJPanel.add(bottomSpacer, BorderLayout.SOUTH);
+        compareMarkerJPanel.add(topSpacer, BorderLayout.NORTH);
+        compareMarkerJPanel.add(compareMarkerBar, BorderLayout.CENTER);
+        compareMarkerJPanel.add(bottomSpacer, BorderLayout.SOUTH);
 
-		return compareMarkerJPanel;
+        return compareMarkerJPanel;
 
-	}
+    }
 
-	private JScrollPane getJScrollPane(TraceTable traceTable) {
+    private JScrollPane getJScrollPane(TraceTable traceTable) {
 
-		JScrollPane jScrollpane = new JScrollPane(traceTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane jScrollpane = new JScrollPane(traceTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		traceTable.setPreferredScrollableViewportSize(jScrollpane.getPreferredSize());
+        traceTable.setPreferredScrollableViewportSize(jScrollpane.getPreferredSize());
 
-		return jScrollpane;
-	}
+        return jScrollpane;
+    }
 
-	private JPanel getSingleTableJPanel(JScrollPane traceTableScrollpane, TraceTable traceTable, boolean isRightSide) {
+    private JPanel getSingleTableJPanel(JScrollPane traceTableScrollpane, TraceTable traceTable, boolean isRightSide) {
 
-		JPanel singleTableJPanel = new JPanel();
+        JPanel singleTableJPanel = new JPanel();
 
-		singleTableJPanel.setLayout(new BorderLayout());
+        singleTableJPanel.setLayout(new BorderLayout());
 
-		final JTextField statusBar = getStatusBar();
+        final JTextField statusBar = getStatusBar();
 
-		SearchPanel<TraceEventKey> searchPanel;
+        SearchPanel<TraceEventKey> searchPanel;
 
-		if (isRightSide) {
-			searchPanel = getSearchPanel(traceTable);
-		} else {
-			searchPanel = this.searchPanel;
-		}
+        if (isRightSide) {
+            searchPanel = getSearchPanel(traceTable);
+        } else {
+            searchPanel = this.searchPanel;
+        }
 
-		TraceTableModel traceTableModel = (TraceTableModel) traceTable.getModel();
+        TraceTableModel traceTableModel = (TraceTableModel) traceTable.getModel();
 
-		JPanel tracerDataJPanel = getTracerDataJPanel(traceTableModel, traceTableScrollpane);
-		JPanel statusBarJPanel = getStatusBarJPanel(statusBar);
+        JPanel tracerDataJPanel = getTracerDataJPanel(traceTableModel, traceTableScrollpane);
+        JPanel statusBarJPanel = getStatusBarJPanel(statusBar);
 
-		singleTableJPanel.add(searchPanel, BorderLayout.NORTH);
-		singleTableJPanel.add(tracerDataJPanel, BorderLayout.CENTER);
-		singleTableJPanel.add(statusBarJPanel, BorderLayout.SOUTH);
+        singleTableJPanel.add(searchPanel, BorderLayout.NORTH);
+        singleTableJPanel.add(tracerDataJPanel, BorderLayout.CENTER);
+        singleTableJPanel.add(statusBarJPanel, BorderLayout.SOUTH);
 
-		traceTableModel.addPropertyChangeListener(new PropertyChangeListener() {
+        traceTableModel.addPropertyChangeListener(new PropertyChangeListener() {
 
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
 
-				String propertyName = evt.getPropertyName();
+                String propertyName = evt.getPropertyName();
 
-				if ("message".equals(propertyName)) {
-					Message message = (Message) evt.getNewValue();
-					setMessage(statusBar, message);
-				}
+                if ("message".equals(propertyName)) {
+                    Message message = (Message) evt.getNewValue();
+                    setMessage(statusBar, message);
+                }
 
-			}
-		});
+            }
+        });
 
-		return singleTableJPanel;
-	}
+        return singleTableJPanel;
+    }
 
-	private SearchPanel<TraceEventKey> getSearchPanel(TraceTable traceTable) {
+    private SearchPanel<TraceEventKey> getSearchPanel(TraceTable traceTable) {
 
-		final TraceTableModel traceTableModel = (TraceTableModel) traceTable.getModel();
+        final TraceTableModel traceTableModel = (TraceTableModel) traceTable.getModel();
 
-		NavigationTableController<TraceEventKey> navigationTableController;
-		navigationTableController = new NavigationTableController<TraceEventKey>(traceTableModel);
+        NavigationTableController<TraceEventKey> navigationTableController;
+        navigationTableController = new NavigationTableController<TraceEventKey>(traceTableModel);
 
-		navigationTableController.addCustomJTable(traceTable);
+        navigationTableController.addCustomJTable(traceTable);
 
-		SearchPanel<TraceEventKey> searchPanel;
-		searchPanel = new SearchPanel<TraceEventKey>(navigationTableController, traceTableModel.getSearchModel());
+        SearchPanel<TraceEventKey> searchPanel;
+        searchPanel = new SearchPanel<TraceEventKey>(navigationTableController, traceTableModel.getSearchModel());
 
-		return searchPanel;
-	}
+        return searchPanel;
+    }
 
-	private JPanel getStatusBarJPanel(JTextField statusBar) {
+    private JPanel getStatusBarJPanel(JTextField statusBar) {
 
-		JPanel statusBarJPanel = new JPanel();
+        JPanel statusBarJPanel = new JPanel();
 
-		LayoutManager layout = new BoxLayout(statusBarJPanel, BoxLayout.LINE_AXIS);
-		statusBarJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(statusBarJPanel, BoxLayout.LINE_AXIS);
+        statusBarJPanel.setLayout(layout);
 
-		Dimension spacer = new Dimension(5, 16);
+        Dimension spacer = new Dimension(5, 16);
 
-		statusBarJPanel.add(Box.createRigidArea(spacer));
-		statusBarJPanel.add(statusBar);
-		statusBarJPanel.add(Box.createRigidArea(spacer));
+        statusBarJPanel.add(Box.createRigidArea(spacer));
+        statusBarJPanel.add(statusBar);
+        statusBarJPanel.add(Box.createRigidArea(spacer));
 
-		statusBarJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        statusBarJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		return statusBarJPanel;
+        return statusBarJPanel;
 
-	}
+    }
 
-	protected JPanel getTracerDataJPanel(TraceTableModel traceTableModel, JScrollPane traceTableScrollpane) {
+    protected JPanel getTracerDataJPanel(TraceTableModel traceTableModel, JScrollPane traceTableScrollpane) {
 
-		JPanel traceTableJPanel = new JPanel();
-		traceTableJPanel.setLayout(new BorderLayout());
+        JPanel traceTableJPanel = new JPanel();
+        traceTableJPanel.setLayout(new BorderLayout());
 
-		JPanel markerBarPanel = getMarkerBarPanel(traceTableModel);
+        JPanel markerBarPanel = getMarkerBarPanel(traceTableModel);
 
-		traceTableJPanel.add(traceTableScrollpane, BorderLayout.CENTER);
-		traceTableJPanel.add(markerBarPanel, BorderLayout.EAST);
+        traceTableJPanel.add(traceTableScrollpane, BorderLayout.CENTER);
+        traceTableJPanel.add(markerBarPanel, BorderLayout.EAST);
 
-		return traceTableJPanel;
-	}
+        return traceTableJPanel;
+    }
 
-	private JTextField getStatusBar() {
+    private JTextField getStatusBar() {
 
-		JTextField statusBar = new JTextField();
-		statusBar.setEditable(false);
-		statusBar.setBackground(null);
-		statusBar.setBorder(null);
+        JTextField statusBar = new JTextField();
+        statusBar.setEditable(false);
+        statusBar.setBackground(null);
+        statusBar.setBorder(null);
 
-		return statusBar;
-	}
+        return statusBar;
+    }
 
-	protected JButton getFileOpenJButton() {
+    protected JButton getFileOpenJButton() {
 
-		if (fileOpenJButton == null) {
+        if (fileOpenJButton == null) {
 
-			fileOpenJButton = new JButton("Open tracer file for compare");
+            fileOpenJButton = new JButton("Open tracer file for compare");
 
-			ImageIcon ii = FileUtilities.getImageIcon(this.getClass(), "open.png");
+            ImageIcon ii = FileUtilities.getImageIcon(this.getClass(), "open.png");
 
-			fileOpenJButton.setIcon(ii);
+            fileOpenJButton.setIcon(ii);
 
-			Dimension size = new Dimension(250, 20);
-			fileOpenJButton.setPreferredSize(size);
-			// compareJButton.setMinimumSize(size);
-			fileOpenJButton.setMaximumSize(size);
-			fileOpenJButton.setHorizontalTextPosition(SwingConstants.LEADING);
+            Dimension size = new Dimension(250, 20);
+            fileOpenJButton.setPreferredSize(size);
+            // compareJButton.setMinimumSize(size);
+            fileOpenJButton.setMaximumSize(size);
+            fileOpenJButton.setHorizontalTextPosition(SwingConstants.LEADING);
 
-			fileOpenJButton.addActionListener(new ActionListener() {
+            fileOpenJButton.addActionListener(new ActionListener() {
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
+                @Override
+                public void actionPerformed(ActionEvent e) {
 
-					File fileChooserBase = null;
+                    File fileChooserBase = null;
 
-					TraceTableModel traceTableModel = getTraceTableModel();
+                    TraceTableModel traceTableModel = getTraceTableModel();
 
-					RecentFile recentFile = traceTableModel.getRecentFile();
+                    RecentFile recentFile = traceTableModel.getRecentFile();
 
-					// check for previous comparison folder
-					String leftPrevComparisionFilePath = (String) recentFile
-							.getAttribute(TracerViewer.RECENT_FILE_PREV_COMPARE_FILE);
+                    // check for previous comparison folder
+                    String leftPrevComparisionFilePath = (String) recentFile
+                            .getAttribute(TracerViewer.RECENT_FILE_PREV_COMPARE_FILE);
 
-					if ((leftPrevComparisionFilePath != null) && (!"".equals(leftPrevComparisionFilePath))) {
+                    if ((leftPrevComparisionFilePath != null) && (!"".equals(leftPrevComparisionFilePath))) {
 
-						File leftPrevComparisionFile = new File(leftPrevComparisionFilePath);
+                        File leftPrevComparisionFile = new File(leftPrevComparisionFilePath);
 
-						if (leftPrevComparisionFile.exists()) {
-							fileChooserBase = leftPrevComparisionFile;
-						}
-					}
+                        if (leftPrevComparisionFile.exists()) {
+                            fileChooserBase = leftPrevComparisionFile;
+                        }
+                    }
 
-					if (fileChooserBase == null) {
-						// file open on the same folder as left file.
-						String leftFilePath = traceTableModel.getFilePath();
+                    if (fileChooserBase == null) {
+                        // file open on the same folder as left file.
+                        String leftFilePath = traceTableModel.getFilePath();
 
-						if ((leftFilePath != null) && (!"".equals(leftFilePath))) {
-							fileChooserBase = new File(leftFilePath);
-						}
-					}
+                        if ((leftFilePath != null) && (!"".equals(leftFilePath))) {
+                            fileChooserBase = new File(leftFilePath);
+                        }
+                    }
 
-					FileFilter fileFilter = TracerViewer.getDefaultFileFilter(TracerViewer.FILE_CHOOSER_FILTER_DESC,
-							Arrays.asList(TracerViewer.FILE_CHOOSER_FILTER_EXT));
+                    FileFilter fileFilter = TracerViewer.getDefaultFileFilter(TracerViewer.FILE_CHOOSER_FILTER_DESC,
+                            Arrays.asList(TracerViewer.FILE_CHOOSER_FILTER_EXT));
 
-					File aFile = TracerViewer.openFileChooser(getFileOpenJButton(), TracerViewer.class,
-							TracerViewer.FILE_CHOOSER_DIALOG_TITLE, fileFilter, fileChooserBase);
+                    File aFile = TracerViewer.openFileChooser(getFileOpenJButton(), TracerViewer.class,
+                            TracerViewer.FILE_CHOOSER_DIALOG_TITLE, fileFilter, fileChooserBase);
 
-					if (aFile != null) {
+                    if (aFile != null) {
 
-						// for compare tree, the compare tree view should be
-						// inherited from compare table view, so that the same
-						// right hand data get passed over.
-						TraceTable tracerDataTableRight = getTracerDataTableRight();
-						TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) tracerDataTableRight
-								.getModel();
+                        // for compare tree, the compare tree view should be
+                        // inherited from compare table view, so that the same
+                        // right hand data get passed over.
+                        TraceTable tracerDataTableRight = getTracerDataTableRight();
+                        TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) tracerDataTableRight
+                                .getModel();
 
-						RecentFileContainer recentFileContainer = getRecentFileContainer();
-						String charset = getTracerViewerSetting().getCharset();
+                        RecentFileContainer recentFileContainer = getRecentFileContainer();
+                        String charset = getTracerViewerSetting().getCharset();
 
-						RecentFile compareRecentFile;
-						compareRecentFile = recentFileContainer.getRecentFile(aFile, charset);
+                        RecentFile compareRecentFile;
+                        compareRecentFile = recentFileContainer.getRecentFile(aFile, charset);
 
-						// also reset the model and clears old stuff
-						traceTableCompareModel.setRecentFile(compareRecentFile);
+                        // also reset the model and clears old stuff
+                        traceTableCompareModel.setRecentFile(compareRecentFile);
 
-						// save the compare file path to main file
-						recentFile.setAttribute(TracerViewer.RECENT_FILE_PREV_COMPARE_FILE, aFile.getAbsolutePath());
+                        // save the compare file path to main file
+                        recentFile.setAttribute(TracerViewer.RECENT_FILE_PREV_COMPARE_FILE, aFile.getAbsolutePath());
 
-						TraceTable tracerDataTableLeft = getTracerDataTableLeft();
+                        TraceTable tracerDataTableLeft = getTracerDataTableLeft();
 
-						UIManager.put("ModalProgressMonitor.progressText", "Loading Tracer XML file");
+                        UIManager.put("ModalProgressMonitor.progressText", "Loading Tracer XML file");
 
-						final ModalProgressMonitor progressMonitor = new ModalProgressMonitor(
-								TracerDataCompareView.this, "", "Loaded 0 trace events (0%)", 0, 100);
+                        final ModalProgressMonitor progressMonitor = new ModalProgressMonitor(
+                                TracerDataCompareView.this, "", "Loaded 0 trace events (0%)", 0, 100);
 
-						progressMonitor.setMillisToDecideToPopup(0);
-						progressMonitor.setMillisToPopup(0);
+                        progressMonitor.setMillisToDecideToPopup(0);
+                        progressMonitor.setMillisToPopup(0);
 
-						TraceTableCompareTask traceTableCompareTask = new TraceTableCompareTask(traceTableModel,
-								tracerDataTableLeft, tracerDataTableRight, progressMonitor,
-								TracerDataCompareView.this) {
+                        TraceTableCompareTask traceTableCompareTask = new TraceTableCompareTask(traceTableModel,
+                                tracerDataTableLeft, tracerDataTableRight, progressMonitor,
+                                TracerDataCompareView.this) {
 
-							@Override
-							protected void done() {
+                            @Override
+                            protected void done() {
 
-								try {
+                                try {
 
-									get();
+                                    get();
 
-									if (!isCancelled()) {
+                                    if (!isCancelled()) {
 
-										TraceTable tracerDataTableLeft = getTracerDataTableLeft();
-										TraceTable tracerDataTableRight = getTracerDataTableRight();
+                                        TraceTable tracerDataTableLeft = getTracerDataTableLeft();
+                                        TraceTable tracerDataTableRight = getTracerDataTableRight();
 
-										TraceTableCompareModel traceTableCompareModelLeft;
-										traceTableCompareModelLeft = (TraceTableCompareModel) tracerDataTableLeft
-												.getModel();
+                                        TraceTableCompareModel traceTableCompareModelLeft;
+                                        traceTableCompareModelLeft = (TraceTableCompareModel) tracerDataTableLeft
+                                                .getModel();
 
-										TraceTableCompareModel traceTableCompareModelRight;
-										traceTableCompareModelRight = (TraceTableCompareModel) tracerDataTableRight
-												.getModel();
+                                        TraceTableCompareModel traceTableCompareModelRight;
+                                        traceTableCompareModelRight = (TraceTableCompareModel) tracerDataTableRight
+                                                .getModel();
 
-										getNavigationPanel().setEnabled(true);
+                                        getNavigationPanel().setEnabled(true);
 
-										MarkerModel<TraceEventKey> thisMarkerModel;
-										thisMarkerModel = new CompareMarkerModel(MyColor.LIGHT_GREEN,
-												traceTableCompareModelLeft);
+                                        MarkerModel<TraceEventKey> thisMarkerModel;
+                                        thisMarkerModel = new CompareMarkerModel(MyColor.LIGHT_GREEN,
+                                                traceTableCompareModelLeft);
 
-										MarkerModel<TraceEventKey> otherMarkerModel;
-										otherMarkerModel = new CompareMarkerModel(Color.LIGHT_GRAY,
-												traceTableCompareModelRight);
+                                        MarkerModel<TraceEventKey> otherMarkerModel;
+                                        otherMarkerModel = new CompareMarkerModel(Color.LIGHT_GRAY,
+                                                traceTableCompareModelRight);
 
-										MarkerBar<TraceEventKey> markerBar = getCompareMarkerBar();
-										markerBar.addMarkerModel(thisMarkerModel);
-										markerBar.addMarkerModel(otherMarkerModel);
+                                        MarkerBar<TraceEventKey> markerBar = getCompareMarkerBar();
+                                        markerBar.addMarkerModel(thisMarkerModel);
+                                        markerBar.addMarkerModel(otherMarkerModel);
 
-										syncScrollBars();
-										getNavigationPanelController().updateState();
-									}
-								} catch (CancellationException ce) {
-									LOG.info("TraceTableCompareTask cancelled: ");
+                                        syncScrollBars();
+                                        getNavigationPanelController().updateState();
+                                    }
+                                } catch (CancellationException ce) {
+                                    LOG.info("TraceTableCompareTask cancelled: ");
 
-								} catch (Exception e) {
-									JOptionPane.showMessageDialog(TracerDataCompareView.this,
-											"Error in comparing the tracer xmls.", "Compare Tracer XML Error",
-											JOptionPane.ERROR_MESSAGE);
-									LOG.error("Exception in TraceTableCompareTask.", e);
+                                } catch (Exception e) {
+                                    JOptionPane.showMessageDialog(TracerDataCompareView.this,
+                                            "Error in comparing the tracer xmls.", "Compare Tracer XML Error",
+                                            JOptionPane.ERROR_MESSAGE);
+                                    LOG.error("Exception in TraceTableCompareTask.", e);
 
-								} finally {
-									progressMonitor.close();
-								}
-							}
-						};
+                                } finally {
+                                    progressMonitor.close();
+                                }
+                            }
+                        };
 
-						traceTableCompareTask.execute();
+                        traceTableCompareTask.execute();
 
-						// TracerDataMainPanel.loadFile(traceTableCompareModel,
-						// TracerDataCompareView.this, true);
-						//
-						// applyTraceModelCompare();
-					}
-				}
-			});
-		}
+                        // TracerDataMainPanel.loadFile(traceTableCompareModel,
+                        // TracerDataCompareView.this, true);
+                        //
+                        // applyTraceModelCompare();
+                    }
+                }
+            });
+        }
 
-		return fileOpenJButton;
-	}
+        return fileOpenJButton;
+    }
 
-	protected MarkerBar<TraceEventKey> getCompareMarkerBar() {
+    protected MarkerBar<TraceEventKey> getCompareMarkerBar() {
 
-		if (compareMarkerBar == null) {
-			NavigationPanelController<TraceEventKey> navigationPanelController = getNavigationPanelController();
-			compareMarkerBar = new MarkerBar<TraceEventKey>(navigationPanelController, null);
-		}
+        if (compareMarkerBar == null) {
+            NavigationPanelController<TraceEventKey> navigationPanelController = getNavigationPanelController();
+            compareMarkerBar = new MarkerBar<TraceEventKey>(navigationPanelController, null);
+        }
 
-		return compareMarkerBar;
-	}
+        return compareMarkerBar;
+    }
 
-	protected NavigationPanel<TraceEventKey> getNavigationPanel() {
+    protected NavigationPanel<TraceEventKey> getNavigationPanel() {
 
-		if (navigationPanel == null) {
+        if (navigationPanel == null) {
 
-			JLabel label = new JLabel("Compare:");
+            JLabel label = new JLabel("Compare:");
 
-			NavigationPanelController<TraceEventKey> compareNavigationPanelController = getNavigationPanelController();
+            NavigationPanelController<TraceEventKey> compareNavigationPanelController = getNavigationPanelController();
 
-			navigationPanel = new NavigationPanel<>(label, compareNavigationPanelController);
-			navigationPanel.setEnabled(false);
+            navigationPanel = new NavigationPanel<>(label, compareNavigationPanelController);
+            navigationPanel.setEnabled(false);
 
-		}
+        }
 
-		return navigationPanel;
-	}
+        return navigationPanel;
+    }
 
-	protected NavigationPanelController<TraceEventKey> getNavigationPanelController() {
+    protected NavigationPanelController<TraceEventKey> getNavigationPanelController() {
 
-		if (navigationPanelController == null) {
+        if (navigationPanelController == null) {
 
-			navigationPanelController = new NavigationPanelController<TraceEventKey>() {
+            navigationPanelController = new NavigationPanelController<TraceEventKey>() {
 
-				@Override
-				public void navigateToRow(int startRowIndex, int endRowIndex) {
+                @Override
+                public void navigateToRow(int startRowIndex, int endRowIndex) {
 
-					TraceTable traceTableLeft = getTracerDataTableLeft();
-					TraceTable traceTableRight = getTracerDataTableRight();
+                    TraceTable traceTableLeft = getTracerDataTableLeft();
+                    TraceTable traceTableRight = getTracerDataTableRight();
 
-					traceTableLeft.setRowSelectionInterval(startRowIndex, endRowIndex);
-					traceTableLeft.scrollRowToVisible(startRowIndex);
+                    traceTableLeft.setRowSelectionInterval(startRowIndex, endRowIndex);
+                    traceTableLeft.scrollRowToVisible(startRowIndex);
 
-					traceTableRight.setRowSelectionInterval(startRowIndex, endRowIndex);
-					traceTableRight.scrollRowToVisible(startRowIndex);
+                    traceTableRight.setRowSelectionInterval(startRowIndex, endRowIndex);
+                    traceTableRight.scrollRowToVisible(startRowIndex);
 
-					traceTableLeft.updateUI();
-					traceTableRight.updateUI();
-				}
+                    traceTableLeft.updateUI();
+                    traceTableRight.updateUI();
+                }
 
-				@Override
-				public void updateState() {
+                @Override
+                public void updateState() {
 
-					NavigationPanel<TraceEventKey> navigationPanel = getNavigationPanel();
+                    NavigationPanel<TraceEventKey> navigationPanel = getNavigationPanel();
 
-					JLabel dataJLabel = navigationPanel.getDataJLabel();
-					JButton firstJButton = navigationPanel.getFirstJButton();
-					JButton prevJButton = navigationPanel.getPrevJButton();
-					JButton nextJButton = navigationPanel.getNextJButton();
-					JButton lastJButton = navigationPanel.getLastJButton();
+                    JLabel dataJLabel = navigationPanel.getDataJLabel();
+                    JButton firstJButton = navigationPanel.getFirstJButton();
+                    JButton prevJButton = navigationPanel.getPrevJButton();
+                    JButton nextJButton = navigationPanel.getNextJButton();
+                    JButton lastJButton = navigationPanel.getLastJButton();
 
-					TraceTable traceTableLeft = getTracerDataTableLeft();
-					int[] selectedrows = traceTableLeft.getSelectedRows();
+                    TraceTable traceTableLeft = getTracerDataTableLeft();
+                    int[] selectedrows = traceTableLeft.getSelectedRows();
 
-					int selectedRow = -1;
+                    int selectedRow = -1;
 
-					if (selectedrows.length > 0) {
-						selectedRow = selectedrows[selectedrows.length - 1];
-					}
+                    if (selectedrows.length > 0) {
+                        selectedRow = selectedrows[selectedrows.length - 1];
+                    }
 
-					TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
+                    TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
 
-					int compareCount = traceTableCompareModel.getCompareCount();
-					int compareNavIndex = traceTableCompareModel.getCompareNavIndex();
+                    int compareCount = traceTableCompareModel.getCompareCount();
+                    int compareNavIndex = traceTableCompareModel.getCompareNavIndex();
 
-					SelectedRowPosition selectedRowPosition = SelectedRowPosition.NONE;
+                    SelectedRowPosition selectedRowPosition = SelectedRowPosition.NONE;
 
-					if (compareCount == 0) {
-						selectedRowPosition = SelectedRowPosition.NONE;
-					} else if (traceTableCompareModel.isCompareResultsWrap()) {
-						selectedRowPosition = SelectedRowPosition.BETWEEN;
-					} else {
+                    if (compareCount == 0) {
+                        selectedRowPosition = SelectedRowPosition.NONE;
+                    } else if (traceTableCompareModel.isCompareResultsWrap()) {
+                        selectedRowPosition = SelectedRowPosition.BETWEEN;
+                    } else {
 
-						selectedRow = (selectedRow >= 0) ? (selectedRow) : 0;
+                        selectedRow = (selectedRow >= 0) ? (selectedRow) : 0;
 
-						selectedRowPosition = traceTableCompareModel.getCompareSelectedRowPosition(selectedRow);
-					}
+                        selectedRowPosition = traceTableCompareModel.getCompareSelectedRowPosition(selectedRow);
+                    }
 
-					switch (selectedRowPosition) {
+                    switch (selectedRowPosition) {
 
-					case FIRST:
-						firstJButton.setEnabled(false);
-						prevJButton.setEnabled(false);
-						nextJButton.setEnabled(true);
-						lastJButton.setEnabled(true);
-						break;
+                    case FIRST:
+                        firstJButton.setEnabled(false);
+                        prevJButton.setEnabled(false);
+                        nextJButton.setEnabled(true);
+                        lastJButton.setEnabled(true);
+                        break;
 
-					case LAST:
-						firstJButton.setEnabled(true);
-						prevJButton.setEnabled(true);
-						nextJButton.setEnabled(false);
-						lastJButton.setEnabled(false);
-						break;
+                    case LAST:
+                        firstJButton.setEnabled(true);
+                        prevJButton.setEnabled(true);
+                        nextJButton.setEnabled(false);
+                        lastJButton.setEnabled(false);
+                        break;
 
-					case BETWEEN:
-						firstJButton.setEnabled(true);
-						prevJButton.setEnabled(true);
-						nextJButton.setEnabled(true);
-						lastJButton.setEnabled(true);
-						break;
+                    case BETWEEN:
+                        firstJButton.setEnabled(true);
+                        prevJButton.setEnabled(true);
+                        nextJButton.setEnabled(true);
+                        lastJButton.setEnabled(true);
+                        break;
 
-					case NONE:
-						firstJButton.setEnabled(false);
-						prevJButton.setEnabled(false);
-						nextJButton.setEnabled(false);
-						lastJButton.setEnabled(false);
-						break;
-					default:
-						break;
-					}
+                    case NONE:
+                        firstJButton.setEnabled(false);
+                        prevJButton.setEnabled(false);
+                        nextJButton.setEnabled(false);
+                        lastJButton.setEnabled(false);
+                        break;
+                    default:
+                        break;
+                    }
 
-					String text = String.format(SearchPanel.PAGES_FORMAT_STR, compareNavIndex, compareCount);
+                    String text = String.format(SearchPanel.PAGES_FORMAT_STR, compareNavIndex, compareCount);
 
-					dataJLabel.setText(text);
+                    dataJLabel.setText(text);
 
-				}
+                }
 
-				@Override
-				public void previous() {
+                @Override
+                public void previous() {
 
-					TraceTable traceTableLeft = getTracerDataTableLeft();
-					int[] selectedrows = traceTableLeft.getSelectedRows();
+                    TraceTable traceTableLeft = getTracerDataTableLeft();
+                    int[] selectedrows = traceTableLeft.getSelectedRows();
 
-					int selectedRow = -1;
+                    int selectedRow = -1;
 
-					if (selectedrows.length > 0) {
-						selectedRow = selectedrows[selectedrows.length - 1];
-					}
+                    if (selectedrows.length > 0) {
+                        selectedRow = selectedrows[selectedrows.length - 1];
+                    }
 
-					TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
+                    TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
 
-					TableCompareEntry tableCompareEntry;
-					tableCompareEntry = traceTableCompareModel.comparePrevious(selectedRow);
+                    TableCompareEntry tableCompareEntry;
+                    tableCompareEntry = traceTableCompareModel.comparePrevious(selectedRow);
 
-					int startEntry = tableCompareEntry.getStartEntry();
-					int endEntry = tableCompareEntry.getEndEntry();
+                    int startEntry = tableCompareEntry.getStartEntry();
+                    int endEntry = tableCompareEntry.getEndEntry();
 
-					navigateToRow(startEntry, endEntry);
+                    navigateToRow(startEntry, endEntry);
 
-					updateState();
+                    updateState();
 
-				}
+                }
 
-				@Override
-				public void next() {
+                @Override
+                public void next() {
 
-					TraceTable traceTableLeft = getTracerDataTableLeft();
-					int[] selectedrows = traceTableLeft.getSelectedRows();
+                    TraceTable traceTableLeft = getTracerDataTableLeft();
+                    int[] selectedrows = traceTableLeft.getSelectedRows();
 
-					int selectedRow = -1;
+                    int selectedRow = -1;
 
-					if (selectedrows.length > 0) {
-						selectedRow = selectedrows[selectedrows.length - 1];
-					}
+                    if (selectedrows.length > 0) {
+                        selectedRow = selectedrows[selectedrows.length - 1];
+                    }
 
-					TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
+                    TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
 
-					TableCompareEntry tableCompareEntry;
-					tableCompareEntry = traceTableCompareModel.compareNext(selectedRow);
+                    TableCompareEntry tableCompareEntry;
+                    tableCompareEntry = traceTableCompareModel.compareNext(selectedRow);
 
-					int startEntry = tableCompareEntry.getStartEntry();
-					int endEntry = tableCompareEntry.getEndEntry();
+                    int startEntry = tableCompareEntry.getStartEntry();
+                    int endEntry = tableCompareEntry.getEndEntry();
 
-					navigateToRow(startEntry, endEntry);
+                    navigateToRow(startEntry, endEntry);
 
-					updateState();
+                    updateState();
 
-				}
+                }
 
-				@Override
-				public void last() {
+                @Override
+                public void last() {
 
-					TraceTable traceTableLeft = getTracerDataTableLeft();
+                    TraceTable traceTableLeft = getTracerDataTableLeft();
 
-					TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
+                    TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
 
-					TableCompareEntry tableCompareEntry;
-					tableCompareEntry = traceTableCompareModel.compareLast();
+                    TableCompareEntry tableCompareEntry;
+                    tableCompareEntry = traceTableCompareModel.compareLast();
 
-					int startEntry = tableCompareEntry.getStartEntry();
-					int endEntry = tableCompareEntry.getEndEntry();
+                    int startEntry = tableCompareEntry.getStartEntry();
+                    int endEntry = tableCompareEntry.getEndEntry();
 
-					navigateToRow(startEntry, endEntry);
+                    navigateToRow(startEntry, endEntry);
 
-					updateState();
+                    updateState();
 
-				}
+                }
 
-				@Override
-				public void first() {
+                @Override
+                public void first() {
 
-					TraceTable traceTableLeft = getTracerDataTableLeft();
+                    TraceTable traceTableLeft = getTracerDataTableLeft();
 
-					TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
+                    TraceTableCompareModel traceTableCompareModel = (TraceTableCompareModel) traceTableLeft.getModel();
 
-					TableCompareEntry tableCompareEntry;
-					tableCompareEntry = traceTableCompareModel.compareFirst();
+                    TableCompareEntry tableCompareEntry;
+                    tableCompareEntry = traceTableCompareModel.compareFirst();
 
-					int startEntry = tableCompareEntry.getStartEntry();
-					int endEntry = tableCompareEntry.getEndEntry();
+                    int startEntry = tableCompareEntry.getStartEntry();
+                    int endEntry = tableCompareEntry.getEndEntry();
 
-					navigateToRow(startEntry, endEntry);
+                    navigateToRow(startEntry, endEntry);
 
-					updateState();
+                    updateState();
 
-				}
+                }
 
-				@Override
-				public void scrollToKey(TraceEventKey traceEventKey) {
-					// TODO Auto-generated method stub
+                @Override
+                public void scrollToKey(TraceEventKey traceEventKey) {
+                    // TODO Auto-generated method stub
 
-				}
-			};
-		}
+                }
+            };
+        }
 
-		return navigationPanelController;
-	}
+        return navigationPanelController;
+    }
 
-	protected void syncScrollBars() {
+    protected void syncScrollBars() {
 
-		JScrollPane jScrollPaneLeft = getjScrollPaneLeft();
-		JScrollPane jScrollPaneRight = getjScrollPaneRight();
+        JScrollPane jScrollPaneLeft = getjScrollPaneLeft();
+        JScrollPane jScrollPaneRight = getjScrollPaneRight();
 
-		JScrollBar jScrollBarLeftH = jScrollPaneLeft.getHorizontalScrollBar();
-		JScrollBar jScrollBarLeftV = jScrollPaneLeft.getVerticalScrollBar();
-		JScrollBar jScrollBarRightH = jScrollPaneRight.getHorizontalScrollBar();
-		JScrollBar jScrollBarRightV = jScrollPaneRight.getVerticalScrollBar();
+        JScrollBar jScrollBarLeftH = jScrollPaneLeft.getHorizontalScrollBar();
+        JScrollBar jScrollBarLeftV = jScrollPaneLeft.getVerticalScrollBar();
+        JScrollBar jScrollBarRightH = jScrollPaneRight.getHorizontalScrollBar();
+        JScrollBar jScrollBarRightV = jScrollPaneRight.getVerticalScrollBar();
 
-		jScrollBarRightH.setModel(jScrollBarLeftH.getModel());
-		jScrollBarRightV.setModel(jScrollBarLeftV.getModel());
-	}
+        jScrollBarRightH.setModel(jScrollBarLeftH.getModel());
+        jScrollBarRightV.setModel(jScrollBarLeftV.getModel());
+    }
 
 }

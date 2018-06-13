@@ -10,68 +10,68 @@ import org.dom4j.Element;
 
 public class TraceEventDataTransformAction extends TraceEvent {
 
-	public TraceEventDataTransformAction(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+    public TraceEventDataTransformAction(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
 
-		super(traceEventKey, bytes, traceEventElement);
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.DATA_TRANSFORM_ACTION;
-	}
+        traceEventType = TraceEventType.DATA_TRANSFORM_ACTION;
+    }
 
-	@Override
-	protected void setStepPage(Element traceEventElement) {
+    @Override
+    protected void setStepPage(Element traceEventElement) {
 
-		// setting the steppage first because we may need it below.
-		super.setStepPage(traceEventElement);
+        // setting the steppage first because we may need it below.
+        super.setStepPage(traceEventElement);
 
-		StringBuffer stepPageSB = new StringBuffer();
+        StringBuffer stepPageSB = new StringBuffer();
 
-		Element element = traceEventElement.element("ActionTargetPageName");
+        Element element = traceEventElement.element("ActionTargetPageName");
 
-		if ((element != null) && (!"".equals(element.getText()))) {
-			stepPageSB.append(element.getText());
-		} else {
+        if ((element != null) && (!"".equals(element.getText()))) {
+            stepPageSB.append(element.getText());
+        } else {
 
-			// get the step page from super.
-			stepPageSB.append(getStepPage());
-		}
+            // get the step page from super.
+            stepPageSB.append(getStepPage());
+        }
 
-		element = traceEventElement.element("ActionSourcePageName");
+        element = traceEventElement.element("ActionSourcePageName");
 
-		if ((element != null) && (!"".equals(element.getText()))) {
+        if ((element != null) && (!"".equals(element.getText()))) {
 
-			stepPageSB.append("<--");
-			stepPageSB.append(element.getText());
-		}
+            stepPageSB.append("<--");
+            stepPageSB.append(element.getText());
+        }
 
-		String stepPage = stepPageSB.toString();
-		setStepPage(stepPage);
-	}
+        String stepPage = stepPageSB.toString();
+        setStepPage(stepPage);
+    }
 
-	@Override
-	protected boolean checkStart() {
+    @Override
+    protected boolean checkStart() {
 
-		boolean start = false;
+        boolean start = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("Action Begin".equals(eventName)) {
-			start = true;
-		}
+        if ("Action Begin".equals(eventName)) {
+            start = true;
+        }
 
-		return start;
-	}
+        return start;
+    }
 
-	@Override
-	protected boolean checkEnd() {
+    @Override
+    protected boolean checkEnd() {
 
-		boolean end = false;
+        boolean end = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("Action End".equals(eventName)) {
-			end = true;
-		}
+        if ("Action End".equals(eventName)) {
+            end = true;
+        }
 
-		return end;
-	}
+        return end;
+    }
 }

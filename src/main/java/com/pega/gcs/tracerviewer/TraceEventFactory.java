@@ -82,333 +82,333 @@ import com.pega.gcs.tracerviewer.model.TraceEventWhenRules;
 
 public class TraceEventFactory {
 
-	private static final Log4j2Helper LOG = new Log4j2Helper(TraceEventFactory.class);
+    private static final Log4j2Helper LOG = new Log4j2Helper(TraceEventFactory.class);
 
-	private static DateFormat dateFormat;
+    private static DateFormat dateFormat;
 
-	private static DateFormat displayDateFormat;
+    private static DateFormat displayDateFormat;
 
-	public static Map<String, XMLElementType> xmlElementTableTypeMap;
+    public static Map<String, XMLElementType> xmlElementTableTypeMap;
 
-	private static DecimalFormat elapsedDecimalFormat;
+    private static DecimalFormat elapsedDecimalFormat;
 
-	static {
-		dateFormat = new SimpleDateFormat(DateTimeUtilities.DATEFORMAT_PEGA_INTERNAL);
+    static {
+        dateFormat = new SimpleDateFormat(DateTimeUtilities.DATEFORMAT_PEGA_INTERNAL);
 
-		displayDateFormat = new SimpleDateFormat(DateTimeUtilities.DATEFORMAT_ISO8601);
+        displayDateFormat = new SimpleDateFormat(DateTimeUtilities.DATEFORMAT_ISO8601);
 
-		displayDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        displayDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-		elapsedDecimalFormat = new DecimalFormat("#0.0000");
+        elapsedDecimalFormat = new DecimalFormat("#0.0000");
 
-		// setup xmlElementTableTypeMap
-		xmlElementTableTypeMap = new HashMap<String, XMLElementType>();
+        // setup xmlElementTableTypeMap
+        xmlElementTableTypeMap = new HashMap<String, XMLElementType>();
 
-		XMLElementType xmlElementType;
+        XMLElementType xmlElementType;
 
-		// InteractionPAL
-		xmlElementType = new XMLElementType("InteractionPAL", ";", false);
-		xmlElementTableTypeMap.put(xmlElementType.getElementName(), xmlElementType);
+        // InteractionPAL
+        xmlElementType = new XMLElementType("InteractionPAL", ";", false);
+        xmlElementTableTypeMap.put(xmlElementType.getElementName(), xmlElementType);
 
-		// InteractionQueryData
-		xmlElementType = new XMLElementType("InteractionQueryData", "&", true);
-		xmlElementTableTypeMap.put(xmlElementType.getElementName(), xmlElementType);
-	}
+        // InteractionQueryData
+        xmlElementType = new XMLElementType("InteractionQueryData", "&", true);
+        xmlElementTableTypeMap.put(xmlElementType.getElementName(), xmlElementType);
+    }
 
-	public static DateFormat getDateFormat() {
-		return dateFormat;
-	}
+    public static DateFormat getDateFormat() {
+        return dateFormat;
+    }
 
-	public static DateFormat getDisplayDateFormat() {
-		return displayDateFormat;
-	}
+    public static DateFormat getDisplayDateFormat() {
+        return displayDateFormat;
+    }
 
-	private static Element getDOMElement(byte[] bytes, SAXReader saxReader) throws DocumentException {
+    private static Element getDOMElement(byte[] bytes, SAXReader saxReader) throws DocumentException {
 
-		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-		BufferedInputStream bis = new BufferedInputStream(bais);
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        BufferedInputStream bis = new BufferedInputStream(bais);
 
-		Document doc = saxReader.read(bis);
+        Document doc = saxReader.read(bis);
 
-		Element traceEventElement = doc.getRootElement();
+        Element traceEventElement = doc.getRootElement();
 
-		return traceEventElement;
-	}
+        return traceEventElement;
+    }
 
-	public static TraceEvent getTraceEvent(int id, byte[] bytes, String charset, SAXReader saxReader) {
+    public static TraceEvent getTraceEvent(int id, byte[] bytes, String charset, SAXReader saxReader) {
 
-		TraceEvent traceEvent = null;
-		TraceEventKey traceEventKey = new TraceEventKey(id, id, false);
+        TraceEvent traceEvent = null;
+        TraceEventKey traceEventKey = new TraceEventKey(id, id, false);
 
-		try {
+        try {
 
-			Element traceEventElement = getDOMElement(bytes, saxReader);
+            Element traceEventElement = getDOMElement(bytes, saxReader);
 
-			if (traceEventElement != null) {
+            if (traceEventElement != null) {
 
-				Element eventTypeElement = traceEventElement.element("EventType");
+                Element eventTypeElement = traceEventElement.element("EventType");
 
-				if (eventTypeElement != null) {
+                if (eventTypeElement != null) {
 
-					String eventType = eventTypeElement.getText();
+                    String eventType = eventTypeElement.getText();
 
-					if ((eventType != null) && (!"".equals(eventType))) {
+                    if ((eventType != null) && (!"".equals(eventType))) {
 
-						// ---- Events ---- //
-						// ACCESS_DENY_RULES
-						if (TraceEventType.ACCESS_DENY_RULES.matchName(eventType)) {
-							traceEvent = new TraceEventAccessDenyRules(traceEventKey, bytes, traceEventElement);
-						}
-						// ACTIVITY
-						else if (TraceEventType.ACTIVITY.matchName(eventType)) {
-							traceEvent = new TraceEventActivity(traceEventKey, bytes, traceEventElement);
-						}
-						// ACTIVITY_STEPS
-						else if (TraceEventType.ACTIVITY_STEP.matchName(eventType)) {
-							traceEvent = new TraceEventActivitySteps(traceEventKey, bytes, traceEventElement);
-						}
-						// DATA_TRANSFORMS
-						else if (TraceEventType.DATA_TRANSFORMS.matchName(eventType)) {
-							traceEvent = new TraceEventDataTransforms(traceEventKey, bytes, traceEventElement);
-						}
-						// DATA_TRANSFORM_ACTION
-						else if (TraceEventType.DATA_TRANSFORM_ACTION.matchName(eventType)) {
-							traceEvent = new TraceEventDataTransformAction(traceEventKey, bytes, traceEventElement);
-						}
-						// EXCEPTION
-						else if (TraceEventType.EXCEPTION.matchName(eventType)) {
-							traceEvent = new TraceEventException(traceEventKey, bytes, traceEventElement);
-						}
-						// WHEN_RULES
-						else if (TraceEventType.WHEN_RULES.matchName(eventType)) {
-							traceEvent = new TraceEventWhenRules(traceEventKey, bytes, traceEventElement);
-						}
+                        // ---- Events ---- //
+                        // ACCESS_DENY_RULES
+                        if (TraceEventType.ACCESS_DENY_RULES.matchName(eventType)) {
+                            traceEvent = new TraceEventAccessDenyRules(traceEventKey, bytes, traceEventElement);
+                        }
+                        // ACTIVITY
+                        else if (TraceEventType.ACTIVITY.matchName(eventType)) {
+                            traceEvent = new TraceEventActivity(traceEventKey, bytes, traceEventElement);
+                        }
+                        // ACTIVITY_STEPS
+                        else if (TraceEventType.ACTIVITY_STEP.matchName(eventType)) {
+                            traceEvent = new TraceEventActivitySteps(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DATA_TRANSFORMS
+                        else if (TraceEventType.DATA_TRANSFORMS.matchName(eventType)) {
+                            traceEvent = new TraceEventDataTransforms(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DATA_TRANSFORM_ACTION
+                        else if (TraceEventType.DATA_TRANSFORM_ACTION.matchName(eventType)) {
+                            traceEvent = new TraceEventDataTransformAction(traceEventKey, bytes, traceEventElement);
+                        }
+                        // EXCEPTION
+                        else if (TraceEventType.EXCEPTION.matchName(eventType)) {
+                            traceEvent = new TraceEventException(traceEventKey, bytes, traceEventElement);
+                        }
+                        // WHEN_RULES
+                        else if (TraceEventType.WHEN_RULES.matchName(eventType)) {
+                            traceEvent = new TraceEventWhenRules(traceEventKey, bytes, traceEventElement);
+                        }
 
-						// ---- Event Types ---- //
-						// ASYNC_DP_LOAD
-						else if (TraceEventType.ASYNC_DP_LOAD.matchName(eventType)) {
-							traceEvent = new TraceEventAsyncDPLoad(traceEventKey, bytes, traceEventElement);
-						}
-						// ADAPTIVE_MODEL
-						else if (TraceEventType.ADAPTIVE_MODEL.matchName(eventType)) {
-							traceEvent = new TraceEventAdaptiveModel(traceEventKey, bytes, traceEventElement);
-						}
-						// ADP_LOAD
-						else if (TraceEventType.ADP_LOAD.matchName(eventType)) {
-							traceEvent = new TraceEventADPLoad(traceEventKey, bytes, traceEventElement);
-						}
-						// ALERT
-						else if (TraceEventType.ALERT.matchName(eventType)) {
-							traceEvent = new TraceEventAlert(traceEventKey, bytes, traceEventElement);
-						}
-						// ASYNCHRONOUS_ACTIVITY
-						else if (TraceEventType.ASYNCHRONOUS_ACTIVITY.matchName(eventType)) {
-							traceEvent = new TraceEventAsynchronousActivity(traceEventKey, bytes, traceEventElement);
-						}
-						// AUTOPOPULATE_PROPERTIES
-						else if (TraceEventType.AUTOPOPULATE_PROPERTIES.matchName(eventType)) {
-							traceEvent = new TraceEventAutoPopulateProperties(traceEventKey, bytes, traceEventElement);
-						}
-						// CASE_TYPE
-						else if (TraceEventType.CASE_TYPE.matchName(eventType)) {
-							traceEvent = new TraceEventCaseType(traceEventKey, bytes, traceEventElement);
-						}
-						// DB_CACHE
-						else if (TraceEventType.DB_CACHE.matchName(eventType)) {
-							traceEvent = new TraceEventDBCache(traceEventKey, bytes, traceEventElement);
-						}
-						// DB_QUERY
-						else if (TraceEventType.DB_QUERY.matchName(eventType)) {
-							traceEvent = new TraceEventDBQuery(traceEventKey, bytes, traceEventElement);
-						}
-						// DATA_FLOW
-						else if (TraceEventType.DATA_FLOW.matchName(eventType)) {
-							traceEvent = new TraceEventDataFlow(traceEventKey, bytes, traceEventElement);
-						}
-						// DATA_PAGES
-						else if (TraceEventType.DATA_PAGES.matchName(eventType)) {
-							traceEvent = new TraceEventDataPages(traceEventKey, bytes, traceEventElement);
-						}
-						// DEBUG
-						else if (TraceEventType.DEBUG.matchName(eventType)) {
-							traceEvent = new TraceEventDebug(traceEventKey, bytes, traceEventElement);
-						}
-						// DECISION_DATA
-						else if (TraceEventType.DECISION_DATA.matchName(eventType)) {
-							traceEvent = new TraceEventDecisionData(traceEventKey, bytes, traceEventElement);
-						}
-						// DECISION_PARAMETERS
-						else if (TraceEventType.DECISION_PARAMETERS.matchName(eventType)) {
-							traceEvent = new TraceEventDecisionParameters(traceEventKey, bytes, traceEventElement);
-						}
-						// DECLARE_COLLECTION
-						else if (TraceEventType.DECLARE_COLLECTION.matchName(eventType)) {
-							traceEvent = new TraceEventDeclareCollection(traceEventKey, bytes, traceEventElement);
-						}
-						// DECLARE_CONSTRAINT
-						else if (TraceEventType.DECLARE_CONSTRAINT.matchName(eventType)) {
-							traceEvent = new TraceEventDeclareConstraint(traceEventKey, bytes, traceEventElement);
-						}
-						// DECLARE_DECISIONMAP
-						else if (TraceEventType.DECLARE_DECISIONMAP.matchName(eventType)) {
-							traceEvent = new TraceEventDeclareDecisionMap(traceEventKey, bytes, traceEventElement);
-						}
-						// DECLARE_DECISIONTABLE
-						else if (TraceEventType.DECLARE_DECISIONTABLE.matchName(eventType)) {
-							traceEvent = new TraceEventDeclareDecisionTable(traceEventKey, bytes, traceEventElement);
-						}
-						// DECLARE_DECISIONTREE
-						else if (TraceEventType.DECLARE_DECISIONTREE.matchName(eventType)) {
-							traceEvent = new TraceEventDeclareDecisionTree(traceEventKey, bytes, traceEventElement);
-						}
-						// DECLARE_EXPRESSION
-						else if (TraceEventType.DECLARE_EXPRESSION.matchName(eventType)) {
-							traceEvent = new TraceEventDeclareExpression(traceEventKey, bytes, traceEventElement);
-						}
-						// DECLARE_INDEX
-						else if (TraceEventType.DECLARE_INDEX.matchName(eventType)) {
-							traceEvent = new TraceEventDeclareIndex(traceEventKey, bytes, traceEventElement);
-						}
-						// DECLARE_ONCHANGE
-						else if (TraceEventType.DECLARE_ONCHANGE.matchName(eventType)) {
-							traceEvent = new TraceEventDeclareOnChange(traceEventKey, bytes, traceEventElement);
-						}
-						// DECLARE_PAGES
-						else if (TraceEventType.DECLARE_PAGES.matchName(eventType)) {
-							traceEvent = new TraceEventDeclarePages(traceEventKey, bytes, traceEventElement);
-						}
-						// DECLARE_TRIGGER
-						else if (TraceEventType.DECLARE_TRIGGER.matchName(eventType)) {
-							traceEvent = new TraceEventDeclareTrigger(traceEventKey, bytes, traceEventElement);
-						}
-						// FLOW
-						else if (TraceEventType.FLOW.matchName(eventType)) {
-							traceEvent = new TraceEventFlow(traceEventKey, bytes, traceEventElement);
-						}
-						// FREE_TEXT_MODEL
-						else if (TraceEventType.FREE_TEXT_MODEL.matchName(eventType)) {
-							traceEvent = new TraceEventFreeTextModel(traceEventKey, bytes, traceEventElement);
-						}
+                        // ---- Event Types ---- //
+                        // ASYNC_DP_LOAD
+                        else if (TraceEventType.ASYNC_DP_LOAD.matchName(eventType)) {
+                            traceEvent = new TraceEventAsyncDPLoad(traceEventKey, bytes, traceEventElement);
+                        }
+                        // ADAPTIVE_MODEL
+                        else if (TraceEventType.ADAPTIVE_MODEL.matchName(eventType)) {
+                            traceEvent = new TraceEventAdaptiveModel(traceEventKey, bytes, traceEventElement);
+                        }
+                        // ADP_LOAD
+                        else if (TraceEventType.ADP_LOAD.matchName(eventType)) {
+                            traceEvent = new TraceEventADPLoad(traceEventKey, bytes, traceEventElement);
+                        }
+                        // ALERT
+                        else if (TraceEventType.ALERT.matchName(eventType)) {
+                            traceEvent = new TraceEventAlert(traceEventKey, bytes, traceEventElement);
+                        }
+                        // ASYNCHRONOUS_ACTIVITY
+                        else if (TraceEventType.ASYNCHRONOUS_ACTIVITY.matchName(eventType)) {
+                            traceEvent = new TraceEventAsynchronousActivity(traceEventKey, bytes, traceEventElement);
+                        }
+                        // AUTOPOPULATE_PROPERTIES
+                        else if (TraceEventType.AUTOPOPULATE_PROPERTIES.matchName(eventType)) {
+                            traceEvent = new TraceEventAutoPopulateProperties(traceEventKey, bytes, traceEventElement);
+                        }
+                        // CASE_TYPE
+                        else if (TraceEventType.CASE_TYPE.matchName(eventType)) {
+                            traceEvent = new TraceEventCaseType(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DB_CACHE
+                        else if (TraceEventType.DB_CACHE.matchName(eventType)) {
+                            traceEvent = new TraceEventDBCache(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DB_QUERY
+                        else if (TraceEventType.DB_QUERY.matchName(eventType)) {
+                            traceEvent = new TraceEventDBQuery(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DATA_FLOW
+                        else if (TraceEventType.DATA_FLOW.matchName(eventType)) {
+                            traceEvent = new TraceEventDataFlow(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DATA_PAGES
+                        else if (TraceEventType.DATA_PAGES.matchName(eventType)) {
+                            traceEvent = new TraceEventDataPages(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DEBUG
+                        else if (TraceEventType.DEBUG.matchName(eventType)) {
+                            traceEvent = new TraceEventDebug(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECISION_DATA
+                        else if (TraceEventType.DECISION_DATA.matchName(eventType)) {
+                            traceEvent = new TraceEventDecisionData(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECISION_PARAMETERS
+                        else if (TraceEventType.DECISION_PARAMETERS.matchName(eventType)) {
+                            traceEvent = new TraceEventDecisionParameters(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECLARE_COLLECTION
+                        else if (TraceEventType.DECLARE_COLLECTION.matchName(eventType)) {
+                            traceEvent = new TraceEventDeclareCollection(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECLARE_CONSTRAINT
+                        else if (TraceEventType.DECLARE_CONSTRAINT.matchName(eventType)) {
+                            traceEvent = new TraceEventDeclareConstraint(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECLARE_DECISIONMAP
+                        else if (TraceEventType.DECLARE_DECISIONMAP.matchName(eventType)) {
+                            traceEvent = new TraceEventDeclareDecisionMap(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECLARE_DECISIONTABLE
+                        else if (TraceEventType.DECLARE_DECISIONTABLE.matchName(eventType)) {
+                            traceEvent = new TraceEventDeclareDecisionTable(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECLARE_DECISIONTREE
+                        else if (TraceEventType.DECLARE_DECISIONTREE.matchName(eventType)) {
+                            traceEvent = new TraceEventDeclareDecisionTree(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECLARE_EXPRESSION
+                        else if (TraceEventType.DECLARE_EXPRESSION.matchName(eventType)) {
+                            traceEvent = new TraceEventDeclareExpression(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECLARE_INDEX
+                        else if (TraceEventType.DECLARE_INDEX.matchName(eventType)) {
+                            traceEvent = new TraceEventDeclareIndex(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECLARE_ONCHANGE
+                        else if (TraceEventType.DECLARE_ONCHANGE.matchName(eventType)) {
+                            traceEvent = new TraceEventDeclareOnChange(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECLARE_PAGES
+                        else if (TraceEventType.DECLARE_PAGES.matchName(eventType)) {
+                            traceEvent = new TraceEventDeclarePages(traceEventKey, bytes, traceEventElement);
+                        }
+                        // DECLARE_TRIGGER
+                        else if (TraceEventType.DECLARE_TRIGGER.matchName(eventType)) {
+                            traceEvent = new TraceEventDeclareTrigger(traceEventKey, bytes, traceEventElement);
+                        }
+                        // FLOW
+                        else if (TraceEventType.FLOW.matchName(eventType)) {
+                            traceEvent = new TraceEventFlow(traceEventKey, bytes, traceEventElement);
+                        }
+                        // FREE_TEXT_MODEL
+                        else if (TraceEventType.FREE_TEXT_MODEL.matchName(eventType)) {
+                            traceEvent = new TraceEventFreeTextModel(traceEventKey, bytes, traceEventElement);
+                        }
 
-						// INTERACTION
-						else if (TraceEventType.INTERACTION.matchName(eventType)) {
-							traceEvent = new TraceEventInteraction(traceEventKey, bytes, traceEventElement);
-						}
-						// LINKED_PAGE_HIT
-						else if (TraceEventType.LINKED_PAGE_HIT.matchName(eventType)) {
-							traceEvent = new TraceEventLinkedPageHit(traceEventKey, bytes, traceEventElement);
-						}
-						// LINKED_PAGE_MISS
-						else if (TraceEventType.LINKED_PAGE_MISS.matchName(eventType)) {
-							traceEvent = new TraceEventLinkedPageMiss(traceEventKey, bytes, traceEventElement);
-						}
-						// LOCKING
-						else if (TraceEventType.LOCKING.matchName(eventType)) {
-							traceEvent = new TraceEventLocking(traceEventKey, bytes, traceEventElement);
-						}
-						// LOG_MESSAGES
-						else if (TraceEventType.LOG_MESSAGES.matchName(eventType)) {
-							traceEvent = new TraceEventLogMessages(traceEventKey, bytes, traceEventElement);
-						}
-						// NAMED_TRANSACTIONS
-						else if (TraceEventType.NAMED_TRANSACTIONS.matchName(eventType)) {
-							traceEvent = new TraceEventNamedTransactions(traceEventKey, bytes, traceEventElement);
-						}
-						// PARSE_RULES
-						else if (TraceEventType.PARSE_RULES.matchName(eventType)) {
-							traceEvent = new TraceEventParseRules(traceEventKey, bytes, traceEventElement);
-						}
-						// PREDICTIVE_MODEL
-						else if (TraceEventType.PREDICTIVE_MODEL.matchName(eventType)) {
-							traceEvent = new TraceEventPredictiveModel(traceEventKey, bytes, traceEventElement);
-						}
-						// PROPOSITION_FILTER
-						else if (TraceEventType.PROPOSITION_FILTER.matchName(eventType)) {
-							traceEvent = new TraceEventPropositionFilter(traceEventKey, bytes, traceEventElement);
-						}
-						// PUSH_NOTIFICATIONS
-						else if (TraceEventType.PUSH_NOTIFICATIONS.matchName(eventType)) {
-							traceEvent = new TraceEventPushNotifications(traceEventKey, bytes, traceEventElement);
-						}
-						// QUEUE_PROCESSING
-						else if (TraceEventType.QUEUE_PROCESSING.matchName(eventType)) {
-							traceEvent = new TraceEventQueueProcessing(traceEventKey, bytes, traceEventElement);
-						}
-						// REFERENCE_PROPERTIES
-						else if (TraceEventType.REFERENCE_PROPERTIES.matchName(eventType)) {
-							traceEvent = new TraceEventReferenceProperties(traceEventKey, bytes, traceEventElement);
-						}
-						// SOAP_MESSAGES
-						else if (TraceEventType.SOAP_MESSAGES.matchName(eventType)) {
-							traceEvent = new TraceEventSOAPMessages(traceEventKey, bytes, traceEventElement);
-						}
-						// SCORECARD
-						else if (TraceEventType.SCORECARD.matchName(eventType)) {
-							traceEvent = new TraceEventScorecard(traceEventKey, bytes, traceEventElement);
-						}
-						// SERVICE_MAPPING
-						else if (TraceEventType.SERVICE_MAPPING.matchName(eventType)) {
-							traceEvent = new TraceEventServiceMapping(traceEventKey, bytes, traceEventElement);
-						}
-						// SERVICES
-						else if (TraceEventType.SERVICES.matchName(eventType)) {
-							traceEvent = new TraceEventServices(traceEventKey, bytes, traceEventElement);
-						}
-						// STRATEGY
-						else if (TraceEventType.STRATEGY.matchName(eventType)) {
-							traceEvent = new TraceEventStrategy(traceEventKey, bytes, traceEventElement);
-						}
-						// STREAM_RULES
-						else if (TraceEventType.STREAM_RULES.matchName(eventType)) {
-							traceEvent = new TraceEventStreamRules(traceEventKey, bytes, traceEventElement);
-						}
-						// UNIT_TEST_CASE
-						else if (TraceEventType.UNIT_TEST_CASE.matchName(eventType)) {
-							traceEvent = new TraceEventUnitTestCase(traceEventKey, bytes, traceEventElement);
-						}
-						// UNKNOWN
-						else {
-							traceEvent = new TraceEventUnknown(traceEventKey, bytes, traceEventElement);
-						}
-					} else {
+                        // INTERACTION
+                        else if (TraceEventType.INTERACTION.matchName(eventType)) {
+                            traceEvent = new TraceEventInteraction(traceEventKey, bytes, traceEventElement);
+                        }
+                        // LINKED_PAGE_HIT
+                        else if (TraceEventType.LINKED_PAGE_HIT.matchName(eventType)) {
+                            traceEvent = new TraceEventLinkedPageHit(traceEventKey, bytes, traceEventElement);
+                        }
+                        // LINKED_PAGE_MISS
+                        else if (TraceEventType.LINKED_PAGE_MISS.matchName(eventType)) {
+                            traceEvent = new TraceEventLinkedPageMiss(traceEventKey, bytes, traceEventElement);
+                        }
+                        // LOCKING
+                        else if (TraceEventType.LOCKING.matchName(eventType)) {
+                            traceEvent = new TraceEventLocking(traceEventKey, bytes, traceEventElement);
+                        }
+                        // LOG_MESSAGES
+                        else if (TraceEventType.LOG_MESSAGES.matchName(eventType)) {
+                            traceEvent = new TraceEventLogMessages(traceEventKey, bytes, traceEventElement);
+                        }
+                        // NAMED_TRANSACTIONS
+                        else if (TraceEventType.NAMED_TRANSACTIONS.matchName(eventType)) {
+                            traceEvent = new TraceEventNamedTransactions(traceEventKey, bytes, traceEventElement);
+                        }
+                        // PARSE_RULES
+                        else if (TraceEventType.PARSE_RULES.matchName(eventType)) {
+                            traceEvent = new TraceEventParseRules(traceEventKey, bytes, traceEventElement);
+                        }
+                        // PREDICTIVE_MODEL
+                        else if (TraceEventType.PREDICTIVE_MODEL.matchName(eventType)) {
+                            traceEvent = new TraceEventPredictiveModel(traceEventKey, bytes, traceEventElement);
+                        }
+                        // PROPOSITION_FILTER
+                        else if (TraceEventType.PROPOSITION_FILTER.matchName(eventType)) {
+                            traceEvent = new TraceEventPropositionFilter(traceEventKey, bytes, traceEventElement);
+                        }
+                        // PUSH_NOTIFICATIONS
+                        else if (TraceEventType.PUSH_NOTIFICATIONS.matchName(eventType)) {
+                            traceEvent = new TraceEventPushNotifications(traceEventKey, bytes, traceEventElement);
+                        }
+                        // QUEUE_PROCESSING
+                        else if (TraceEventType.QUEUE_PROCESSING.matchName(eventType)) {
+                            traceEvent = new TraceEventQueueProcessing(traceEventKey, bytes, traceEventElement);
+                        }
+                        // REFERENCE_PROPERTIES
+                        else if (TraceEventType.REFERENCE_PROPERTIES.matchName(eventType)) {
+                            traceEvent = new TraceEventReferenceProperties(traceEventKey, bytes, traceEventElement);
+                        }
+                        // SOAP_MESSAGES
+                        else if (TraceEventType.SOAP_MESSAGES.matchName(eventType)) {
+                            traceEvent = new TraceEventSOAPMessages(traceEventKey, bytes, traceEventElement);
+                        }
+                        // SCORECARD
+                        else if (TraceEventType.SCORECARD.matchName(eventType)) {
+                            traceEvent = new TraceEventScorecard(traceEventKey, bytes, traceEventElement);
+                        }
+                        // SERVICE_MAPPING
+                        else if (TraceEventType.SERVICE_MAPPING.matchName(eventType)) {
+                            traceEvent = new TraceEventServiceMapping(traceEventKey, bytes, traceEventElement);
+                        }
+                        // SERVICES
+                        else if (TraceEventType.SERVICES.matchName(eventType)) {
+                            traceEvent = new TraceEventServices(traceEventKey, bytes, traceEventElement);
+                        }
+                        // STRATEGY
+                        else if (TraceEventType.STRATEGY.matchName(eventType)) {
+                            traceEvent = new TraceEventStrategy(traceEventKey, bytes, traceEventElement);
+                        }
+                        // STREAM_RULES
+                        else if (TraceEventType.STREAM_RULES.matchName(eventType)) {
+                            traceEvent = new TraceEventStreamRules(traceEventKey, bytes, traceEventElement);
+                        }
+                        // UNIT_TEST_CASE
+                        else if (TraceEventType.UNIT_TEST_CASE.matchName(eventType)) {
+                            traceEvent = new TraceEventUnitTestCase(traceEventKey, bytes, traceEventElement);
+                        }
+                        // UNKNOWN
+                        else {
+                            traceEvent = new TraceEventUnknown(traceEventKey, bytes, traceEventElement);
+                        }
+                    } else {
 
-						Element eventNameElement = traceEventElement.element("EventName");
+                        Element eventNameElement = traceEventElement.element("EventName");
 
-						if (eventNameElement != null) {
+                        if (eventNameElement != null) {
 
-							String eventName = eventNameElement.getText();
+                            String eventName = eventNameElement.getText();
 
-							// currently data flow doesn't set the event type.
-							// DATA_FLOW
-							if (TraceEventType.DATA_FLOW.matchName(eventName)) {
-								traceEvent = new TraceEventDataFlow(traceEventKey, bytes, traceEventElement);
-							}
-						}
-					}
+                            // currently data flow doesn't set the event type.
+                            // DATA_FLOW
+                            if (TraceEventType.DATA_FLOW.matchName(eventName)) {
+                                traceEvent = new TraceEventDataFlow(traceEventKey, bytes, traceEventElement);
+                            }
+                        }
+                    }
 
-					if (traceEvent == null) {
-						traceEvent = new TraceEventUnknown(traceEventKey, bytes, traceEventElement);
-					}
+                    if (traceEvent == null) {
+                        traceEvent = new TraceEventUnknown(traceEventKey, bytes, traceEventElement);
+                    }
 
-					traceEvent.setCharset(charset);
-				}
-			}
+                    traceEvent.setCharset(charset);
+                }
+            }
 
-		} catch (Exception e) {
-			LOG.info("Unable to parse the trace Event: " + id, e);
-		}
+        } catch (Exception e) {
+            LOG.info("Unable to parse the trace Event: " + id, e);
+        }
 
-		return traceEvent;
-	}
+        return traceEvent;
+    }
 
-	public static String getElapsedString(double elapsed) {
+    public static String getElapsedString(double elapsed) {
 
-		String elapsedString = null;
+        String elapsedString = null;
 
-		if (elapsed >= 0) {
-			elapsedString = elapsedDecimalFormat.format(elapsed);
-		}
+        if (elapsed >= 0) {
+            elapsedString = elapsedDecimalFormat.format(elapsed);
+        }
 
-		return elapsedString;
-	}
+        return elapsedString;
+    }
 }
