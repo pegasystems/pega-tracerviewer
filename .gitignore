@@ -2,3 +2,7 @@
 /.settings/
 /logs/
 *.log
+/.DS_Store
+/.gradle/
+/.idea/
+/build/
