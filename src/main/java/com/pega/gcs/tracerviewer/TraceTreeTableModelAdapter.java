@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import javax.swing.event.TableModelEvent;
@@ -30,17 +31,13 @@ public class TraceTreeTableModelAdapter extends TreeTableModelAdapter {
         this.traceTableModel = null;
     }
 
-    /**
-     * @param traceTableModel
-     *            the traceTableModel to set
-     */
     public void setTraceTableModel(TraceTableModel traceTableModel) {
 
         this.traceTableModel = traceTableModel;
         this.traceTableModel.addTableModelListener(new TableModelListener() {
 
             @Override
-            public void tableChanged(TableModelEvent e) {
+            public void tableChanged(TableModelEvent tableModelEvent) {
 
                 DefaultTreeTableTree defaultTreeTableTree = getTree();
 
@@ -49,10 +46,10 @@ public class TraceTreeTableModelAdapter extends TreeTableModelAdapter {
 
                 // in case of search action, just refresh. reload causes
                 // collapsing of tree.
-                if (e instanceof SearchTableModelEvent) {
+                if (tableModelEvent instanceof SearchTableModelEvent) {
                     abstractTreeTableTreeModel.nodeChanged(getRoot());
                 } else {
-                    if (e.getType() == TableModelEvent.UPDATE) {
+                    if (tableModelEvent.getType() == TableModelEvent.UPDATE) {
                         abstractTreeTableTreeModel.reload();
                     }
                 }

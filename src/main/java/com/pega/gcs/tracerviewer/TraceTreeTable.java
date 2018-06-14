@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import javax.swing.JTable;
@@ -34,7 +35,7 @@ public class TraceTreeTable extends AbstractTreeTable {
 
     }
 
-    private void initialize(DefaultTreeTableTreeModel traceTreeTableModel, TraceTableModel traceTableModel){
+    private void initialize(DefaultTreeTableTreeModel traceTreeTableModel, TraceTableModel traceTableModel) {
         TraceTreeTableModelAdapter traceTreeTableModelAdapter;
 
         traceTreeTableModelAdapter = (TraceTreeTableModelAdapter) getModel();

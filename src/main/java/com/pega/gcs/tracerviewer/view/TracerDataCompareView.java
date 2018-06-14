@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.view;
 
 import java.awt.BorderLayout;
@@ -87,9 +88,9 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
     protected abstract TraceTable getTracerDataTableRight();
 
-    private JScrollPane jScrollPaneLeft;
+    private JScrollPane jscrollPaneLeft;
 
-    private JScrollPane jScrollPaneRight;
+    private JScrollPane jscrollPaneRight;
 
     public TracerDataCompareView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
             TraceNavigationTableController traceNavigationTableController, RecentFileContainer recentFileContainer,
@@ -166,28 +167,28 @@ public abstract class TracerDataCompareView extends TracerDataView {
         supplementUtilityJPanel.repaint();
     }
 
-    private JScrollPane getjScrollPaneLeft() {
+    private JScrollPane getjscrollPaneLeft() {
 
-        if (jScrollPaneLeft == null) {
+        if (jscrollPaneLeft == null) {
 
             TraceTable traceTableLeft = getTracerDataTableLeft();
 
-            jScrollPaneLeft = getJScrollPane(traceTableLeft);
+            jscrollPaneLeft = getJScrollPane(traceTableLeft);
         }
 
-        return jScrollPaneLeft;
+        return jscrollPaneLeft;
     }
 
-    private JScrollPane getjScrollPaneRight() {
+    private JScrollPane getjscrollPaneRight() {
 
-        if (jScrollPaneRight == null) {
+        if (jscrollPaneRight == null) {
 
             TraceTable traceTableRight = getTracerDataTableRight();
 
-            jScrollPaneRight = getJScrollPane(traceTableRight);
+            jscrollPaneRight = getJScrollPane(traceTableRight);
         }
 
-        return jScrollPaneRight;
+        return jscrollPaneRight;
     }
 
     private JSplitPane getCompareJSplitPane() {
@@ -217,11 +218,11 @@ public abstract class TracerDataCompareView extends TracerDataView {
         traceTableRight.getColumnModel().addColumnModelListener(tableWidthColumnModelListener);
 
         // setup JScrollBar
-        JScrollPane jScrollPaneLeft = getjScrollPaneLeft();
-        JScrollPane jScrollPaneRight = getjScrollPaneRight();
+        JScrollPane jscrollPaneLeft = getjscrollPaneLeft();
+        JScrollPane jscrollPaneRight = getjscrollPaneRight();
 
-        JPanel traceTablePanelLeft = getSingleTableJPanel(jScrollPaneLeft, traceTableLeft, false);
-        JPanel traceTablePanelRight = getSingleTableJPanel(jScrollPaneRight, traceTableRight, true);
+        JPanel traceTablePanelLeft = getSingleTableJPanel(jscrollPaneLeft, traceTableLeft, false);
+        JPanel traceTablePanelRight = getSingleTableJPanel(jscrollPaneRight, traceTableRight, true);
 
         JSplitPane traceCompareJSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, traceTablePanelLeft,
                 traceTablePanelRight);
@@ -265,12 +266,12 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
     private JScrollPane getJScrollPane(TraceTable traceTable) {
 
-        JScrollPane jScrollpane = new JScrollPane(traceTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+        JScrollPane jscrollpane = new JScrollPane(traceTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-        traceTable.setPreferredScrollableViewportSize(jScrollpane.getPreferredSize());
+        traceTable.setPreferredScrollableViewportSize(jscrollpane.getPreferredSize());
 
-        return jScrollpane;
+        return jscrollpane;
     }
 
     private JPanel getSingleTableJPanel(JScrollPane traceTableScrollpane, TraceTable traceTable, boolean isRightSide) {
@@ -392,7 +393,7 @@ public abstract class TracerDataCompareView extends TracerDataView {
             fileOpenJButton.addActionListener(new ActionListener() {
 
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent event) {
 
                     File fileChooserBase = null;
 
@@ -425,10 +426,10 @@ public abstract class TracerDataCompareView extends TracerDataView {
                     FileFilter fileFilter = TracerViewer.getDefaultFileFilter(TracerViewer.FILE_CHOOSER_FILTER_DESC,
                             Arrays.asList(TracerViewer.FILE_CHOOSER_FILTER_EXT));
 
-                    File aFile = TracerViewer.openFileChooser(getFileOpenJButton(), TracerViewer.class,
+                    File file = TracerViewer.openFileChooser(getFileOpenJButton(), TracerViewer.class,
                             TracerViewer.FILE_CHOOSER_DIALOG_TITLE, fileFilter, fileChooserBase);
 
-                    if (aFile != null) {
+                    if (file != null) {
 
                         // for compare tree, the compare tree view should be
                         // inherited from compare table view, so that the same
@@ -441,13 +442,13 @@ public abstract class TracerDataCompareView extends TracerDataView {
                         String charset = getTracerViewerSetting().getCharset();
 
                         RecentFile compareRecentFile;
-                        compareRecentFile = recentFileContainer.getRecentFile(aFile, charset);
+                        compareRecentFile = recentFileContainer.getRecentFile(file, charset);
 
                         // also reset the model and clears old stuff
                         traceTableCompareModel.setRecentFile(compareRecentFile);
 
                         // save the compare file path to main file
-                        recentFile.setAttribute(TracerViewer.RECENT_FILE_PREV_COMPARE_FILE, aFile.getAbsolutePath());
+                        recentFile.setAttribute(TracerViewer.RECENT_FILE_PREV_COMPARE_FILE, file.getAbsolutePath());
 
                         TraceTable tracerDataTableLeft = getTracerDataTableLeft();
 
@@ -757,16 +758,16 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
     protected void syncScrollBars() {
 
-        JScrollPane jScrollPaneLeft = getjScrollPaneLeft();
-        JScrollPane jScrollPaneRight = getjScrollPaneRight();
+        JScrollPane jscrollPaneLeft = getjscrollPaneLeft();
+        JScrollPane jscrollPaneRight = getjscrollPaneRight();
 
-        JScrollBar jScrollBarLeftH = jScrollPaneLeft.getHorizontalScrollBar();
-        JScrollBar jScrollBarLeftV = jScrollPaneLeft.getVerticalScrollBar();
-        JScrollBar jScrollBarRightH = jScrollPaneRight.getHorizontalScrollBar();
-        JScrollBar jScrollBarRightV = jScrollPaneRight.getVerticalScrollBar();
+        JScrollBar jscrollBarLeftH = jscrollPaneLeft.getHorizontalScrollBar();
+        JScrollBar jscrollBarLeftV = jscrollPaneLeft.getVerticalScrollBar();
+        JScrollBar jscrollBarRightH = jscrollPaneRight.getHorizontalScrollBar();
+        JScrollBar jscrollBarRightV = jscrollPaneRight.getVerticalScrollBar();
 
-        jScrollBarRightH.setModel(jScrollBarLeftH.getModel());
-        jScrollBarRightV.setModel(jScrollBarLeftV.getModel());
+        jscrollBarRightH.setModel(jscrollBarLeftH.getModel());
+        jscrollBarRightV.setModel(jscrollBarLeftV.getModel());
     }
 
 }

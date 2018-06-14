@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.BorderLayout;
@@ -120,8 +121,8 @@ public class TracerViewer extends BaseFrame {
         if (byteArray != null) {
             try {
                 tracerViewerSetting = KryoSerializer.decompress(byteArray, TracerViewerSetting.class);
-            } catch (Exception e) {
-                LOG.error("Error in decompressing tracerviewersetting", e);
+            } catch (Exception exception) {
+                LOG.error("Error in decompressing tracerviewersetting", exception);
             }
         }
 
@@ -137,8 +138,8 @@ public class TracerViewer extends BaseFrame {
         if (byteArray != null) {
             try {
                 openFileList = KryoSerializer.decompress(byteArray, ArrayList.class);
-            } catch (Exception e) {
-                LOG.error("Error decompressing open file list.", e);
+            } catch (Exception exception) {
+                LOG.error("Error decompressing open file list.", exception);
             }
         }
 
@@ -197,12 +198,12 @@ public class TracerViewer extends BaseFrame {
 
         if (appName == null) {
 
-            Package p = TracerViewer.class.getPackage();
+            Package apackage = TracerViewer.class.getPackage();
 
             StringBuffer sb = new StringBuffer();
-            sb.append(p.getImplementationTitle());
+            sb.append(apackage.getImplementationTitle());
             sb.append(" ");
-            sb.append(p.getImplementationVersion());
+            sb.append(apackage.getImplementationVersion());
 
             appName = sb.toString();
         }
@@ -231,8 +232,8 @@ public class TracerViewer extends BaseFrame {
             LOG.info("TracerViewerSetting ByteSize: " + byteArray.length);
 
             GeneralUtilities.setPreferenceByteArray(this.getClass(), PREF_SETTINGS, byteArray);
-        } catch (Exception e) {
-            LOG.error("Error saving preferences.", e);
+        } catch (Exception exception) {
+            LOG.error("Error saving preferences.", exception);
         }
 
         // save openFileList
@@ -259,8 +260,8 @@ public class TracerViewer extends BaseFrame {
 
             GeneralUtilities.setPreferenceByteArray(this.getClass(), PREF_OPEN_FILE_LIST, byteArray);
 
-        } catch (Exception e) {
-            LOG.error("Error compressing open file list.", e);
+        } catch (Exception exception) {
+            LOG.error("Error compressing open file list.", exception);
         }
     }
 
@@ -296,11 +297,11 @@ public class TracerViewer extends BaseFrame {
                 FileFilter fileFilter = TracerViewer.getDefaultFileFilter(FILE_CHOOSER_FILTER_DESC,
                         Arrays.asList(FILE_CHOOSER_FILTER_EXT));
 
-                File aFile = openFileChooser(TracerViewer.this, TracerViewer.class, FILE_CHOOSER_DIALOG_TITLE,
+                File file = openFileChooser(TracerViewer.this, TracerViewer.class, FILE_CHOOSER_DIALOG_TITLE,
                         fileFilter, selectedFile);
 
-                if (aFile != null) {
-                    loadFile(aFile);
+                if (file != null) {
+                    loadFile(file);
                 }
             }
         });
@@ -379,12 +380,12 @@ public class TracerViewer extends BaseFrame {
         // ---- HELP ----
         JMenu helpJMenu = getHelpAboutJMenu();
 
-        JMenuBar jMenuBar = new JMenuBar();
-        jMenuBar.add(fileJMenu);
-        jMenuBar.add(editJMenu);
-        jMenuBar.add(helpJMenu);
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.add(fileJMenu);
+        menuBar.add(editJMenu);
+        menuBar.add(helpJMenu);
 
-        return jMenuBar;
+        return menuBar;
 
     }
 
@@ -399,15 +400,15 @@ public class TracerViewer extends BaseFrame {
                 @Override
                 public void onSelect(RecentFile recentFile) {
 
-                    String file = (String) recentFile.getAttribute(RecentFile.KEY_FILE);
+                    String fileName = (String) recentFile.getAttribute(RecentFile.KEY_FILE);
 
-                    File aFile = new File(file);
+                    File file = new File(fileName);
 
-                    if (aFile.exists() && aFile.isFile() && aFile.canRead()) {
-                        loadFile(aFile);
+                    if (file.exists() && file.isFile() && file.canRead()) {
+                        loadFile(file);
                     } else {
 
-                        JOptionPane.showMessageDialog(this, "File: " + aFile + " cannot be read.", "File not found",
+                        JOptionPane.showMessageDialog(this, "File: " + file + " cannot be read.", "File not found",
                                 JOptionPane.ERROR_MESSAGE);
 
                         getRecentFileContainer().deleteRecentFile(recentFile);
@@ -432,19 +433,19 @@ public class TracerViewer extends BaseFrame {
 
             LOG.info("Processing file: " + filename);
 
-            File aFile = new File(filename);
+            File file = new File(filename);
 
-            if (aFile.exists() && aFile.isFile() && aFile.canRead()) {
-                loadFile(aFile);
+            if (file.exists() && file.isFile() && file.canRead()) {
+                loadFile(file);
             } else {
                 LOG.info("\"" + filename + "\" is not a file.");
             }
         }
     }
 
-    protected void loadFile(File aFile) {
+    protected void loadFile(File file) {
 
-        this.selectedFile = aFile;
+        this.selectedFile = file;
 
         TraceTabbedPane traceTabbedPane = getTraceTabbedPane();
 
@@ -472,10 +473,10 @@ public class TracerViewer extends BaseFrame {
 
             LOG.info("Processing file: " + filename);
 
-            File aFile = new File(filename);
+            File file = new File(filename);
 
-            if (aFile.exists() && aFile.isFile() && aFile.canRead()) {
-                generateReport(aFile);
+            if (file.exists() && file.isFile() && file.canRead()) {
+                generateReport(file);
             } else {
                 LOG.info("\"" + filename + "\" is not a file.");
             }
@@ -486,9 +487,6 @@ public class TracerViewer extends BaseFrame {
         // TODO - generate report
     }
 
-    /**
-     * @param args
-     */
     public static void main(final String[] args) {
 
         LOG.info("Default Locale: " + Locale.getDefault() + " args length: " + args.length);
@@ -507,12 +505,12 @@ public class TracerViewer extends BaseFrame {
 
                         Getopt getopt = new Getopt("TracerViewer", args, "f:r:h:?;");
 
-                        int c;
+                        int charAt;
                         String arg;
 
-                        while ((c = getopt.getopt()) != -1) {
+                        while ((charAt = getopt.getopt()) != -1) {
 
-                            switch (c) {
+                            switch (charAt) {
 
                             case 'f':
 
@@ -550,7 +548,7 @@ public class TracerViewer extends BaseFrame {
                                 break;
 
                             default:
-                                LOG.info("getopt() returned " + c);
+                                LOG.info("getopt() returned " + charAt);
                                 break;
                             }
                         }

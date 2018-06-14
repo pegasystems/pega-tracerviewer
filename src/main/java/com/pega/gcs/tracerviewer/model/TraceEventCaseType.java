@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import org.dom4j.Element;
@@ -11,15 +12,12 @@ import org.dom4j.Element;
 public class TraceEventCaseType extends TraceEvent {
 
     public TraceEventCaseType(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-
         super(traceEventKey, bytes, traceEventElement);
-
         traceEventType = TraceEventType.CASE_TYPE;
     }
 
     @Override
     protected boolean checkStart() {
-
         boolean start = false;
 
         String eventName = getEventName();

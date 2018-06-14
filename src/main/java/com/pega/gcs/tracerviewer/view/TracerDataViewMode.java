@@ -4,15 +4,16 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.view;
 
 public enum TracerDataViewMode {
 
     // @formatter:off
-    SINGLE_TABLE        ( "Table"                   ),
-    SINGLE_TREE         ( "Tree"                    ),
-    SINGLE_TREE_MERGED  ( "Tree(Start-End Merged)"  ),
-    COMPARE_TABLE       ( "Compare"                 );
+    SINGLE_TABLE("Table"),
+    SINGLE_TREE("Tree"),
+    SINGLE_TREE_MERGED("Tree(Start-End Merged)"),
+    COMPARE_TABLE("Compare");
     // @formatter:on
 
     private String displaytext;

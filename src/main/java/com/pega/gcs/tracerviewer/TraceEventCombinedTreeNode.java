@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class TraceEventCombinedTreeNode extends AbstractTraceEventTreeNode {
     }
 
     @Override
-    public int compareTo(AbstractTreeTableNode o) {
+    public int compareTo(AbstractTreeTableNode node) {
         // Don't want to perform sort here
         return 0;
     }
@@ -59,29 +60,28 @@ public class TraceEventCombinedTreeNode extends AbstractTraceEventTreeNode {
             if (endEvent != null) {
 
                 switch (traceTreeCombinedTableModelColumn) {
+                case LINE:// Line
+                case TIMESTAMP:// TimeStamp
+                case THREAD:// Thread
+                case INT:// Int
+                case RULE:// Rule#
+                case STEP_METHOD:// Step Method
+                case STEP_PAGE:// Step Page
+                case STEP:// Step
+                case EVENT_TYPE:// Event Name
+                case NAME:// Name
+                case RULESET:// RuleSet
+                    nodeValue = startEvent.getColumnValueForTraceTableModelColumn(traceTreeCombinedTableModelColumn);
+                    break;
 
-                    case LINE:// Line
-                    case TIMESTAMP:// TimeStamp
-                    case THREAD:// Thread
-                    case INT:// Int
-                    case RULE:// Rule#
-                    case STEP_METHOD:// Step Method
-                    case STEP_PAGE:// Step Page
-                    case STEP:// Step
-                    case EVENT_TYPE:// Event Name
-                    case NAME:// Name
-                    case RULESET:// RuleSet
-                        nodeValue = startEvent.getColumnValueForTraceTableModelColumn(traceTreeCombinedTableModelColumn);
-                        break;
-
-                    case TOTAL_ELAPSED:// Elapsed
-                    case OWN_ELAPSED:
-                    case CHILDREN_ELAPSED:
-                    case STATUS:// Status
-                        nodeValue = endEvent.getColumnValueForTraceTableModelColumn(traceTreeCombinedTableModelColumn);
-                        break;
-                    default:
-                        break;
+                case TOTAL_ELAPSED:// Elapsed
+                case OWN_ELAPSED:
+                case CHILDREN_ELAPSED:
+                case STATUS:// Status
+                    nodeValue = endEvent.getColumnValueForTraceTableModelColumn(traceTreeCombinedTableModelColumn);
+                    break;
+                default:
+                    break;
                 }
 
             } else {

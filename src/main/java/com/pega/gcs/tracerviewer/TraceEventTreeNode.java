@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class TraceEventTreeNode extends AbstractTraceEventTreeNode {
     }
 
     @Override
-    public int compareTo(AbstractTreeTableNode o) {
+    public int compareTo(AbstractTreeTableNode node) {
         // Don't want to perform sort here
         return 0;
     }

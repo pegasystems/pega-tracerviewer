@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.report;
 
 import java.awt.BorderLayout;
@@ -117,9 +118,9 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
     }
 
     @Override
-    public void tableChanged(TableModelEvent e) {
+    public void tableChanged(TableModelEvent tableModelEvent) {
 
-        if (e.getType() == TableModelEvent.UPDATE) {
+        if (tableModelEvent.getType() == TableModelEvent.UPDATE) {
             LOG.info("TracerSimpleReportFrame tableChanged");
             rebuildOverview();
         }
@@ -151,7 +152,7 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
             refreshJButton.addActionListener(new ActionListener() {
 
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent actionEvent) {
                     rebuildOverview();
                 }
             });
@@ -170,10 +171,10 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
             ChangeListener tabChangeListener = new ChangeListener() {
 
                 @Override
-                public void stateChanged(ChangeEvent e) {
+                public void stateChanged(ChangeEvent changeEvent) {
 
                     if (!removeAction) {
-                        JTabbedPane sourceTabbedPane = (JTabbedPane) e.getSource();
+                        JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
                         int index = sourceTabbedPane.getSelectedIndex();
                         selectedTab.set(index);
                     }
@@ -319,7 +320,7 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
 
     }
 
-    private void addTab(String tabText, JPanel jPanel, int tabIndex) {
+    private void addTab(String tabText, JPanel panel, int tabIndex) {
 
         JTabbedPane tracerReportTabbedPane = getTracerReportTabbedPane();
 
@@ -332,7 +333,7 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
         tabLabel.setPreferredSize(dim);
         tabLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        tracerReportTabbedPane.addTab(tabText, jPanel);
+        tracerReportTabbedPane.addTab(tabText, panel);
         tracerReportTabbedPane.setTabComponentAt(tabIndex, tabLabel);
     }
 
@@ -369,7 +370,8 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
 
     private JPanel getExceptionEventJPanel() {
 
-        String description = "List of innermost trace events that has failed with an exception. Select an entry to select the record on the main table.";
+        String description = "List of innermost trace events that has failed with an exception. Select an entry to "
+                + "select the record on the main table.";
 
         List<TraceEventKey> reportExceptionEventList = traceTableModel.getReportExceptionEventKeyList();
 
@@ -391,8 +393,8 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
 
     private JPanel getNoStartEventJPanel() {
 
-        String description = "List of trace events which doesnt have corresponding 'Begin' event. Select an entry to select the record on the main table.";
-        
+        String description = "List of trace events which doesnt have corresponding 'Begin' event. Select an entry to "
+                + "select the record on the main table.";
         List<TraceEventKey> reportNoStartEventList = traceTableModel.getReportNoStartEventKeyList();
 
         JPanel noStartEventJPanel = getTraceReportJPanel(description, reportNoStartEventList);
@@ -402,8 +404,8 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
 
     private JPanel getNoEndEventJPanel() {
 
-        String description = "List of trace events which doesnt have corresponding 'End' event. Select an entry to select the record on the main table.";
-        
+        String description = "List of trace events which doesnt have corresponding 'End' event. Select an entry to "
+                + "select the record on the main table.";
         List<TraceEventKey> reportNoEndEventList = traceTableModel.getReportNoEndEventKeyList();
 
         JPanel noEndEventJPanel = getTraceReportJPanel(description, reportNoEndEventList);
@@ -413,8 +415,8 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
 
     private JPanel getOwnElapsedEventJPanel() {
 
-        String description = "List of innermost trace events sorted by 'own elapsed time' in decending order. Select an entry to select the record on the main table.";
-        
+        String description = "List of innermost trace events sorted by 'own elapsed time' in decending order. Select "
+                + "an entry to select the record on the main table.";
         List<TraceEventKey> reportOwnElapsedEventList = traceTableModel.getReportOwnElapsedEventKeyList();
 
         JPanel ownElapsedEventJPanel = getTraceReportJPanel(description, reportOwnElapsedEventList);
@@ -425,7 +427,6 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
     private JPanel getSearchEventJPanel() {
 
         String description = "List of current search results. Select an entry to select the record on the main table.";
-        
         SearchModel<TraceEventKey> searchModel = traceTableModel.getSearchModel();
         Object searchStrObj = searchModel.getSearchStrObj();
         List<TraceEventKey> searchEventList = searchModel.getSearchResultList(searchStrObj);
@@ -541,8 +542,8 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
         listSelectionModel.addListSelectionListener(new ListSelectionListener() {
 
             @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
+            public void valueChanged(ListSelectionEvent listSelectionEvent) {
+                if (!listSelectionEvent.getValueIsAdjusting()) {
 
                     int row = traceReportJTable.getSelectedRow();
 

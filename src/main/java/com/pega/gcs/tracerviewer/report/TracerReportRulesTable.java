@@ -7,6 +7,7 @@
 /**
  * 
  */
+
 package com.pega.gcs.tracerviewer.report;
 
 import java.awt.Component;
@@ -90,7 +91,7 @@ public class TracerReportRulesTable extends FilterTable<Integer> {
             private static final long serialVersionUID = 3940727586956347107L;
 
             @Override
-            protected Transferable createTransferable(JComponent c) {
+            protected Transferable createTransferable(JComponent component) {
 
                 int[] selectedRows = getSelectedRows();
 
@@ -118,7 +119,7 @@ public class TracerReportRulesTable extends FilterTable<Integer> {
             }
 
             @Override
-            public int getSourceActions(JComponent c) {
+            public int getSourceActions(JComponent component) {
                 return TransferHandler.COPY;
             }
 

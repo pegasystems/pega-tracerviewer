@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import org.dom4j.Element;
@@ -11,7 +12,6 @@ import org.dom4j.Element;
 public class TraceEventDataFlow extends TraceEventNonActivity {
 
     public TraceEventDataFlow(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-        
         super(traceEventKey, bytes, traceEventElement);
 
         traceEventType = TraceEventType.DATA_FLOW;

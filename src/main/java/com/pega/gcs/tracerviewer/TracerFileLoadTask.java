@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -49,7 +50,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
     private Component parent;
 
-    private ModalProgressMonitor mProgressMonitor;
+    private ModalProgressMonitor progressMonitor;
 
     private TraceTableModel traceTableModel;
 
@@ -57,10 +58,10 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
     private int errorCount;
 
-    public TracerFileLoadTask(ModalProgressMonitor mProgressMonitor, TraceTableModel traceTableModel, boolean wait,
+    public TracerFileLoadTask(ModalProgressMonitor progressMonitor, TraceTableModel traceTableModel, boolean wait,
             Component parent) {
 
-        this.mProgressMonitor = mProgressMonitor;
+        this.progressMonitor = progressMonitor;
         this.traceTableModel = traceTableModel;
         this.wait = wait;
         this.parent = parent;
@@ -136,7 +137,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
             while (!isCancelled()) {
 
-                if (mProgressMonitor.isCanceled()) {
+                if (progressMonitor.isCanceled()) {
                     cancel.set(true);
                     cancel(true);
                     break;
@@ -337,11 +338,11 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
             progress = (int) ((fileRead * 100) / fileSize);
         }
 
-        mProgressMonitor.setProgress(progress);
+        progressMonitor.setProgress(progress);
 
         String message = String.format("Loaded %d trace events (%d%%)", eventCount, progress);
 
-        mProgressMonitor.setNote(message);
+        progressMonitor.setNote(message);
         // disabled
         // statusProgressBar.setText(message);
 
@@ -420,8 +421,8 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
         } finally {
 
-            if (!mProgressMonitor.isCanceled()) {
-                mProgressMonitor.close();
+            if (!progressMonitor.isCanceled()) {
+                progressMonitor.close();
             }
 
             System.gc();

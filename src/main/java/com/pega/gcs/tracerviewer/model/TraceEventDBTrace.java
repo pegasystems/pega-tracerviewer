@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import java.awt.Color;
@@ -13,7 +14,6 @@ import org.dom4j.Element;
 public abstract class TraceEventDBTrace extends TraceEvent {
 
     protected TraceEventDBTrace(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-        
         super(traceEventKey, bytes, traceEventElement);
     }
 

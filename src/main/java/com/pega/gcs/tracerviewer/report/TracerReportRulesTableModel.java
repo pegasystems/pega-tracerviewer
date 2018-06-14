@@ -1,12 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
- *
- * Contributors:
- *     Manu Varghese
- *******************************************************************************/
 /**
- * 
+ * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * <p>
+ * Contributors:
+ * Manu Varghese
  */
+/**
+ *
+ */
+
 package com.pega.gcs.tracerviewer.report;
 
 import java.awt.Color;
@@ -58,9 +59,6 @@ public class TracerReportRulesTableModel extends FilterTableModel<Integer> {
         initialise(rulesInvokedMap);
     }
 
-    /**
-     * @return the rulesetInsKeyMap
-     */
     protected Map<Integer, RulesetRule> getRulesetRuleMap() {
 
         if (rulesetRuleMap == null) {
@@ -99,7 +97,7 @@ public class TracerReportRulesTableModel extends FilterTableModel<Integer> {
 
     @Override
     protected FilterTableModelNavigation<Integer> getNavigationRowIndex(List<Integer> resultList, int currSelectedRowIndex, boolean forward,
-            boolean first, boolean last, boolean wrap) {
+                                                                        boolean first, boolean last, boolean wrap) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -233,46 +231,35 @@ public class TracerReportRulesTableModel extends FilterTableModel<Integer> {
             TraceEventRule traceEventRule = rulesetRule.getTraceEventRule();
 
             switch (tracerReportRulesTableColumn) {
-
-                case SNO:
-                    columnValue = String.valueOf(rulesetRule.getRulesetRuleIndex());
-                    break;
-
-                case EXECUTION_COUNT:
-                    columnValue = String.valueOf(traceEventRule.getExecutionCount());
-                    break;
-
-                case INSKEY:
-                    columnValue = traceEventRule.getInsKey();
-                    break;
-
-                case RULE_TYPE:
-                    columnValue = traceEventRule.getTraceEventType().getName();
-                    break;
-
-                case MAX_OWN_ELAPSED:
-                    columnValue = TraceEventFactory.getElapsedString(traceEventRule.getMaxOwnElapsed());
-                    break;
-
-                case MIN_OWN_ELAPSED:
-                    columnValue = TraceEventFactory.getElapsedString(traceEventRule.getMinOwnElapsed());
-                    break;
-
-                case RULESET:
-                    columnValue = traceEventRuleset.getRuleset();
-                    break;
-
-                case RULESET_VERSION:
-                    columnValue = traceEventRuleset.getVersion();
-                    break;
-
-                case TOTAL_OWN_ELAPSED:
-                    columnValue = TraceEventFactory.getElapsedString(traceEventRule.getTotalOwnElapsed());
-                    break;
-
-                default:
-                    break;
-
+            case SNO:
+                columnValue = String.valueOf(rulesetRule.getRulesetRuleIndex());
+                break;
+            case EXECUTION_COUNT:
+                columnValue = String.valueOf(traceEventRule.getExecutionCount());
+                break;
+            case INSKEY:
+                columnValue = traceEventRule.getInsKey();
+                break;
+            case RULE_TYPE:
+                columnValue = traceEventRule.getTraceEventType().getName();
+                break;
+            case MAX_OWN_ELAPSED:
+                columnValue = TraceEventFactory.getElapsedString(traceEventRule.getMaxOwnElapsed());
+                break;
+            case MIN_OWN_ELAPSED:
+                columnValue = TraceEventFactory.getElapsedString(traceEventRule.getMinOwnElapsed());
+                break;
+            case RULESET:
+                columnValue = traceEventRuleset.getRuleset();
+                break;
+            case RULESET_VERSION:
+                columnValue = traceEventRuleset.getVersion();
+                break;
+            case TOTAL_OWN_ELAPSED:
+                columnValue = TraceEventFactory.getElapsedString(traceEventRule.getTotalOwnElapsed());
+                break;
+            default:
+                break;
             }
         }
 
@@ -335,10 +322,12 @@ public class TracerReportRulesTableModel extends FilterTableModel<Integer> {
             private static final long serialVersionUID = 1504347306097747771L;
 
             /* (non-Javadoc)
-             * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+             * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable,
+             * java.lang.Object, boolean, boolean, int, int)
              */
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                           boolean hasFocus, int row, int column) {
 
                 RulesetRule rulesetRule = (RulesetRule) value;
 

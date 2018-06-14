@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Dimension;
@@ -135,7 +136,7 @@ public abstract class TraceEventTypePopupMenu extends JPopupMenu {
         selectAllJButton.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent event) {
 
                 applySelectAll();
             }
@@ -155,7 +156,7 @@ public abstract class TraceEventTypePopupMenu extends JPopupMenu {
         clearAllJButton.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent event) {
 
                 // applyColumnHeaderFilter(columnIndex, true);
                 // clearAllJButtonAction();
@@ -172,25 +173,25 @@ public abstract class TraceEventTypePopupMenu extends JPopupMenu {
 
         JPanel checkBoxLabelMenuItemListJPanel = getCheckBoxLabelMenuItemListJPanel();
 
-        JScrollPane jScrollPane = new JScrollPane(checkBoxLabelMenuItemListJPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+        JScrollPane jscrollPane = new JScrollPane(checkBoxLabelMenuItemListJPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-        int vBarWidth = jScrollPane.getVerticalScrollBar().getPreferredSize().width;
-        int hBarHeight = jScrollPane.getHorizontalScrollBar().getPreferredSize().height + 3/* border size */;
+        int vbarWidth = jscrollPane.getVerticalScrollBar().getPreferredSize().width;
+        int hbarHeight = jscrollPane.getHorizontalScrollBar().getPreferredSize().height + 3/* border size */;
 
         int compWidth = checkBoxLabelMenuItemListJPanel.getPreferredSize().width;
         int compHeight = checkBoxLabelMenuItemListJPanel.getPreferredSize().height;
 
-        int newCompWidth = compWidth + vBarWidth;
-        int newCompHeight = compHeight + hBarHeight;
+        int newCompWidth = compWidth + vbarWidth;
+        int newCompHeight = compHeight + hbarHeight;
 
         Dimension newDim = new Dimension(newCompWidth, newCompHeight);
 
-        jScrollPane.setPreferredSize(newDim);
+        jscrollPane.setPreferredSize(newDim);
 
-        jScrollPane.getVerticalScrollBar().setUnitIncrement(14);
+        jscrollPane.getVerticalScrollBar().setUnitIncrement(14);
 
-        return jScrollPane;
+        return jscrollPane;
     }
 
     private JPanel getCheckBoxLabelMenuItemListJPanel() {
@@ -331,7 +332,7 @@ public abstract class TraceEventTypePopupMenu extends JPopupMenu {
         applyJButton.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent event) {
 
                 // applyColumnHeaderFilter(columnIndex, false);
                 // applyJButtonAction();
@@ -355,7 +356,7 @@ public abstract class TraceEventTypePopupMenu extends JPopupMenu {
         cancelJButton.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent event) {
                 setVisible(false);
             }
         });

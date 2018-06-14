@@ -4,14 +4,14 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import java.io.Serializable;
 
 /**
- * @author vargm
- * 
  * id and index will same on initial load. id will be regenerated for compare mode.
+ * @author vargm
  */
 public class TraceEventKey implements Comparable<TraceEventKey>, Serializable {
 
@@ -41,9 +41,6 @@ public class TraceEventKey implements Comparable<TraceEventKey>, Serializable {
         return id;
     }
 
-    /**
-     * @return the traceEventIndex
-     */
     public int getTraceEventIndex() {
         return traceEventIndex;
     }
@@ -62,13 +59,15 @@ public class TraceEventKey implements Comparable<TraceEventKey>, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
-
+        }
         TraceEventKey other = (TraceEventKey) obj;
 
         if (traceEventIndex != -1) {
@@ -98,15 +97,15 @@ public class TraceEventKey implements Comparable<TraceEventKey>, Serializable {
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override
-    public int compareTo(TraceEventKey o) {
+    public int compareTo(TraceEventKey eventKey) {
 
         Integer thisTraceEventIndex = getTraceEventIndex();
-        Integer otherTraceEventIndex = o.getTraceEventIndex();
+        Integer otherTraceEventIndex = eventKey.getTraceEventIndex();
 
         if ((thisTraceEventIndex != -1) && (otherTraceEventIndex != -1)) {
             return thisTraceEventIndex.compareTo(otherTraceEventIndex);
         } else {
-            return Integer.valueOf(getId()).compareTo(Integer.valueOf(o.getId()));
+            return Integer.valueOf(getId()).compareTo(Integer.valueOf(eventKey.getId()));
         }
 
     }

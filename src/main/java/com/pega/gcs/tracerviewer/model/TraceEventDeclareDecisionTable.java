@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import org.dom4j.Element;
@@ -11,7 +12,6 @@ import org.dom4j.Element;
 public class TraceEventDeclareDecisionTable extends TraceEventNonActivity {
 
     public TraceEventDeclareDecisionTable(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-        
         super(traceEventKey, bytes, traceEventElement);
 
         traceEventType = TraceEventType.DECLARE_DECISIONTABLE;

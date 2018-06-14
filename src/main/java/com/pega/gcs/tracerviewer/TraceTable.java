@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import javax.swing.JTable;
@@ -16,10 +17,9 @@ public class TraceTable extends FilterTable<TraceEventKey> {
     private static final long serialVersionUID = -3752172566327398734L;
 
     public TraceTable(TraceTableModel traceTableModel) {
-        
         this(traceTableModel, true);
     }
-    
+
     public TraceTable(TraceTableModel traceTableModel, boolean filterColumns) {
 
         super(traceTableModel, filterColumns);

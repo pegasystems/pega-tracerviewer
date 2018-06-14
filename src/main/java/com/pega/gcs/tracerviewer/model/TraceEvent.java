@@ -195,16 +195,10 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         this.traceEventKey = traceEventKey;
     }
 
-    /**
-     * @return the traceEventType
-     */
     public TraceEventType getTraceEventType() {
         return traceEventType;
     }
 
-    /**
-     * @return the line
-     */
     public String getLine() {
         return line;
     }
@@ -225,51 +219,30 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         return timestampStr;
     }
 
-    /**
-     * @return the thread
-     */
     public String getThread() {
         return thread;
     }
 
-    /**
-     * @return the interaction
-     */
     public Integer getInteraction() {
         return interaction;
     }
 
-    /**
-     * @return the ruleNo
-     */
     public Integer getRuleNo() {
         return ruleNo;
     }
 
-    /**
-     * @return the stepMethod
-     */
     public String getStepMethod() {
         return stepMethod;
     }
 
-    /**
-     * @return the stepPage
-     */
     public String getStepPage() {
         return stepPage;
     }
 
-    /**
-     * @return the step
-     */
     public String getStep() {
         return step;
     }
 
-    /**
-     * @return the status
-     */
     public String getStatus() {
         return status;
     }
@@ -278,39 +251,46 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         return eventType;
     }
 
-    /**
-     * @return the eventName
-     */
     public String getEventName() {
         return eventName;
     }
 
-    /**
-     * @return the elapsed
-     */
     public double getElapsed() {
         return elapsed;
     }
 
-    /**
-     * @return the name
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * @return the ruleSet
-     */
     public String getRuleSet() {
         return ruleSet;
     }
 
-    /**
-     * @return the insKey
-     */
     public String getInsKey() {
         return insKey;
+    }
+
+    protected void setTimestamp(Element traceEventElement) {
+
+        Element element = traceEventElement.element("DateTime");
+
+        if (element != null) {
+
+            timestamp = null;
+            try {
+
+                DateFormat df = TraceEventFactory.getDateFormat();
+
+                synchronized (df) {
+                    // parallel loading causes parsing errors. not thread safe
+                    timestamp = df.parse(element.getText());
+                }
+            } catch (Exception e) {
+                LOG.error("Error parsing DateTime element: :" + element.getText(), e);
+            }
+        }
+
     }
 
     protected void setInteraction(Integer interaction) {
@@ -352,18 +332,10 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         }
     }
 
-    /**
-     * @param stepMethod
-     *            the stepMethod to set
-     */
     protected void setStepMethod(String stepMethod) {
         this.stepMethod = stepMethod;
     }
 
-    /**
-     *
-     * @param traceEventElement
-     */
     protected void setStepMethod(Element traceEventElement) {
 
         Element element = traceEventElement.element("StepMethod");
@@ -381,18 +353,10 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
 
     }
 
-    /**
-     * @param stepPage
-     *            the stepPage to set
-     */
     protected void setStepPage(String stepPage) {
         this.stepPage = stepPage;
     }
 
-    /**
-     *
-     * @param traceEventElement
-     */
     protected void setStepPage(Element traceEventElement) {
 
         Element element = traceEventElement.element("PrimaryPageName");
@@ -416,135 +380,8 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         }
     }
 
-    /**
-     * @param step
-     *            the step to set
-     */
     protected void setStep(String step) {
         this.step = step;
-    }
-
-    /**
-     * @param status
-     *            the status to set
-     */
-    protected void setStatus(String status) {
-        this.status = status;
-    }
-
-    protected void setEventType(String eventType) {
-        this.eventType = eventType;
-    }
-
-    /**
-     * @param eventName
-     *            the eventName to set
-     */
-    protected void setEventName(String eventName) {
-
-        this.eventName = eventName;
-    }
-
-    /**
-     * @param elapsed
-     *            the elapsed to set
-     */
-    protected void setElapsed(double elapsed) {
-        this.elapsed = elapsed;
-    }
-
-    /**
-     * @param name
-     *            the name to set
-     */
-    protected void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @param ruleSet
-     *            the ruleSet to set
-     */
-    protected void setRuleSet(String ruleSet) {
-        this.ruleSet = ruleSet;
-    }
-
-    protected void setLine(Element traceEventElement) {
-
-        Element element = traceEventElement.element("Sequence");
-
-        if (element != null) {
-
-            int seq = Integer.parseInt(element.getText());
-
-            // display starts with 1
-            line = String.valueOf((seq + 1));
-        }
-
-    }
-
-    protected void setTimestamp(Element traceEventElement) {
-
-        Element element = traceEventElement.element("DateTime");
-
-        if (element != null) {
-
-            timestamp = null;
-            try {
-
-                DateFormat df = TraceEventFactory.getDateFormat();
-
-                synchronized (df) {
-                    // parallel loading causes parsing errors. not thread safe
-                    timestamp = df.parse(element.getText());
-                }
-            } catch (Exception e) {
-                LOG.error("Error parsing DateTime element: :" + element.getText(), e);
-            }
-        }
-
-    }
-
-    /**
-     * @param thread
-     *            the thread to set
-     */
-    protected void setThread(Element traceEventElement) {
-        Element element = traceEventElement.element("ThreadName");
-
-        if (element != null) {
-            thread = element.getText();
-        }
-    }
-
-    protected void setInt(Element traceEventElement) {
-
-        Element element = traceEventElement.element("Interaction");
-
-        if (element != null) {
-
-            String intStr = element.getText();
-
-            try {
-                int interaction = Integer.parseInt(intStr);
-
-                setInteraction(interaction);
-
-            } catch (NumberFormatException nfe) {
-                LOG.error("Unable to parse Interaction number: " + intStr, nfe);
-            }
-        }
-
-    }
-
-    private void setPageMessages() {
-
-        if (hasMessages) {
-
-            int columnIndex = TraceTableModelColumn.getColumnNameIndex(TraceTableModelColumn.STEP_PAGE);
-
-            setColumnBackground(Color.ORANGE, columnIndex);
-        }
     }
 
     protected void setStep(Element traceEventElement) {
@@ -554,6 +391,10 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         if (element != null) {
             step = element.getText();
         }
+    }
+
+    protected void setStatus(String status) {
+        this.status = status;
     }
 
     protected void setStatus(Element traceEventElement) {
@@ -598,6 +439,10 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         }
     }
 
+    protected void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
     protected void setEventType(Element traceEventElement) {
 
         String eventType = null;
@@ -611,6 +456,11 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         setEventType(eventType);
     }
 
+    protected void setEventName(String eventName) {
+
+        this.eventName = eventName;
+    }
+
     protected void setEventName(Element traceEventElement) {
 
         String eventName = null;
@@ -622,6 +472,10 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         }
 
         setEventName(eventName);
+    }
+
+    protected void setElapsed(double elapsed) {
+        this.elapsed = elapsed;
     }
 
     protected void setElapsed(Element traceEventElement) {
@@ -646,34 +500,8 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         }
     }
 
-    private void setInsKey(Element traceEventElement) {
-
-        Element element = traceEventElement.element("EventKey");
-
-        if (element != null) {
-            insKey = element.getText();
-        } else {
-            element = traceEventElement.element("InstanceName");
-
-            if (element != null) {
-                insKey = element.getText();
-            }
-        }
-
-        // flow type has different eventkey, try to get inskey attribute, if
-        // available
-        if ((insKey != null) && (!"".equals(insKey))) {
-
-            if (!isInstanceHandle(insKey)) {
-
-                Attribute attribute = traceEventElement.attribute("inskey");
-
-                if (attribute != null) {
-                    insKey = attribute.getText();
-                }
-            }
-        }
-
+    protected void setName(String name) {
+        this.name = name;
     }
 
     protected void setName(Element traceEventElement) {
@@ -719,6 +547,10 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         }
     }
 
+    protected void setRuleSet(String ruleSet) {
+        this.ruleSet = ruleSet;
+    }
+
     protected void setRuleSet(Element traceEventElement) {
 
         Attribute attribute = traceEventElement.attribute("rsname");
@@ -735,6 +567,88 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
 
     }
 
+    protected void setLine(Element traceEventElement) {
+
+        Element element = traceEventElement.element("Sequence");
+
+        if (element != null) {
+
+            int seq = Integer.parseInt(element.getText());
+
+            // display starts with 1
+            line = String.valueOf((seq + 1));
+        }
+
+    }
+
+    protected void setThread(Element traceEventElement) {
+        Element element = traceEventElement.element("ThreadName");
+
+        if (element != null) {
+            thread = element.getText();
+        }
+    }
+
+    protected void setInt(Element traceEventElement) {
+
+        Element element = traceEventElement.element("Interaction");
+
+        if (element != null) {
+
+            String intStr = element.getText();
+
+            try {
+                int interaction = Integer.parseInt(intStr);
+
+                setInteraction(interaction);
+
+            } catch (NumberFormatException nfe) {
+                LOG.error("Unable to parse Interaction number: " + intStr, nfe);
+            }
+        }
+
+    }
+
+    private void setPageMessages() {
+
+        if (hasMessages) {
+
+            int columnIndex = TraceTableModelColumn.getColumnNameIndex(TraceTableModelColumn.STEP_PAGE);
+
+            setColumnBackground(Color.ORANGE, columnIndex);
+        }
+    }
+
+    private void setInsKey(Element traceEventElement) {
+
+        Element element = traceEventElement.element("EventKey");
+
+        if (element != null) {
+            insKey = element.getText();
+        } else {
+            element = traceEventElement.element("InstanceName");
+
+            if (element != null) {
+                insKey = element.getText();
+            }
+        }
+
+        // flow type has different eventkey, try to get inskey attribute, if
+        // available
+        if ((insKey != null) && (!"".equals(insKey))) {
+
+            if (!isInstanceHandle(insKey)) {
+
+                Attribute attribute = traceEventElement.attribute("inskey");
+
+                if (attribute != null) {
+                    insKey = attribute.getText();
+                }
+            }
+        }
+
+    }
+
     public Color getColumnBackground(int column) {
         return columnBackground[column];
     }
@@ -743,37 +657,22 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         columnBackground[column] = color;
     }
 
-    /**
-     * @return the endOfAsyncTraceEventSent
-     */
     public boolean isEndOfAsyncTraceEventSent() {
         return endOfAsyncTraceEventSent;
     }
 
-    /**
-     * @return the hasMessages
-     */
     public boolean isHasMessages() {
         return hasMessages;
     }
 
-    /**
-     * @return the stepStatusWarn
-     */
     public boolean isStepStatusWarn() {
         return stepStatusWarn;
     }
 
-    /**
-     * @return the stepStatusFail
-     */
     public boolean isStepStatusFail() {
         return stepStatusFail;
     }
 
-    /**
-     * @return the stepStatusException
-     */
     public boolean isStepStatusException() {
         return stepStatusException;
     }
@@ -801,17 +700,10 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         return traceEventStr;
     }
 
-    /**
-     * @return the charset
-     */
     public String getCharset() {
         return charset;
     }
 
-    /**
-     * @param charset
-     *            the charset to set
-     */
     public void setCharset(String charset) {
         this.charset = charset;
     }
@@ -1076,11 +968,11 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
 
     protected String buildActivityName(String eventKey) {
         String activityName = "";
-        int nPos = -1;
+        int pos = -1;
 
-        nPos = eventKey.indexOf(" ");
-        if (nPos >= 0) {
-            activityName = eventKey.substring(nPos + 1, eventKey.length());
+        pos = eventKey.indexOf(" ");
+        if (pos >= 0) {
+            activityName = eventKey.substring(pos + 1, eventKey.length());
         }
 
         return activityName;
@@ -1123,9 +1015,9 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
     private boolean isInstanceWithKeys(String eventKey) {
         boolean isInstanceWithKeys = false;
         if ((eventKey != null) && (!"".equals(eventKey)) && (eventKey.length() >= 5)) {
-            String aRule = eventKey.substring(0, 5);
-            aRule = aRule.toLowerCase();
-            if (aRule.indexOf("rule-") >= 0) {
+            String rule = eventKey.substring(0, 5);
+            rule = rule.toLowerCase();
+            if (rule.indexOf("rule-") >= 0) {
                 if (eventKey.indexOf(".") != -1) {
                     isInstanceWithKeys = true;
                 }
@@ -1526,7 +1418,6 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
                     String unescTraceEventStr = StringEscapeUtils.unescapeHtml4(traceEventStr);
 
                     if (!unescTraceEventStr.equals(traceEventStr)) {
-                        
                         data = unescTraceEventStr.getBytes();
 
                         index = KnuthMorrisPrattAlgorithm.indexOf(data, pattern);
@@ -1540,12 +1431,8 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         }
 
         searchFound = found;
-        
-        return found;
-    }
 
-    private void buildTokenTableForJSONData(Element parent, String elemText, String token1) {
-        // TODO
+        return found;
     }
 
     protected Element buildTokenTable(Element parent, String elemText, String token1) {

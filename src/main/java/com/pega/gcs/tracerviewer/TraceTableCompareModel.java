@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.util.HashMap;
@@ -249,14 +250,6 @@ public class TraceTableCompareModel extends TraceTableModel {
     // return filterTraceEventEntrySet;
     // }
 
-    /**
-     * 
-     * returns a new map
-     * 
-     * @param traceEventMap
-     * @return Map<TraceEventKey, TraceEvent>
-     * 
-     */
     private Map<TraceEventKey, TraceEvent> getCompareClearedTraceEventMap() {
 
         Map<TraceEventKey, TraceEvent> newTraceEventMap = new TreeMap<TraceEventKey, TraceEvent>();

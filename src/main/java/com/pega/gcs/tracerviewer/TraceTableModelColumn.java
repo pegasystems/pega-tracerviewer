@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import javax.swing.SwingConstants;
@@ -12,25 +13,22 @@ import com.pega.gcs.fringecommon.guiutilities.treetable.TreeTableColumn;
 
 public enum TraceTableModelColumn {
 
-    // @formatter:off
-//                    displayName   prefColumnWidth    horizontalAlignment    columnClass                     filterable
-//    TREE             (""                 , 70  , SwingConstants.CENTER , TreeTableColumn.TREE_COLUMN_CLASS), 
-    LINE             ("LINE"             , 80  , SwingConstants.CENTER , TreeTableColumn.TREE_COLUMN_CLASS , false ), 
-    TIMESTAMP        ("TIMESTAMP"         , 140 , SwingConstants.CENTER , String.class                      , false ),
-    THREAD           ("THREAD"             , 80  , SwingConstants.CENTER , String.class                      , true  ), 
-    INT              ("INT"                 , 50  , SwingConstants.CENTER , String.class                      , true  ), 
-    RULE             ("RULE#"             , 50  , SwingConstants.CENTER , String.class                      , true  ), 
-    STEP_METHOD      ("STEP METHOD"         , 200 , SwingConstants.CENTER , String.class                      , true  ),
-    STEP_PAGE        ("STEP PAGE"         , 200 , SwingConstants.CENTER , String.class                      , true  ),
-    STEP             ("STEP"             , 50  , SwingConstants.CENTER , String.class                      , true  ),
-    STATUS           ("STATUS"             , 100 , SwingConstants.CENTER , String.class                      , true  ),
-    EVENT_TYPE       ("EVENT TYPE"         , 100 , SwingConstants.CENTER , String.class                      , true  ),
-    EVENT_NAME       ("EVENT NAME"         , 100 , SwingConstants.CENTER , String.class                      , false ),
-    TOTAL_ELAPSED    ("TOTAL ELAPSED"    , 70  , SwingConstants.CENTER , String.class                      , true  ),
-    OWN_ELAPSED      ("OWN ELAPSED"         , 70  , SwingConstants.CENTER , String.class                      , false ),
-    CHILDREN_ELAPSED ("CHILDREN ELAPSED" , 70  , SwingConstants.CENTER , String.class                      , false ),
-    NAME             ("NAME"             , 350 , SwingConstants.LEFT   , String.class                      , true  ),
-    RULESET          ("RULESET"             , 170 , SwingConstants.CENTER , String.class                      , true  );
+    LINE("LINE", 80, SwingConstants.CENTER, TreeTableColumn.TREE_COLUMN_CLASS, false),
+    TIMESTAMP("TIMESTAMP", 140, SwingConstants.CENTER, String.class, false),
+    THREAD("THREAD", 80, SwingConstants.CENTER, String.class, true),
+    INT("INT", 50, SwingConstants.CENTER, String.class, true),
+    RULE("RULE#", 50, SwingConstants.CENTER, String.class, true),
+    STEP_METHOD("STEP METHOD", 200, SwingConstants.CENTER, String.class, true),
+    STEP_PAGE("STEP PAGE", 200, SwingConstants.CENTER, String.class, true),
+    STEP("STEP", 50, SwingConstants.CENTER, String.class, true),
+    STATUS("STATUS", 100, SwingConstants.CENTER, String.class, true),
+    EVENT_TYPE("EVENT TYPE", 100, SwingConstants.CENTER, String.class, true),
+    EVENT_NAME("EVENT NAME", 100, SwingConstants.CENTER, String.class, false),
+    TOTAL_ELAPSED("TOTAL ELAPSED", 70, SwingConstants.CENTER, String.class, true),
+    OWN_ELAPSED("OWN ELAPSED", 70, SwingConstants.CENTER, String.class, false),
+    CHILDREN_ELAPSED("CHILDREN ELAPSED", 70, SwingConstants.CENTER, String.class, false),
+    NAME("NAME", 350, SwingConstants.LEFT, String.class, true),
+    RULESET("RULESET", 170, SwingConstants.CENTER, String.class, true);
     //@formatter:on
 
     private String name;
@@ -43,12 +41,6 @@ public enum TraceTableModelColumn {
 
     private boolean filterable;
 
-    /**
-     * @param name
-     * @param prefColumnWidth
-     * @param horizontalAlignment
-     * @param columnClass
-     */
     private TraceTableModelColumn(String name, int prefColumnWidth, int horizontalAlignment, Class<?> columnClass, boolean filterable) {
         this.name = name;
         this.prefColumnWidth = prefColumnWidth;
@@ -57,30 +49,18 @@ public enum TraceTableModelColumn {
         this.filterable = filterable;
     }
 
-    /**
-     * @return the name
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * @return the prefColumnWidth
-     */
     public int getPrefColumnWidth() {
         return prefColumnWidth;
     }
 
-    /**
-     * @return the horizontalAlignment
-     */
     public int getHorizontalAlignment() {
         return horizontalAlignment;
     }
 
-    /**
-     * @return the columnClass
-     */
     public Class<?> getColumnClass() {
         return columnClass;
     }

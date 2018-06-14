@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import java.awt.Color;
@@ -15,7 +16,6 @@ import com.pega.gcs.fringecommon.guiutilities.MyColor;
 public abstract class TraceEventNonActivity extends TraceEvent {
 
     public TraceEventNonActivity(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-        
         super(traceEventKey, bytes, traceEventElement);
     }
 

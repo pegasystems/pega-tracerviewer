@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -464,9 +465,7 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
                     startNode.add(currentNode);
                 }
 
-            }
-            // if begin event then this node become parent.
-            else {
+            } else {
                 startNode.add(currentNode);
                 startNode = currentNode;
             }
@@ -508,9 +507,7 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
                 if (curParent != null) {
                     startNode = curParent;
                 }
-            }
-            // if begin event then this node become parent.
-            else {
+            } else {
                 traceEventCombinedTreeNodeMap.put(traceEventKey, currentNode);
 
                 startNode.add(currentNode);
@@ -625,7 +622,7 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
                 columnFilterEntry.addRowIndex(traceEventKey);
 
                 boolean filterable = traceTableModelColumn.isFilterable();
-                
+
                 if ((filterable) && (columnFilterEntryList.size() > 1)) {
                     filterColumn.setColumnFilterEnabled(true);
                 }
@@ -861,11 +858,11 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
     protected void clearTraceEventSearchResults() {
         List<TraceEventKey> filteredList = getFtmEntryKeyList();
 
-        Iterator<TraceEventKey> fListIterator = filteredList.iterator();
+        Iterator<TraceEventKey> listIterator = filteredList.iterator();
 
-        while (fListIterator.hasNext()) {
+        while (listIterator.hasNext()) {
 
-            TraceEventKey traceEventKey = fListIterator.next();
+            TraceEventKey traceEventKey = listIterator.next();
 
             TraceEvent traceEvent = getEventForKey(traceEventKey);
             traceEvent.setSearchFound(false);
@@ -1162,13 +1159,13 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
             searchModel = new SearchModel<TraceEventKey>(searchData) {
 
                 @Override
-                public void searchInEvents(final Object searchStrObj, final ModalProgressMonitor mProgressMonitor) {
+                public void searchInEvents(final Object searchStrObj, final ModalProgressMonitor progressMonitor) {
 
                     if ((searchStrObj != null) && (!((searchStrObj instanceof SearchEventType)
                             && searchStrObj.equals(SearchEventType.SEPERATOR))
                             || !("".equals(searchStrObj.toString())))) {
 
-                        TraceTableSearchTask ttst = new TraceTableSearchTask(mProgressMonitor, TraceTableModel.this,
+                        TraceTableSearchTask ttst = new TraceTableSearchTask(progressMonitor, TraceTableModel.this,
                                 searchStrObj) {
 
                             /*
@@ -1206,7 +1203,7 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
                                     // fireTableDataChanged();
                                     fireTableChanged(new SearchTableModelEvent(TraceTableModel.this));
 
-                                    mProgressMonitor.close();
+                                    progressMonitor.close();
                                 }
                             }
                         };

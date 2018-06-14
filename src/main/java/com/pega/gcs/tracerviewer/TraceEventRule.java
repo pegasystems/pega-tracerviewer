@@ -7,6 +7,7 @@
 /**
  * 
  */
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -41,9 +42,6 @@ public class TraceEventRule implements Comparable<TraceEventRule> {
         totalOwnElapsed = 0;
     }
 
-    /**
-     * @return the inskey
-     */
     public String getInsKey() {
         return insKey;
     }
@@ -82,18 +80,23 @@ public class TraceEventRule implements Comparable<TraceEventRule> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         TraceEventRule other = (TraceEventRule) obj;
         if (insKey == null) {
-            if (other.insKey != null)
+            if (other.insKey != null) {
                 return false;
-        } else if (!insKey.equals(other.insKey))
+            }
+        } else if (!insKey.equals(other.insKey)) {
             return false;
+        }
         return true;
     }
 
@@ -103,8 +106,8 @@ public class TraceEventRule implements Comparable<TraceEventRule> {
     }
 
     @Override
-    public int compareTo(TraceEventRule o) {
-        return getInsKey().compareTo(o.getInsKey());
+    public int compareTo(TraceEventRule eventRule) {
+        return getInsKey().compareTo(eventRule.getInsKey());
     }
 
     public void incrementExecutionCount() {

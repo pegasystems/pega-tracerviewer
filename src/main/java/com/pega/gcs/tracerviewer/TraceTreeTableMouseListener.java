@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Component;
@@ -56,9 +57,6 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
     private Map<String, XMLTreeTableDetailJDialog> xmlTreeTableDetailJDialogMap;
 
-    /**
-     * @param traceTableList
-     */
     public TraceTreeTableMouseListener(Component mainWindow) {
 
         this.mainWindow = mainWindow;
@@ -92,13 +90,13 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) {
+    public void mouseClicked(MouseEvent mouseEvent) {
 
-        if (SwingUtilities.isRightMouseButton(e)) {
+        if (SwingUtilities.isRightMouseButton(mouseEvent)) {
 
             final List<Integer> selectedRowList = new ArrayList<Integer>();
 
-            final TraceTreeTable source = (TraceTreeTable) e.getSource();
+            final TraceTreeTable source = (TraceTreeTable) mouseEvent.getSource();
 
             if (isIntendedSource(source)) {
 
@@ -106,7 +104,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
                 // in case the row was not selected when right clicking then
                 // based on the point, select the row.
-                Point point = e.getPoint();
+                Point point = mouseEvent.getPoint();
 
                 if ((selectedRows != null) && (selectedRows.length <= 1)) {
 
@@ -170,7 +168,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
                                 Boolean isEndEvent = traceEvent.isEndEvent();
 
-                                // end event is true
+                                //actionEventnd event is true
                                 if ((isEndEvent != null) && isEndEvent) {
 
                                     RightClickMenuItem beginEvent = new RightClickMenuItem("Select Begin Event");
@@ -178,7 +176,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                                     beginEvent.addActionListener(new ActionListener() {
 
                                         @Override
-                                        public void actionPerformed(ActionEvent e) {
+                                        public void actionPerformed(ActionEvent actionEvent) {
 
                                             TraceEventTreeNode parentTraceEventTreeNode = (TraceEventTreeNode) traceEventTreeNode
                                                     .getParent();
@@ -208,7 +206,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                                     endEvent.addActionListener(new ActionListener() {
 
                                         @Override
-                                        public void actionPerformed(ActionEvent e) {
+                                        public void actionPerformed(ActionEvent actionEvent) {
 
                                             TraceEventTreeNode parentTraceEventTreeNode = (TraceEventTreeNode) traceEventTreeNode
                                                     .getParent();
@@ -248,7 +246,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                             parentEvent.addActionListener(new ActionListener() {
 
                                 @Override
-                                public void actionPerformed(ActionEvent e) {
+                                public void actionPerformed(ActionEvent actionEvent) {
 
                                     source.scrollNodeToVisible(parentTreeNode);
 
@@ -269,7 +267,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                             expand.addActionListener(new ActionListener() {
 
                                 @Override
-                                public void actionPerformed(ActionEvent e) {
+                                public void actionPerformed(ActionEvent actionEvent) {
 
                                     tree.expandPath(treePath);
 
@@ -285,7 +283,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                             expandAllChildren.addActionListener(new ActionListener() {
 
                                 @Override
-                                public void actionPerformed(ActionEvent e) {
+                                public void actionPerformed(ActionEvent actionEvent) {
 
                                     source.expandAll(treePath, true, 1);
                                     popupMenu.setVisible(false);
@@ -302,7 +300,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                             collapse.addActionListener(new ActionListener() {
 
                                 @Override
-                                public void actionPerformed(ActionEvent e) {
+                                public void actionPerformed(ActionEvent actionEvent) {
 
                                     tree.collapsePath(treePath);
 
@@ -316,7 +314,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                             collapseAllChildren.addActionListener(new ActionListener() {
 
                                 @Override
-                                public void actionPerformed(ActionEvent e) {
+                                public void actionPerformed(ActionEvent actionEvent) {
 
                                     // collapse only children
                                     source.expandAll(treePath, false, 0);
@@ -330,17 +328,17 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                         }
                     }
 
-                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                    popupMenu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
                 }
             }
-        } else if (e.getClickCount() == 2) {
+        } else if (mouseEvent.getClickCount() == 2) {
 
-            TraceTreeTable source = (TraceTreeTable) e.getSource();
+            TraceTreeTable source = (TraceTreeTable) mouseEvent.getSource();
 
             performDoubleClick(source);
 
         } else {
-            super.mouseClicked(e);
+            super.mouseClicked(mouseEvent);
         }
     }
 
@@ -351,7 +349,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
         copyAsXML.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent actionEvent) {
 
                 List<TraceTreeTable> traceTreeTableList = getTraceTreeTableList();
 
@@ -412,7 +410,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
         compareMenuItem.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent actionEvent) {
 
                 StringBuffer rowStrSB = new StringBuffer();
                 int size = 2; // comparing 2 rows only
@@ -525,8 +523,8 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                     xmlTreeTableDetailJDialog.addWindowListener(new WindowAdapter() {
 
                         @Override
-                        public void windowClosing(WindowEvent e) {
-                            super.windowClosing(e);
+                        public void windowClosing(WindowEvent windowEvent) {
+                            super.windowClosing(windowEvent);
 
                             xmlTreeTableDetailJDialogMap.remove(rowStr);
                         }
@@ -552,7 +550,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
         addBookmarkMenuItem.addActionListener(new ActionListener() {
 
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent actionEvent) {
 
                 BookmarkModel<TraceEventKey> bookmarkModel = traceTreeTableModelAdapter.getBookmarkModel();
 
@@ -647,7 +645,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
             openBookmarkMenuItem.addActionListener(new ActionListener() {
 
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent actionEvent) {
 
                     ImageIcon appIcon = BaseFrame.getAppIcon();
                     Component mainWindow = getMainWindow();
@@ -667,7 +665,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
             deleteBookmarkMenuItem.addActionListener(new ActionListener() {
 
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent actionEvent) {
 
                     ImageIcon appIcon = BaseFrame.getAppIcon();
                     Component mainWindow = getMainWindow();
@@ -800,8 +798,8 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                 xmlTreeTableDetailJDialog.addWindowListener(new WindowAdapter() {
 
                     @Override
-                    public void windowClosing(WindowEvent e) {
-                        super.windowClosing(e);
+                    public void windowClosing(WindowEvent windowEvent) {
+                        super.windowClosing(windowEvent);
 
                         Map<String, XMLTreeTableDetailJDialog> xmlTreeTableDetailJDialogMap;
                         xmlTreeTableDetailJDialogMap = getXmlTreeTableDetailJDialogMap();

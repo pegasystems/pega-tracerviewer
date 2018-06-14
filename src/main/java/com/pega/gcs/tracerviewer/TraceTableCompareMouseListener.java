@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Component;
@@ -24,13 +25,13 @@ public class TraceTableCompareMouseListener extends TraceTableMouseListener {
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) {
+    public void mouseClicked(MouseEvent event) {
 
-        if (SwingUtilities.isRightMouseButton(e)) {
+        if (SwingUtilities.isRightMouseButton(event)) {
 
             final List<Integer> selectedRowList = new ArrayList<Integer>();
 
-            final TraceTable source = (TraceTable) e.getSource();
+            final TraceTable source = (TraceTable) event.getSource();
 
             if (isIntendedSource(source)) {
 
@@ -38,7 +39,7 @@ public class TraceTableCompareMouseListener extends TraceTableMouseListener {
 
                 // in case the row was not selected when right clicking then
                 // based on the point, select the row.
-                Point point = e.getPoint();
+                Point point = event.getPoint();
 
                 if ((selectedRows != null) && (selectedRows.length <= 1)) {
 
@@ -65,18 +66,18 @@ public class TraceTableCompareMouseListener extends TraceTableMouseListener {
 
                     popupMenu.add(copyAsXML);
 
-                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                    popupMenu.show(event.getComponent(), event.getX(), event.getY());
                 }
             }
 
-        } else if (e.getClickCount() == 2) {
+        } else if (event.getClickCount() == 2) {
 
-            TraceTable source = (TraceTable) e.getSource();
+            TraceTable source = (TraceTable) event.getSource();
 
             performDoubleClick(source);
 
         } else {
-            super.mouseClicked(e);
+            super.mouseClicked(event);
         }
     }
 

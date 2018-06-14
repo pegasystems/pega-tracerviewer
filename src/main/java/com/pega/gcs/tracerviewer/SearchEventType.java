@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 public enum SearchEventType {
@@ -18,9 +19,6 @@ public enum SearchEventType {
 
     private String name;
 
-    /**
-     * @param name
-     */
     private SearchEventType(String name) {
         this.name = name;
     }

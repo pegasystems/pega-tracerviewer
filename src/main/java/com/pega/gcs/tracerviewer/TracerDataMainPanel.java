@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.CardLayout;
@@ -134,7 +135,7 @@ public class TracerDataMainPanel extends JPanel {
         traceTableModel.addTableModelListener(new TableModelListener() {
 
             @Override
-            public void tableChanged(TableModelEvent aE) {
+            public void tableChanged(TableModelEvent tableModelEvent) {
                 updateDisplayJPanel();
             }
         });
@@ -332,7 +333,7 @@ public class TracerDataMainPanel extends JPanel {
         return sizeJPanel;
     }
 
-    private JPanel getInfoJPanel(JLabel jLabel) {
+    private JPanel getInfoJPanel(JLabel label) {
 
         JPanel infoJPanel = new JPanel();
 
@@ -343,7 +344,7 @@ public class TracerDataMainPanel extends JPanel {
 
         infoJPanel.add(Box.createHorizontalGlue());
         infoJPanel.add(Box.createRigidArea(dim));
-        infoJPanel.add(jLabel);
+        infoJPanel.add(label);
         infoJPanel.add(Box.createHorizontalGlue());
 
         infoJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
@@ -433,10 +434,10 @@ public class TracerDataMainPanel extends JPanel {
 
                 @SuppressWarnings("unchecked")
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent actionEvent) {
 
                     JComboBox<TracerDataViewMode> tracerDataViewModeJComboBox;
-                    tracerDataViewModeJComboBox = (JComboBox<TracerDataViewMode>) e.getSource();
+                    tracerDataViewModeJComboBox = (JComboBox<TracerDataViewMode>) actionEvent.getSource();
 
                     TracerDataViewMode tracerDataViewMode;
                     tracerDataViewMode = (TracerDataViewMode) tracerDataViewModeJComboBox.getSelectedItem();
@@ -560,7 +561,7 @@ public class TracerDataMainPanel extends JPanel {
             gotoLineJButton.addActionListener(new ActionListener() {
 
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent actionEvent) {
 
                     List<TraceEventKey> traceEventKeyList;
                     traceEventKeyList = getTraceTableModel().getFtmEntryKeyList();
@@ -614,7 +615,7 @@ public class TracerDataMainPanel extends JPanel {
             reloadJButton.addActionListener(new ActionListener() {
 
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent actionEvent) {
 
                     TraceTableModel traceTableModel = getTraceTableModel();
 
@@ -663,7 +664,7 @@ public class TracerDataMainPanel extends JPanel {
             overviewJButton.addActionListener(new ActionListener() {
 
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent actionEvent) {
 
                     JFrame tracerSimpleReportFrame = getTracerOverviewFrame();
 
@@ -689,7 +690,7 @@ public class TracerDataMainPanel extends JPanel {
             tracerSimpleReportFrame.addWindowListener(new WindowAdapter() {
 
                 @Override
-                public void windowClosed(WindowEvent e) {
+                public void windowClosed(WindowEvent windowEvent) {
                     TracerSimpleReportFrame tracerSimpleReportFrame;
                     tracerSimpleReportFrame = getTracerOverviewFrame();
 
@@ -703,10 +704,6 @@ public class TracerDataMainPanel extends JPanel {
         return tracerSimpleReportFrame;
     }
 
-    /**
-     * @param tracerSimpleReportFrame
-     *            the tracerSimpleReportFrame to set
-     */
     protected void setTracerSimpleReportFrame(TracerSimpleReportFrame tracerSimpleReportFrame) {
         this.tracerSimpleReportFrame = tracerSimpleReportFrame;
     }

@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -89,8 +90,8 @@ public class TracerViewerSettingsDialog extends JDialog {
         return settingUpdated;
     }
 
-    protected void setSettingUpdated(boolean aSettingUpdated) {
-        settingUpdated = aSettingUpdated;
+    protected void setSettingUpdated(boolean settingUpdated) {
+        this.settingUpdated = settingUpdated;
     }
 
     private JPanel getMainJPanel() {
@@ -220,7 +221,7 @@ public class TracerViewerSettingsDialog extends JDialog {
         settingsJPanel.add(charsetInfoJTextArea, gbc5);
         settingsJPanel.add(reloadPreviousFilesJLabel, gbc6);
         settingsJPanel.add(reloadPreviousFilesJComboBox, gbc7);
-        
+
         Border loweredEtched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 
         settingsJPanel.setBorder(BorderFactory.createTitledBorder(loweredEtched, "Settings"));

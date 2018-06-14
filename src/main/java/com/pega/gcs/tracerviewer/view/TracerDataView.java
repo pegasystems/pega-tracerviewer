@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.view;
 
 import java.awt.BorderLayout;
@@ -51,9 +52,9 @@ public abstract class TracerDataView extends JPanel implements TableModelListene
     }
 
     @Override
-    public void tableChanged(TableModelEvent e) {
+    public void tableChanged(TableModelEvent event) {
 
-        if (e.getType() == TableModelEvent.UPDATE) {
+        if (event.getType() == TableModelEvent.UPDATE) {
             revalidate();
             repaint();
         }

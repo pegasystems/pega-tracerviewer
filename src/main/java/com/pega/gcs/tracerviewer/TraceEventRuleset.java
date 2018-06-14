@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 public class TraceEventRuleset implements Comparable<TraceEventRuleset> {
@@ -43,23 +44,30 @@ public class TraceEventRuleset implements Comparable<TraceEventRuleset> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         TraceEventRuleset other = (TraceEventRuleset) obj;
         if (ruleset == null) {
-            if (other.ruleset != null)
+            if (other.ruleset != null) {
                 return false;
-        } else if (!ruleset.equals(other.ruleset))
+            }
+        } else if (!ruleset.equals(other.ruleset)) {
             return false;
+        }
         if (version == null) {
-            if (other.version != null)
+            if (other.version != null) {
                 return false;
-        } else if (!version.equals(other.version))
+            }
+        } else if (!version.equals(other.version)) {
             return false;
+        }
         return true;
     }
 
@@ -79,8 +87,8 @@ public class TraceEventRuleset implements Comparable<TraceEventRuleset> {
     }
 
     @Override
-    public int compareTo(TraceEventRuleset o) {
-        return toString().compareTo(o.toString());
+    public int compareTo(TraceEventRuleset eventRuleset) {
+        return toString().compareTo(eventRuleset.toString());
     }
 
 }

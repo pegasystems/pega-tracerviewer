@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.view;
 
 import java.awt.Dimension;
@@ -101,13 +102,13 @@ public class TracerDataTreeTableView extends TracerDataSingleView {
             expandAllJButton.addActionListener(new ActionListener() {
 
                 @Override
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(ActionEvent event) {
 
                     JButton expandAllJButton = getExpandAllJButton();
 
                     TraceTreeTable traceTreeTable = (TraceTreeTable) getTracerDataTable();
 
-                    if (EXPAND_ALL_ACTION.equals(e.getActionCommand())) {
+                    if (EXPAND_ALL_ACTION.equals(event.getActionCommand())) {
 
                         if (traceTreeTable != null) {
                             traceTreeTable.expandAll(true);

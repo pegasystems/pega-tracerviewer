@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -74,20 +75,14 @@ public class TraceTablePanelSettingDialog extends JDialog {
         return charset;
     }
 
-    /**
-     * @return the settingUpdated
-     */
     public boolean isSettingUpdated() {
         return settingUpdated;
     }
 
-    protected void setSettingUpdated(boolean aSettingUpdated) {
-        settingUpdated = aSettingUpdated;
+    protected void setSettingUpdated(boolean settingUpdated) {
+        this.settingUpdated = settingUpdated;
     }
 
-    /**
-     * @return the charsetJComboBox
-     */
     public AutoCompleteJComboBox<String> getCharsetJComboBox() {
 
         if (charsetJComboBox == null) {

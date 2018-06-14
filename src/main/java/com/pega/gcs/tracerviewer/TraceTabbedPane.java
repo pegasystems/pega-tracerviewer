@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -197,7 +198,6 @@ public class TraceTabbedPane extends JTabbedPane implements DropTargetListener {
 
             TracerDataMainPanel tracerDataMainPanel = new TracerDataMainPanel(selectedFile, recentFileContainer,
                     tracerViewerSetting);
-            
             addTab(selectedFile, tracerDataMainPanel);
         }
 
