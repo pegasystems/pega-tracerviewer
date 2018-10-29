@@ -36,7 +36,7 @@ needs JDK8.
 
 To build the project use the following command:
 ```
-$ mvn clean package
+$ ./gradlew build
 ```
 
-The release build is 'pega-tracerviewer-<*version*>-bin.zip' file under `'\target\'` folder.
+The release build is 'pega-tracerviewer-<*version*>-SNAPSHOT-all.jar' file under `\build\libs` folder.
