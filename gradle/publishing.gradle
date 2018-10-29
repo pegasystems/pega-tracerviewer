@@ -43,7 +43,6 @@ publishing {
             artifact sourcesJar
             artifact docsJar
             artifact testsJar
-            artifact shadowJar
         }
     }
 }

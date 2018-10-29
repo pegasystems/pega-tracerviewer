@@ -16,21 +16,19 @@ buildscript {
     dependencies {
         classpath 'org.ajoberstar:gradle-git:1.4.2'
         classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.13'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
     }
 
 }
 
 apply plugin: 'java'
+apply plugin: 'application'
 apply plugin: 'net.ltgt.errorprone'
-apply plugin: 'com.github.johnrengelman.shadow'
 apply from: "$rootDir/gradle/artifacts.gradle"
 apply from: "$rootDir/gradle/jacoco.gradle"
 apply from: "$rootDir/gradle/pmd.gradle"
 apply from: "$rootDir/gradle/checkstyle.gradle"
 apply from: "$rootDir/gradle/findbugs.gradle"
 apply from: "$rootDir/gradle/publishing.gradle"
-apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'com.pega.gcs'
 version = '3.2-SNAPSHOT'
@@ -38,6 +36,8 @@ description = "Pega-TracerViewer"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+mainClassName = "com.pega.gcs.tracerviewer.TracerViewer"
 
 tasks.withType(JavaCompile) {
 	options.encoding = 'UTF-8'
@@ -115,4 +115,4 @@ findbugs {
     ignoreFailures = true
 }
 
-build.finalizedBy jacocoTestReport, jacocoTestCoverageVerification, shadowJar
+build.finalizedBy jacocoTestReport, jacocoTestCoverageVerification

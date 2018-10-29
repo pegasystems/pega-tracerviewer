@@ -24,17 +24,4 @@ task testsJar(type: Jar) {
     from sourceSets.test.output
 }
 
-shadowJar {
-    classifier = 'all'
-    mergeServiceFiles()
-    relocate 'org.aopalliance', "${group}.shaded.org.aopalliance"
-    relocate 'org.objectweb', "${group}.shaded.org.objectweb"
-    relocate 'com.google', "${group}.shaded.com.google"
-    relocate 'net.sf', "${group}.shaded.net.sf"
-    relocate 'javax.inject', "${group}.shaded.javax.inject"
-    relocate 'org.jclouds', "${group}.shaded.org.jclouds"
-    relocate 'javax.inject', "${group}.shaded.javax.inject"
-    relocate 'javax.annotation', "${group}.shaded.javax.annotation"
-    relocate 'javax.ws.rs', "${group}.shaded.javax.ws.rs"
-}
 
