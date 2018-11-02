@@ -30,7 +30,7 @@
     </module>
 
     <module name="Header"> 
-        <property name="headerFile" value="gradle/config/header/java.header"/>
+        <property name="headerFile" value="${checkstyle.header.file}"/>
     </module>
         
     <module name="TreeWalker">
