@@ -4,16 +4,16 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import org.dom4j.Element;
 
 public class TraceEventDebug extends TraceEventLogMessages {
 
-	public TraceEventDebug(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventDebug(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.DEBUG;
-	}
+        traceEventType = TraceEventType.DEBUG;
+    }
 }

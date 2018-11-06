@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import java.util.ArrayList;
@@ -12,181 +13,160 @@ import java.util.List;
 
 public enum TraceEventType {
 
-	// pzLoadTracerEventTypesForRequestor
-	// @formatter:off
+    // pzLoadTracerEventTypesForRequestor
+    // @formatter:off
 
-	// DEFAULT
-	UNKNOWN("_UNKNOWN", true),
-	
-	// Events
-	ACCESS_DENY_RULES		("Access Denied"			, "Access Deny rules" 	, false ),
-	ACTIVITY				("Activity"					, false					, "Activity Begin"		, "Activity End"),
-	ACTIVITY_STEP			("Step"						, "Activity Steps"		, false					, "Step Begin"			, "Step End"),
-	DATA_TRANSFORMS			("Data Transform"			, false					, "Data Transform Begin", "Data Transform End"),
-	DATA_TRANSFORM_ACTION	("Action"					, false					, "Action Begin"		, "Action End"), 
-	EXCEPTION				("Exception"				, false	),
-	WHEN_RULES				("When"						, "When rules"			, false					, "When Begin"			, "When End"),
+    // DEFAULT
+    UNKNOWN("_UNKNOWN", true),
 
-	// Event Types
-	//Data-TRACERSettings • TracerOptionsAvailable
-	ASYNC_DP_LOAD			("Async DP Load"			, true ),
-	ADAPTIVE_MODEL			("Adaptive Model"			, true ),
-	ADP_LOAD				("ADP Load"					, true ),
-	ALERT					("Alert"					, true ),
-	ASYNCHRONOUS_ACTIVITY	("Asynchronous Activity"	, true ),
-	AUTOPOPULATE_PROPERTIES	("AutoPopulate Properties"	, true ),
-	CASE_TYPE				("CaseType"					, true ),
-	DATA_FLOW				("Data Flow"				, true , "Data Flow Begin"		, "Data Flow End", 		"Data Flow Fail"),
-	DATA_PAGES				("Data Pages"				, true ),
-	DB_CACHE				("DB Cache"					, true ),
-	DB_QUERY				("DB Query"					, true ),
-	DEBUG					("Debug"					, true ),
-	DECISION_DATA			("Decision Data"			, true ),
-	DECISION_PARAMETERS		("Decision Parameters"		, true ), 
-	DECLARE_COLLECTION		("Declare Collection"		, true ),
-	DECLARE_CONSTRAINT		("Declare Constraint"		, true ),
-	DECLARE_DECISIONMAP		("Declare DecisionMap"		, true ),
-	DECLARE_DECISIONTABLE	("Declare DecisionTable"	, true ),
-	DECLARE_DECISIONTREE	("Declare DecisionTree"		, true ),
-	DECLARE_EXPRESSION		("Declare Expression"		, true ),
-	DECLARE_INDEX			("Declare Index"			, true ),
-	DECLARE_ONCHANGE		("Declare OnChange"			, true ),
-	DECLARE_PAGES			("Declare Pages"			, true ),
-	DECLARE_TRIGGER			("Declare Trigger"			, true ),
-	FLOW					("Flow"						, true ),
-	FREE_TEXT_MODEL			("Free Text Model"			, true ),
-	INTERACTION				("Interaction"				, true ),
-	LINKED_PAGE_HIT			("Linked Page Hit"			, true ),
-	LINKED_PAGE_MISS		("Linked Page Miss"			, true ),
-	LOCKING					("Locking"					, true ),
-	LOG_MESSAGES			("Log Messages"				, true ),
-	NAMED_TRANSACTIONS		("Named Transactions"		, true ),
-	PARSE_RULES				("Parse Rules"				, true ),
-	PREDICTIVE_MODEL		("Predictive Model"			, true ),
-	PROPOSITION_FILTER		("Proposition Filter"		, true ),
-	PUSH_NOTIFICATIONS		("Push Notifications"		, true ), 
-	QUEUE_PROCESSING		("Queue Processing"			, true ),
-	REFERENCE_PROPERTIES	("Named Transactions"		, true ),
-	SCORECARD				("Scorecard"				, true ),
-	SERVICE_MAPPING			("Service Mapping"			, true ),
-	SERVICES				("Services"					, true ),
-	SOAP_MESSAGES			("SOAP Messages"			, true ),
-	STRATEGY				("Strategy"					, true ),
-	STREAM_RULES			("Stream Rules"				, true ),
-	UNIT_TEST_CASE			("Unit Test Case"			, true );
-	//@formatter:on
+    // Events
+    ACCESS_DENY_RULES("Access Denied", "Access Deny rules", false),
+    ACTIVITY("Activity", false, "Activity Begin", "Activity End"),
+    ACTIVITY_STEP("Step", "Activity Steps", false, "Step Begin", "Step End"),
+    DATA_TRANSFORMS("Data Transform", false, "Data Transform Begin", "Data Transform End"),
+    DATA_TRANSFORM_ACTION("Action", false, "Action Begin", "Action End"),
+    EXCEPTION("Exception", false),
+    WHEN_RULES("When", "When rules", false, "When Begin", "When End"),
 
-	private String name;
+    // Event Types
+    //Data-TRACERSettings • TracerOptionsAvailable
+    ASYNC_DP_LOAD("Async DP Load", true),
+    ADAPTIVE_MODEL("Adaptive Model", true),
+    ADP_LOAD("ADP Load", true),
+    ALERT("Alert", true),
+    ASYNCHRONOUS_ACTIVITY("Asynchronous Activity", true),
+    AUTOPOPULATE_PROPERTIES("AutoPopulate Properties", true),
+    CASE_TYPE("CaseType", true),
+    DATA_FLOW("Data Flow", true, "Data Flow Begin", "Data Flow End", "Data Flow Fail"),
+    DATA_PAGES("Data Pages", true),
+    DB_CACHE("DB Cache", true),
+    DB_QUERY("DB Query", true),
+    DEBUG("Debug", true),
+    DECISION_DATA("Decision Data", true),
+    DECISION_PARAMETERS("Decision Parameters", true),
+    DECLARE_COLLECTION("Declare Collection", true),
+    DECLARE_CONSTRAINT("Declare Constraint", true),
+    DECLARE_DECISIONMAP("Declare DecisionMap", true),
+    DECLARE_DECISIONTABLE("Declare DecisionTable", true),
+    DECLARE_DECISIONTREE("Declare DecisionTree", true),
+    DECLARE_EXPRESSION("Declare Expression", true),
+    DECLARE_INDEX("Declare Index", true),
+    DECLARE_ONCHANGE("Declare OnChange", true),
+    DECLARE_PAGES("Declare Pages", true),
+    DECLARE_TRIGGER("Declare Trigger", true),
+    FLOW("Flow", true),
+    FREE_TEXT_MODEL("Free Text Model", true),
+    INTERACTION("Interaction", true),
+    LINKED_PAGE_HIT("Linked Page Hit", true),
+    LINKED_PAGE_MISS("Linked Page Miss", true),
+    LOCKING("Locking", true),
+    LOG_MESSAGES("Log Messages", true),
+    NAMED_TRANSACTIONS("Named Transactions", true),
+    PARSE_RULES("Parse Rules", true),
+    PREDICTIVE_MODEL("Predictive Model", true),
+    PROPOSITION_FILTER("Proposition Filter", true),
+    PUSH_NOTIFICATIONS("Push Notifications", true),
+    QUEUE_PROCESSING("Queue Processing", true),
+    REFERENCE_PROPERTIES("Named Transactions", true),
+    SCORECARD("Scorecard", true),
+    SERVICE_MAPPING("Service Mapping", true),
+    SERVICES("Services", true),
+    SOAP_MESSAGES("SOAP Messages", true),
+    STRATEGY("Strategy", true),
+    STREAM_RULES("Stream Rules", true),
+    UNIT_TEST_CASE("Unit Test Case", true);
+    //@formatter:on
 
-	private boolean eventType;
+    private String name;
 
-	private String displayName;
+    private boolean eventType;
 
-	// for certain events like Activity, the type has 'Begin' or 'End' appended to it.
-	private List<String> altNameList;
+    private String displayName;
 
-	/**
-	 * @param name
-	 * @param type
-	 */
-	private TraceEventType(String name, boolean type) {
-		this(name, name, type);
-	}
+    // for certain events like Activity, the type has 'Begin' or 'End' appended to it.
+    private List<String> altNameList;
 
-	/**
-	 * @param name
-	 * @param type
-	 * @param altNames
-	 */
-	private TraceEventType(String name, boolean type, String... altNames) {
-		this(name, name, type, altNames);
-	}
+    private TraceEventType(String name, boolean type) {
+        this(name, name, type);
+    }
 
-	/**
-	 * @param name
-	 * @param displayName
-	 * @param type
-	 * @param altNames
-	 */
-	private TraceEventType(String name, String displayName, boolean type, String... altNames) {
-		this.name = name;
-		this.eventType = type;
-		this.displayName = displayName;
-		this.altNameList = new ArrayList<>();
+    private TraceEventType(String name, boolean type, String... altNames) {
+        this(name, name, type, altNames);
+    }
 
-		for (String altName : altNames) {
-			this.altNameList.add(altName);
-		}
+    private TraceEventType(String name, String displayName, boolean type, String... altNames) {
+        this.name = name;
+        this.eventType = type;
+        this.displayName = displayName;
+        this.altNameList = new ArrayList<>();
 
-	}
+        for (String altName : altNames) {
+            this.altNameList.add(altName);
+        }
 
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    }
 
-	/**
-	 * @return the eventType
-	 */
-	public boolean isEventType() {
-		return eventType;
-	}
+    public String getName() {
+        return name;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Enum#toString()
-	 */
-	@Override
-	public String toString() {
-		return displayName;
-	}
+    public boolean isEventType() {
+        return eventType;
+    }
 
-	// public static EnumSet<TraceEventType> getValidValues() {
-	// EnumSet<TraceEventType> enumSet = EnumSet.range(ACCESS_DENY_RULES,
-	// STREAM_RULES);
-	//
-	// return enumSet;
-	// }
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Enum#toString()
+     */
+    @Override
+    public String toString() {
+        return displayName;
+    }
 
-	public Comparator<TraceEventType> getComparator() {
+    // public static EnumSet<TraceEventType> getValidValues() {
+    // EnumSet<TraceEventType> enumSet = EnumSet.range(ACCESS_DENY_RULES,
+    // STREAM_RULES);
+    //
+    // return enumSet;
+    // }
 
-		Comparator<TraceEventType> comparator = new Comparator<TraceEventType>() {
+    public Comparator<TraceEventType> getComparator() {
 
-			@Override
-			public int compare(TraceEventType o1, TraceEventType o2) {
-				int compareTo = new Boolean(o1.isEventType()).compareTo(new Boolean(o2.isEventType()));
+        Comparator<TraceEventType> comparator = new Comparator<TraceEventType>() {
 
-				if (compareTo != 0) {
-					return compareTo;
-				}
+            @Override
+            public int compare(TraceEventType o1, TraceEventType o2) {
+                int compareTo = new Boolean(o1.isEventType()).compareTo(new Boolean(o2.isEventType()));
 
-				return o1.getName().compareTo(o2.getName());
-			}
-		};
+                if (compareTo != 0) {
+                    return compareTo;
+                }
 
-		return comparator;
-	}
+                return o1.getName().compareTo(o2.getName());
+            }
+        };
 
-	public boolean matchName(String eventType) {
+        return comparator;
+    }
 
-		boolean matchFound = false;
+    public boolean matchName(String eventType) {
 
-		if (getName().equalsIgnoreCase(eventType)) {
-			matchFound = true;
-		} else {
+        boolean matchFound = false;
 
-			for (String altName : altNameList) {
+        if (getName().equalsIgnoreCase(eventType)) {
+            matchFound = true;
+        } else {
 
-				if (altName.equalsIgnoreCase(eventType)) {
-					matchFound = true;
-					break;
-				}
-			}
-		}
+            for (String altName : altNameList) {
 
-		return matchFound;
-	}
+                if (altName.equalsIgnoreCase(eventType)) {
+                    matchFound = true;
+                    break;
+                }
+            }
+        }
+
+        return matchFound;
+    }
 }

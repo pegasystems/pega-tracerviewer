@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -44,1331 +45,1327 @@ import com.pega.gcs.tracerviewer.model.TraceEventType;
 
 public class TraceTableModel extends FilterTableModel<TraceEventKey> {
 
-	private static final long serialVersionUID = -2061492402283117131L;
+    private static final long serialVersionUID = -2061492402283117131L;
 
-	private static final Log4j2Helper LOG = new Log4j2Helper(TraceTableModel.class);
+    private static final Log4j2Helper LOG = new Log4j2Helper(TraceTableModel.class);
 
-	private TraceTableModelColumn[] traceTableModelColumnArray;
+    private TraceTableModelColumn[] traceTableModelColumnArray;
 
-	// Main list. for reference purpose only, not working on this map.
-	private Map<TraceEventKey, TraceEvent> traceEventMap;
+    // Main list. for reference purpose only, not working on this map.
+    private Map<TraceEventKey, TraceEvent> traceEventMap;
 
-	private List<TraceEventKey> traceEventKeyList;
+    private List<TraceEventKey> traceEventKeyList;
 
-	// search
-	private SearchData<TraceEventKey> searchData;
-	private SearchModel<TraceEventKey> searchModel;
+    // search
+    private SearchData<TraceEventKey> searchData;
+    private SearchModel<TraceEventKey> searchModel;
 
-	// sets for event filters
-	private Map<TraceEventType, CheckBoxMenuItemPopupEntry<TraceEventKey>> traceEventTypeCheckBoxMenuItemMap;
+    // sets for event filters
+    private Map<TraceEventType, CheckBoxMenuItemPopupEntry<TraceEventKey>> traceEventTypeCheckBoxMenuItemMap;
 
-	// tree related variables - trace event tree node map
-	private TraceEventTreeNode rootTraceEventTreeNode;
-	private TraceEventCombinedTreeNode rootTraceEventCombinedTreeNode;
+    // tree related variables - trace event tree node map
+    private TraceEventTreeNode rootTraceEventTreeNode;
+    private TraceEventCombinedTreeNode rootTraceEventCombinedTreeNode;
 
-	private LinkedList<TraceEvent> treeBuildTraceEventList;
+    private LinkedList<TraceEvent> treeBuildTraceEventList;
 
-	private Map<TraceEventKey, TraceEventTreeNode> traceEventTreeNodeMap;
-	private Map<TraceEventKey, TraceEventCombinedTreeNode> traceEventCombinedTreeNodeMap;
+    private Map<TraceEventKey, TraceEventTreeNode> traceEventTreeNodeMap;
+    private Map<TraceEventKey, TraceEventCombinedTreeNode> traceEventCombinedTreeNodeMap;
 
-	// reporting
-	private List<TraceEventKey> failedEventKeyList;
-	private List<TraceEventKey> exceptionEventKeyList;
-	private List<TraceEventKey> alertEventKeyList;
-	private List<TraceEventKey> noStartEventKeyList;
-	private List<TraceEventKey> noEndEventKeyList;
-	private TreeMap<Double, List<TraceEventKey>> ownElapsedEventKeyMap;
-	private TreeMap<TraceEventRuleset, TreeSet<TraceEventRule>> rulesInvokedMap;
+    // reporting
+    private List<TraceEventKey> failedEventKeyList;
+    private List<TraceEventKey> exceptionEventKeyList;
+    private List<TraceEventKey> alertEventKeyList;
+    private List<TraceEventKey> noStartEventKeyList;
+    private List<TraceEventKey> noEndEventKeyList;
+    private TreeMap<Double, List<TraceEventKey>> ownElapsedEventKeyMap;
+    private TreeMap<TraceEventRuleset, TreeSet<TraceEventRule>> rulesInvokedMap;
 
-	public TraceTableModel(RecentFile recentFile, SearchData<TraceEventKey> searchData) {
+    public TraceTableModel(RecentFile recentFile, SearchData<TraceEventKey> searchData) {
 
-		super(recentFile);
-		this.searchData = searchData;
+        super(recentFile);
+        this.searchData = searchData;
 
-		resetModel();
+        resetModel();
 
-	}
+    }
 
-	public SearchData<TraceEventKey> getSearchData() {
-		return searchData;
-	}
+    public SearchData<TraceEventKey> getSearchData() {
+        return searchData;
+    }
 
-	public TraceTableModelColumn[] getTraceTableModelColumnArray() {
+    public TraceTableModelColumn[] getTraceTableModelColumnArray() {
 
-		if (traceTableModelColumnArray == null) {
-			traceTableModelColumnArray = TraceTableModelColumn.getTraceTableModelColumnArray();
-		}
+        if (traceTableModelColumnArray == null) {
+            traceTableModelColumnArray = TraceTableModelColumn.getTraceTableModelColumnArray();
+        }
 
-		return traceTableModelColumnArray;
-	}
+        return traceTableModelColumnArray;
+    }
 
-	protected Map<TraceEventKey, TraceEvent> getTraceEventMap() {
+    protected Map<TraceEventKey, TraceEvent> getTraceEventMap() {
 
-		if (traceEventMap == null) {
-			traceEventMap = new TreeMap<TraceEventKey, TraceEvent>();
-		}
+        if (traceEventMap == null) {
+            traceEventMap = new TreeMap<TraceEventKey, TraceEvent>();
+        }
 
-		return traceEventMap;
-	}
+        return traceEventMap;
+    }
 
-	private Map<TraceEventKey, TraceEventTreeNode> getTraceEventTreeNodeMap() {
+    private Map<TraceEventKey, TraceEventTreeNode> getTraceEventTreeNodeMap() {
 
-		if (traceEventTreeNodeMap == null) {
-			traceEventTreeNodeMap = new HashMap<TraceEventKey, TraceEventTreeNode>();
-		}
+        if (traceEventTreeNodeMap == null) {
+            traceEventTreeNodeMap = new HashMap<TraceEventKey, TraceEventTreeNode>();
+        }
 
-		return traceEventTreeNodeMap;
-	}
+        return traceEventTreeNodeMap;
+    }
 
-	private Map<TraceEventKey, TraceEventCombinedTreeNode> getTraceEventCombinedTreeNodeMap() {
+    private Map<TraceEventKey, TraceEventCombinedTreeNode> getTraceEventCombinedTreeNodeMap() {
 
-		if (traceEventCombinedTreeNodeMap == null) {
-			traceEventCombinedTreeNodeMap = new HashMap<TraceEventKey, TraceEventCombinedTreeNode>();
-		}
+        if (traceEventCombinedTreeNodeMap == null) {
+            traceEventCombinedTreeNodeMap = new HashMap<TraceEventKey, TraceEventCombinedTreeNode>();
+        }
 
-		return traceEventCombinedTreeNodeMap;
-	}
+        return traceEventCombinedTreeNodeMap;
+    }
 
-	@Override
-	public void resetModel() {
+    @Override
+    public void resetModel() {
 
-		List<TraceEventKey> traceEventKeyList = getFtmEntryKeyList();
-		traceEventKeyList.clear();
+        List<TraceEventKey> traceEventKeyList = getFtmEntryKeyList();
+        traceEventKeyList.clear();
 
-		Map<TraceEventKey, TraceEvent> traceEventMap = getTraceEventMap();
-		traceEventMap.clear();
+        Map<TraceEventKey, TraceEvent> traceEventMap = getTraceEventMap();
+        traceEventMap.clear();
 
-		Map<TraceEventKey, TraceEventTreeNode> traceEventTreeNodeMap = getTraceEventTreeNodeMap();
-		traceEventTreeNodeMap.clear();
+        Map<TraceEventKey, TraceEventTreeNode> traceEventTreeNodeMap = getTraceEventTreeNodeMap();
+        traceEventTreeNodeMap.clear();
 
-		Map<TraceEventKey, TraceEventCombinedTreeNode> traceEventCombinedTreeNodeMap = getTraceEventCombinedTreeNodeMap();
-		traceEventCombinedTreeNodeMap.clear();
+        Map<TraceEventKey, TraceEventCombinedTreeNode> traceEventCombinedTreeNodeMap = getTraceEventCombinedTreeNodeMap();
+        traceEventCombinedTreeNodeMap.clear();
 
-		// tree
-		TraceEventTreeNode rootTraceEventTreeNode = getRootTraceEventTreeNode();
-		rootTraceEventTreeNode.removeAllChildren();
+        // tree
+        TraceEventTreeNode rootTraceEventTreeNode = getRootTraceEventTreeNode();
+        rootTraceEventTreeNode.removeAllChildren();
 
-		TraceEventCombinedTreeNode rootTraceEventCombinedTreeNode = getRootTraceEventCombinedTreeNode();
-		rootTraceEventCombinedTreeNode.removeAllChildren();
+        TraceEventCombinedTreeNode rootTraceEventCombinedTreeNode = getRootTraceEventCombinedTreeNode();
+        rootTraceEventCombinedTreeNode.removeAllChildren();
 
-		LinkedList<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
-		treeBuildTraceEventList.clear();
+        LinkedList<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
+        treeBuildTraceEventList.clear();
 
-		Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<TraceEventKey>>> columnFilterMap;
-		columnFilterMap = getColumnFilterMap();
+        Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<TraceEventKey>>> columnFilterMap;
+        columnFilterMap = getColumnFilterMap();
 
-		columnFilterMap.clear();
+        columnFilterMap.clear();
 
-		TraceTableModelColumn[] traceTableModelColumnArray = getTraceTableModelColumnArray();
+        TraceTableModelColumn[] traceTableModelColumnArray = getTraceTableModelColumnArray();
 
-		for (int columnIndex = 1; columnIndex < traceTableModelColumnArray.length; columnIndex++) {
+        for (int columnIndex = 1; columnIndex < traceTableModelColumnArray.length; columnIndex++) {
 
-			TraceTableModelColumn traceTableModelColumn = traceTableModelColumnArray[columnIndex];
+            TraceTableModelColumn traceTableModelColumn = traceTableModelColumnArray[columnIndex];
 
-			// preventing unnecessary buildup of filter map
-			if (traceTableModelColumn.isFilterable()) {
+            // preventing unnecessary buildup of filter map
+            if (traceTableModelColumn.isFilterable()) {
 
-				FilterColumn filterColumn = new FilterColumn(columnIndex);
+                FilterColumn filterColumn = new FilterColumn(columnIndex);
 
-				filterColumn.setColumnFilterEnabled(false);
+                filterColumn.setColumnFilterEnabled(false);
 
-				columnFilterMap.put(filterColumn, null);
-			}
-		}
+                columnFilterMap.put(filterColumn, null);
+            }
+        }
 
-		traceEventTypeCheckBoxMenuItemMap = new TreeMap<TraceEventType, CheckBoxMenuItemPopupEntry<TraceEventKey>>();
+        traceEventTypeCheckBoxMenuItemMap = new TreeMap<TraceEventType, CheckBoxMenuItemPopupEntry<TraceEventKey>>();
 
-		TraceEventType[] values = TraceEventType.values();
+        TraceEventType[] values = TraceEventType.values();
 
-		Arrays.sort(values, new Comparator<TraceEventType>() {
+        Arrays.sort(values, new Comparator<TraceEventType>() {
 
-			@Override
-			public int compare(TraceEventType o1, TraceEventType o2) {
-				return o1.toString().compareTo(o2.toString());
-			}
-		});
+            @Override
+            public int compare(TraceEventType o1, TraceEventType o2) {
+                return o1.toString().compareTo(o2.toString());
+            }
+        });
 
-		for (TraceEventType traceEventType : values) {
+        for (TraceEventType traceEventType : values) {
 
-			CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe = new CheckBoxMenuItemPopupEntry<TraceEventKey>(
-					traceEventType);
+            CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe = new CheckBoxMenuItemPopupEntry<TraceEventKey>(
+                    traceEventType);
 
-			traceEventTypeCheckBoxMenuItemMap.put(traceEventType, cbmipe);
-		}
+            traceEventTypeCheckBoxMenuItemMap.put(traceEventType, cbmipe);
+        }
 
-		// reporting
-		List<TraceEventKey> failedEventKeyList = getFailedEventKeyList();
-		List<TraceEventKey> exceptionEventKeyList = getExceptionEventKeyList();
-		List<TraceEventKey> alertEventKeyList = getAlertEventKeyList();
-		List<TraceEventKey> noStartEventKeyList = getNoStartEventKeyList();
-		List<TraceEventKey> noEndEventKeyList = getNoEndEventKeyList();
+        // reporting
+        List<TraceEventKey> failedEventKeyList = getFailedEventKeyList();
+        List<TraceEventKey> exceptionEventKeyList = getExceptionEventKeyList();
+        List<TraceEventKey> alertEventKeyList = getAlertEventKeyList();
+        List<TraceEventKey> noStartEventKeyList = getNoStartEventKeyList();
+        List<TraceEventKey> noEndEventKeyList = getNoEndEventKeyList();
 
-		Map<Double, List<TraceEventKey>> ownElapsedEventKeyMap = getOwnElapsedEventKeyMap();
-		Map<TraceEventRuleset, TreeSet<TraceEventRule>> rulesInvokedMap = getRulesInvokedMap();
+        Map<Double, List<TraceEventKey>> ownElapsedEventKeyMap = getOwnElapsedEventKeyMap();
+        Map<TraceEventRuleset, TreeSet<TraceEventRule>> rulesInvokedMap = getRulesInvokedMap();
 
-		failedEventKeyList.clear();
-		exceptionEventKeyList.clear();
-		alertEventKeyList.clear();
-		noStartEventKeyList.clear();
-		noEndEventKeyList.clear();
+        failedEventKeyList.clear();
+        exceptionEventKeyList.clear();
+        alertEventKeyList.clear();
+        noStartEventKeyList.clear();
+        noEndEventKeyList.clear();
 
-		ownElapsedEventKeyMap.clear();
-		rulesInvokedMap.clear();
+        ownElapsedEventKeyMap.clear();
+        rulesInvokedMap.clear();
 
-		clearSearchResults(true);
+        clearSearchResults(true);
 
-		fireTableDataChanged();
-	}
+        fireTableDataChanged();
+    }
 
-	@Override
-	public List<TraceEventKey> getFtmEntryKeyList() {
+    @Override
+    public List<TraceEventKey> getFtmEntryKeyList() {
 
-		if (traceEventKeyList == null) {
-			traceEventKeyList = new ArrayList<TraceEventKey>();
-		}
+        if (traceEventKeyList == null) {
+            traceEventKeyList = new ArrayList<TraceEventKey>();
+        }
 
-		return traceEventKeyList;
-	}
+        return traceEventKeyList;
+    }
 
-	// this is called from load task. hence the order is expected to be
-	// sequential
-	public void addTraceEventToMap(TraceEvent traceEvent) {
+    // this is called from load task. hence the order is expected to be
+    // sequential
+    public void addTraceEventToMap(TraceEvent traceEvent) {
 
-		TraceEventKey traceEventKey = traceEvent.getKey();
+        TraceEventKey traceEventKey = traceEvent.getKey();
 
-		Map<TraceEventKey, TraceEvent> traceEventMap = getTraceEventMap();
-		traceEventMap.put(traceEventKey, traceEvent);
+        Map<TraceEventKey, TraceEvent> traceEventMap = getTraceEventMap();
+        traceEventMap.put(traceEventKey, traceEvent);
 
-		List<TraceEventKey> traceEventKeyList = getFtmEntryKeyList();
+        List<TraceEventKey> traceEventKeyList = getFtmEntryKeyList();
 
-		traceEventKeyList.add(traceEventKey);
+        traceEventKeyList.add(traceEventKey);
 
-		// performing updateColumnFilterMap to avoid re-parsing the full map if
-		// we used applyFilterEventSet(null).
-		Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<TraceEventKey>>> columnFilterMap = getColumnFilterMap();
-		updateColumnFilterMap(traceEvent, columnFilterMap);
+        // performing updateColumnFilterMap to avoid re-parsing the full map if
+        // we used applyFilterEventSet(null).
+        Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<TraceEventKey>>> columnFilterMap = getColumnFilterMap();
+        updateColumnFilterMap(traceEvent, columnFilterMap);
 
-		TraceEventType tet = traceEvent.getTraceEventType();
+        TraceEventType tet = traceEvent.getTraceEventType();
 
-		if (tet != null) {
-			CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe;
-			cbmipe = traceEventTypeCheckBoxMenuItemMap.get(tet);
-			cbmipe.addRowIndex(traceEventKey);
-		}
+        if (tet != null) {
+            CheckBoxMenuItemPopupEntry<TraceEventKey> cbmipe;
+            cbmipe = traceEventTypeCheckBoxMenuItemMap.get(tet);
+            cbmipe.addRowIndex(traceEventKey);
+        }
 
-		buildTree(traceEvent);
+        buildTree(traceEvent);
 
-	}
+    }
 
-	// fix Issue #1 - Compare functionality not working
-	// to be overridden in TraceTableCompareModel to avoid building tree for compare
-	// view
-	protected void buildTree(TraceEvent currentTraceEvent) {
+    // fix Issue #1 - Compare functionality not working
+    // to be overridden in TraceTableCompareModel to avoid building tree for compare
+    // view
+    protected void buildTree(TraceEvent currentTraceEvent) {
 
-		LinkedList<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
-		Map<TraceEventKey, TraceEventTreeNode> traceEventTreeNodeMap = getTraceEventTreeNodeMap();
-		Map<TraceEventKey, TraceEventCombinedTreeNode> traceEventCombinedTreeNodeMap = getTraceEventCombinedTreeNodeMap();
+        LinkedList<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
+        Map<TraceEventKey, TraceEventTreeNode> traceEventTreeNodeMap = getTraceEventTreeNodeMap();
+        Map<TraceEventKey, TraceEventCombinedTreeNode> traceEventCombinedTreeNodeMap = getTraceEventCombinedTreeNodeMap();
 
-		TraceEventTreeNode previousParentTraceEventTreeNode = null;
-		TraceEventCombinedTreeNode previousParentTraceEventCombinedTreeNode = null;
+        TraceEventTreeNode previousParentTraceEventTreeNode = null;
+        TraceEventCombinedTreeNode previousParentTraceEventCombinedTreeNode = null;
 
-		TraceEvent previousParentTraceEvent = getMatchingParentTraceEvent(currentTraceEvent);
+        TraceEvent previousParentTraceEvent = getMatchingParentTraceEvent(currentTraceEvent);
 
-		// if no parent found. ex if this is first entry. assign to root.
-		if (previousParentTraceEvent == null) {
-			previousParentTraceEventTreeNode = getRootTraceEventTreeNode();
-			previousParentTraceEventCombinedTreeNode = getRootTraceEventCombinedTreeNode();
-		} else {
-			// get the tree nodes corresponding to key
-			TraceEventKey traceEventKey = previousParentTraceEvent.getKey();
+        // if no parent found. ex if this is first entry. assign to root.
+        if (previousParentTraceEvent == null) {
+            previousParentTraceEventTreeNode = getRootTraceEventTreeNode();
+            previousParentTraceEventCombinedTreeNode = getRootTraceEventCombinedTreeNode();
+        } else {
+            // get the tree nodes corresponding to key
+            TraceEventKey traceEventKey = previousParentTraceEvent.getKey();
 
-			previousParentTraceEventTreeNode = traceEventTreeNodeMap.get(traceEventKey);
-			previousParentTraceEventCombinedTreeNode = traceEventCombinedTreeNodeMap.get(traceEventKey);
-		}
+            previousParentTraceEventTreeNode = traceEventTreeNodeMap.get(traceEventKey);
+            previousParentTraceEventCombinedTreeNode = traceEventCombinedTreeNodeMap.get(traceEventKey);
+        }
 
-		TraceEventKey currentTraceEventKey = currentTraceEvent.getKey();
+        TraceEventKey currentTraceEventKey = currentTraceEvent.getKey();
 
-		TraceEventTreeNode currentTraceEventTreeNode = new TraceEventTreeNode(currentTraceEvent);
-		TraceEventCombinedTreeNode currentTraceEventCombinedTreeNode = new TraceEventCombinedTreeNode(
-				currentTraceEvent);
+        TraceEventTreeNode currentTraceEventTreeNode = new TraceEventTreeNode(currentTraceEvent);
+        TraceEventCombinedTreeNode currentTraceEventCombinedTreeNode = new TraceEventCombinedTreeNode(
+                currentTraceEvent);
 
-		traceEventTreeNodeMap.put(currentTraceEventKey, currentTraceEventTreeNode);
+        traceEventTreeNodeMap.put(currentTraceEventKey, currentTraceEventTreeNode);
 
-		Boolean endEvent = currentTraceEvent.isEndEvent();
+        Boolean endEvent = currentTraceEvent.isEndEvent();
 
-		if (endEvent != null) {
-			// current event is a block event
+        if (endEvent != null) {
+            // current event is a block event
 
-			if (endEvent) {
-				// find the correct 'begin' node. correct = same INT, RULE#,
-				// EVENT_TYPE
+            if (endEvent) {
+                // find the correct 'begin' node. correct = same INT, RULE#,
+                // EVENT_TYPE
 
-				TraceEvent startTraceEvent = getMatchingStartTraceEvent(currentTraceEvent);
+                TraceEvent startTraceEvent = getMatchingStartTraceEvent(currentTraceEvent);
 
-				if (startTraceEvent != null) {
+                if (startTraceEvent != null) {
 
-					TraceEventKey startTraceEventKey = startTraceEvent.getKey();
+                    TraceEventKey startTraceEventKey = startTraceEvent.getKey();
 
-					// single tree node
-					TraceEventTreeNode startTraceEventTreeNode = traceEventTreeNodeMap.get(startTraceEventKey);
+                    // single tree node
+                    TraceEventTreeNode startTraceEventTreeNode = traceEventTreeNodeMap.get(startTraceEventKey);
 
-					TraceEventTreeNode parentTraceEventTreeNode = (TraceEventTreeNode) startTraceEventTreeNode
-							.getParent();
-					parentTraceEventTreeNode.add(currentTraceEventTreeNode);
+                    TraceEventTreeNode parentTraceEventTreeNode = (TraceEventTreeNode) startTraceEventTreeNode
+                            .getParent();
+                    parentTraceEventTreeNode.add(currentTraceEventTreeNode);
 
-					// combined tree node
-					TraceEventCombinedTreeNode startTraceEventCombinedTreeNode = traceEventCombinedTreeNodeMap
-							.get(startTraceEventKey);
+                    // combined tree node
+                    TraceEventCombinedTreeNode startTraceEventCombinedTreeNode = traceEventCombinedTreeNodeMap
+                            .get(startTraceEventKey);
 
-					startTraceEventCombinedTreeNode.setEndEvent(currentTraceEvent);
+                    startTraceEventCombinedTreeNode.setEndEvent(currentTraceEvent);
 
-					traceEventCombinedTreeNodeMap.put(currentTraceEventKey, startTraceEventCombinedTreeNode);
+                    traceEventCombinedTreeNodeMap.put(currentTraceEventKey, startTraceEventCombinedTreeNode);
 
-					processTraceEventElapsed(startTraceEventTreeNode, currentTraceEventTreeNode);
+                    processTraceEventElapsed(startTraceEventTreeNode, currentTraceEventTreeNode);
 
-				} else {
-					LOG.info("Could'nt find a matching start for trace event: " + currentTraceEvent.toDebugString());
+                } else {
+                    LOG.info("Could'nt find a matching start for trace event: " + currentTraceEvent.toDebugString());
 
-					List<TraceEventKey> noStartEventKeyList = getNoStartEventKeyList();
-					noStartEventKeyList.add(currentTraceEventKey);
+                    List<TraceEventKey> noStartEventKeyList = getNoStartEventKeyList();
+                    noStartEventKeyList.add(currentTraceEventKey);
 
-					previousParentTraceEventTreeNode.add(currentTraceEventTreeNode);
-					previousParentTraceEventCombinedTreeNode.add(currentTraceEventCombinedTreeNode);
+                    previousParentTraceEventTreeNode.add(currentTraceEventTreeNode);
+                    previousParentTraceEventCombinedTreeNode.add(currentTraceEventCombinedTreeNode);
 
-					traceEventCombinedTreeNodeMap.put(currentTraceEventKey, currentTraceEventCombinedTreeNode);
-				}
-			} else {
-				// if starting event, add to the stack
-				treeBuildTraceEventList.add(currentTraceEvent);
+                    traceEventCombinedTreeNodeMap.put(currentTraceEventKey, currentTraceEventCombinedTreeNode);
+                }
+            } else {
+                // if starting event, add to the stack
+                treeBuildTraceEventList.add(currentTraceEvent);
 
-				previousParentTraceEventTreeNode.add(currentTraceEventTreeNode);
-				previousParentTraceEventCombinedTreeNode.add(currentTraceEventCombinedTreeNode);
+                previousParentTraceEventTreeNode.add(currentTraceEventTreeNode);
+                previousParentTraceEventCombinedTreeNode.add(currentTraceEventCombinedTreeNode);
 
-				traceEventCombinedTreeNodeMap.put(currentTraceEventKey, currentTraceEventCombinedTreeNode);
-			}
-		} else {
-			// current event is a singular event.
-			previousParentTraceEventTreeNode.add(currentTraceEventTreeNode);
-			previousParentTraceEventCombinedTreeNode.add(currentTraceEventCombinedTreeNode);
+                traceEventCombinedTreeNodeMap.put(currentTraceEventKey, currentTraceEventCombinedTreeNode);
+            }
+        } else {
+            // current event is a singular event.
+            previousParentTraceEventTreeNode.add(currentTraceEventTreeNode);
+            previousParentTraceEventCombinedTreeNode.add(currentTraceEventCombinedTreeNode);
 
-			traceEventCombinedTreeNodeMap.put(currentTraceEventKey, currentTraceEventCombinedTreeNode);
+            traceEventCombinedTreeNodeMap.put(currentTraceEventKey, currentTraceEventCombinedTreeNode);
 
-		}
+        }
 
-		processEvent(currentTraceEvent);
+        processEvent(currentTraceEvent);
 
-	}
+    }
 
-	private TraceEvent getMatchingParentTraceEvent(TraceEvent childTraceEvent) {
+    private TraceEvent getMatchingParentTraceEvent(TraceEvent childTraceEvent) {
 
-		TraceEvent parentTraceEvent = null;
+        TraceEvent parentTraceEvent = null;
 
-		LinkedList<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
+        LinkedList<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
 
-		Iterator<TraceEvent> descendingIterator = treeBuildTraceEventList.descendingIterator();
+        Iterator<TraceEvent> descendingIterator = treeBuildTraceEventList.descendingIterator();
 
-		while (descendingIterator.hasNext()) {
+        while (descendingIterator.hasNext()) {
 
-			TraceEvent traceEvent = descendingIterator.next();
+            TraceEvent traceEvent = descendingIterator.next();
 
-			if (traceEvent.isMatchingParentTraceEvent(childTraceEvent)) {
-				parentTraceEvent = traceEvent;
-				break;
-			}
-		}
+            if (traceEvent.isMatchingParentTraceEvent(childTraceEvent)) {
+                parentTraceEvent = traceEvent;
+                break;
+            }
+        }
 
-		// if no possible parent found, assign it to last start block
-		if ((parentTraceEvent == null)) {
-			parentTraceEvent = treeBuildTraceEventList.peekLast();
-		}
+        // if no possible parent found, assign it to last start block
+        if ((parentTraceEvent == null)) {
+            parentTraceEvent = treeBuildTraceEventList.peekLast();
+        }
 
-		return parentTraceEvent;
-	}
+        return parentTraceEvent;
+    }
 
-	private TraceEvent getMatchingStartTraceEvent(TraceEvent endTraceEvent) {
+    private TraceEvent getMatchingStartTraceEvent(TraceEvent endTraceEvent) {
 
-		TraceEvent startTraceEvent = null;
+        TraceEvent startTraceEvent = null;
 
-		LinkedList<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
+        LinkedList<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
 
-		int loopCounter = 0;
-		int treeBuildTraceEventListSize = treeBuildTraceEventList.size();
+        int loopCounter = 0;
+        int treeBuildTraceEventListSize = treeBuildTraceEventList.size();
 
-		ArrayList<TraceEvent> noEndTraceEventList = new ArrayList<>();
+        ArrayList<TraceEvent> noEndTraceEventList = new ArrayList<>();
 
-		Iterator<TraceEvent> descendingIterator = treeBuildTraceEventList.descendingIterator();
+        Iterator<TraceEvent> descendingIterator = treeBuildTraceEventList.descendingIterator();
 
-		while (descendingIterator.hasNext()) {
+        while (descendingIterator.hasNext()) {
 
-			TraceEvent traceEvent = descendingIterator.next();
-			loopCounter++;
+            TraceEvent traceEvent = descendingIterator.next();
+            loopCounter++;
 
-			if (traceEvent.isMatchingStartTraceEvent(endTraceEvent)) {
-				startTraceEvent = traceEvent;
-				break;
-			} else {
-				noEndTraceEventList.add(traceEvent);
-			}
-		}
+            if (traceEvent.isMatchingStartTraceEvent(endTraceEvent)) {
+                startTraceEvent = traceEvent;
+                break;
+            } else {
+                noEndTraceEventList.add(traceEvent);
+            }
+        }
 
-		// remove the entry from stack
-		if (startTraceEvent != null) {
-			int removeIndex = treeBuildTraceEventListSize - loopCounter;
-			treeBuildTraceEventList.remove(removeIndex);
-		}
+        // remove the entry from stack
+        if (startTraceEvent != null) {
+            int removeIndex = treeBuildTraceEventListSize - loopCounter;
+            treeBuildTraceEventList.remove(removeIndex);
+        }
 
-		if (noEndTraceEventList.size() > 0) {
+        if (noEndTraceEventList.size() > 0) {
 
-			List<TraceEventKey> noEndEventKeyList = getNoEndEventKeyList();
+            List<TraceEventKey> noEndEventKeyList = getNoEndEventKeyList();
 
-			for (TraceEvent traceEvent : noEndTraceEventList) {
+            for (TraceEvent traceEvent : noEndTraceEventList) {
 
-				LOG.info("Could'nt find a matching end for trace event: " + traceEvent.toDebugString());
+                LOG.info("Could'nt find a matching end for trace event: " + traceEvent.toDebugString());
 
-				noEndEventKeyList.add(traceEvent.getKey());
+                noEndEventKeyList.add(traceEvent.getKey());
 
-				treeBuildTraceEventList.remove(traceEvent);
+                treeBuildTraceEventList.remove(traceEvent);
 
-			}
-		}
+            }
+        }
 
-		return startTraceEvent;
-	}
+        return startTraceEvent;
+    }
 
-	private TraceEventTreeNode addToTree(TraceEventTreeNode parentNode, TraceEvent currentTraceEvent) {
+    private TraceEventTreeNode addToTree(TraceEventTreeNode parentNode, TraceEvent currentTraceEvent) {
 
-		Map<TraceEventKey, TraceEventTreeNode> traceEventTreeNodeMap = getTraceEventTreeNodeMap();
+        Map<TraceEventKey, TraceEventTreeNode> traceEventTreeNodeMap = getTraceEventTreeNodeMap();
 
-		TraceEventTreeNode startNode = parentNode;
+        TraceEventTreeNode startNode = parentNode;
 
-		TraceEventTreeNode currentNode = new TraceEventTreeNode(currentTraceEvent);
+        TraceEventTreeNode currentNode = new TraceEventTreeNode(currentTraceEvent);
 
-		traceEventTreeNodeMap.put(currentTraceEvent.getKey(), currentNode);
+        traceEventTreeNodeMap.put(currentTraceEvent.getKey(), currentNode);
 
-		Boolean endEvent = currentTraceEvent.isEndEvent();
+        Boolean endEvent = currentTraceEvent.isEndEvent();
 
-		if (endEvent != null) {
+        if (endEvent != null) {
 
-			// if end event then move 1 step higher parent
-			if (endEvent) {
+            // if end event then move 1 step higher parent
+            if (endEvent) {
 
-				// startNode is the begin node at this moment
-				processTraceEventElapsed(startNode, currentNode);
+                // startNode is the begin node at this moment
+                processTraceEventElapsed(startNode, currentNode);
 
-				TraceEventTreeNode curParent = (TraceEventTreeNode) startNode.getParent();
+                TraceEventTreeNode curParent = (TraceEventTreeNode) startNode.getParent();
 
-				if (curParent != null) {
-					startNode = curParent;
-					startNode.add(currentNode);
-				} else {
-					startNode.add(currentNode);
-				}
+                if (curParent != null) {
+                    startNode = curParent;
+                    startNode.add(currentNode);
+                } else {
+                    startNode.add(currentNode);
+                }
 
-			}
-			// if begin event then this node become parent.
-			else {
-				startNode.add(currentNode);
-				startNode = currentNode;
-			}
-		} else {
+            } else {
+                startNode.add(currentNode);
+                startNode = currentNode;
+            }
+        } else {
 
-			startNode.add(currentNode);
-			processTraceEventElapsed(currentNode, currentNode);
-		}
+            startNode.add(currentNode);
+            processTraceEventElapsed(currentNode, currentNode);
+        }
 
-		processEvent(currentTraceEvent);
+        processEvent(currentTraceEvent);
 
-		return startNode;
-	}
+        return startNode;
+    }
 
-	private TraceEventCombinedTreeNode addToTreeMerged(TraceEventCombinedTreeNode parentNode,
-			TraceEvent currentTraceEvent) {
+    private TraceEventCombinedTreeNode addToTreeMerged(TraceEventCombinedTreeNode parentNode,
+            TraceEvent currentTraceEvent) {
 
-		Map<TraceEventKey, TraceEventCombinedTreeNode> traceEventCombinedTreeNodeMap = getTraceEventCombinedTreeNodeMap();
+        Map<TraceEventKey, TraceEventCombinedTreeNode> traceEventCombinedTreeNodeMap = getTraceEventCombinedTreeNodeMap();
 
-		TraceEventKey traceEventKey = currentTraceEvent.getKey();
+        TraceEventKey traceEventKey = currentTraceEvent.getKey();
 
-		TraceEventCombinedTreeNode startNode = parentNode;
+        TraceEventCombinedTreeNode startNode = parentNode;
 
-		TraceEventCombinedTreeNode currentNode = new TraceEventCombinedTreeNode(currentTraceEvent);
+        TraceEventCombinedTreeNode currentNode = new TraceEventCombinedTreeNode(currentTraceEvent);
 
-		Boolean endEvent = currentTraceEvent.isEndEvent();
+        Boolean endEvent = currentTraceEvent.isEndEvent();
 
-		if (endEvent != null) {
+        if (endEvent != null) {
 
-			// if end event then move 1 step higher parent
-			if (endEvent) {
+            // if end event then move 1 step higher parent
+            if (endEvent) {
 
-				startNode.setEndEvent(currentTraceEvent);
+                startNode.setEndEvent(currentTraceEvent);
 
-				traceEventCombinedTreeNodeMap.put(traceEventKey, startNode);
+                traceEventCombinedTreeNodeMap.put(traceEventKey, startNode);
 
-				TraceEventCombinedTreeNode curParent = (TraceEventCombinedTreeNode) startNode.getParent();
+                TraceEventCombinedTreeNode curParent = (TraceEventCombinedTreeNode) startNode.getParent();
 
-				if (curParent != null) {
-					startNode = curParent;
-				}
-			}
-			// if begin event then this node become parent.
-			else {
-				traceEventCombinedTreeNodeMap.put(traceEventKey, currentNode);
+                if (curParent != null) {
+                    startNode = curParent;
+                }
+            } else {
+                traceEventCombinedTreeNodeMap.put(traceEventKey, currentNode);
 
-				startNode.add(currentNode);
-				startNode = currentNode;
-			}
-		} else {
-			traceEventCombinedTreeNodeMap.put(traceEventKey, currentNode);
+                startNode.add(currentNode);
+                startNode = currentNode;
+            }
+        } else {
+            traceEventCombinedTreeNodeMap.put(traceEventKey, currentNode);
 
-			startNode.add(currentNode);
-		}
+            startNode.add(currentNode);
+        }
 
-		return startNode;
-	}
+        return startNode;
+    }
 
-	@Override
-	public int getColumnCount() {
-		TraceTableModelColumn[] traceTableModelColumnArray = getTraceTableModelColumnArray();
-		return traceTableModelColumnArray.length;
-	}
+    @Override
+    public int getColumnCount() {
+        TraceTableModelColumn[] traceTableModelColumnArray = getTraceTableModelColumnArray();
+        return traceTableModelColumnArray.length;
+    }
 
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
 
-		List<TraceEventKey> traceEventIndexList = getFtmEntryKeyList();
+        List<TraceEventKey> traceEventIndexList = getFtmEntryKeyList();
 
-		// supply records in reverse order??.
-		int reverseRowIndex = traceEventIndexList.size() - rowIndex - 1;
-		TraceEventKey traceEventKey = traceEventIndexList.get(reverseRowIndex);
+        // supply records in reverse order??.
+        int reverseRowIndex = traceEventIndexList.size() - rowIndex - 1;
+        TraceEventKey traceEventKey = traceEventIndexList.get(reverseRowIndex);
 
-		// supply in right order
-		// TraceEventKey traceEventKey = traceEventIndexList.get(rowIndex);
+        // supply in right order
+        // TraceEventKey traceEventKey = traceEventIndexList.get(rowIndex);
 
-		TraceEvent traceEvent = getEventForKey(traceEventKey);
+        TraceEvent traceEvent = getEventForKey(traceEventKey);
 
-		return traceEvent;
-	}
+        return traceEvent;
+    }
 
-	@Override
-	public String getColumnName(int column) {
+    @Override
+    public String getColumnName(int column) {
 
-		TraceTableModelColumn[] traceTableModelColumnArray = getTraceTableModelColumnArray();
+        TraceTableModelColumn[] traceTableModelColumnArray = getTraceTableModelColumnArray();
 
-		return traceTableModelColumnArray[column].toString();
-	}
+        return traceTableModelColumnArray[column].toString();
+    }
 
-	@Override
-	protected int getModelColumnIndex(int column) {
-		return column;
-	}
+    @Override
+    protected int getModelColumnIndex(int column) {
+        return column;
+    }
 
-	public TraceTableModelColumn getColumn(int column) {
-		TraceTableModelColumn[] traceTableModelColumnArray = getTraceTableModelColumnArray();
-		return traceTableModelColumnArray[column];
-	}
+    public TraceTableModelColumn getColumn(int column) {
+        TraceTableModelColumn[] traceTableModelColumnArray = getTraceTableModelColumnArray();
+        return traceTableModelColumnArray[column];
+    }
 
-	public Set<TraceEventType> getTraceEventTypeList() {
-		return traceEventTypeCheckBoxMenuItemMap.keySet();
-	}
+    public Set<TraceEventType> getTraceEventTypeList() {
+        return traceEventTypeCheckBoxMenuItemMap.keySet();
+    }
 
-	public CheckBoxMenuItemPopupEntry<TraceEventKey> getCheckBoxMenuItem(TraceEventType traceEventType) {
-		return traceEventTypeCheckBoxMenuItemMap.get(traceEventType);
-	}
+    public CheckBoxMenuItemPopupEntry<TraceEventKey> getCheckBoxMenuItem(TraceEventType traceEventType) {
+        return traceEventTypeCheckBoxMenuItemMap.get(traceEventType);
+    }
 
-	// clearing the columnFilterMap will skip the below loop
-	private void updateColumnFilterMap(TraceEvent traceEvent,
-			Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<TraceEventKey>>> columnFilterMap) {
+    // clearing the columnFilterMap will skip the below loop
+    private void updateColumnFilterMap(TraceEvent traceEvent,
+            Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<TraceEventKey>>> columnFilterMap) {
 
-		if (traceEvent != null) {
+        if (traceEvent != null) {
 
-			Iterator<FilterColumn> fcIterator = columnFilterMap.keySet().iterator();
+            Iterator<FilterColumn> fcIterator = columnFilterMap.keySet().iterator();
 
-			while (fcIterator.hasNext()) {
+            while (fcIterator.hasNext()) {
 
-				FilterColumn filterColumn = fcIterator.next();
+                FilterColumn filterColumn = fcIterator.next();
 
-				List<CheckBoxMenuItemPopupEntry<TraceEventKey>> columnFilterEntryList;
-				columnFilterEntryList = columnFilterMap.get(filterColumn);
+                List<CheckBoxMenuItemPopupEntry<TraceEventKey>> columnFilterEntryList;
+                columnFilterEntryList = columnFilterMap.get(filterColumn);
 
-				if (columnFilterEntryList == null) {
-					columnFilterEntryList = new ArrayList<CheckBoxMenuItemPopupEntry<TraceEventKey>>();
-					columnFilterMap.put(filterColumn, columnFilterEntryList);
-				}
+                if (columnFilterEntryList == null) {
+                    columnFilterEntryList = new ArrayList<CheckBoxMenuItemPopupEntry<TraceEventKey>>();
+                    columnFilterMap.put(filterColumn, columnFilterEntryList);
+                }
 
-				int columnIndex = filterColumn.getIndex();
+                int columnIndex = filterColumn.getIndex();
 
-				TraceTableModelColumn traceTableModelColumn = getColumn(columnIndex);
+                TraceTableModelColumn traceTableModelColumn = getColumn(columnIndex);
 
-				String traceEventKeyStr = traceEvent.getColumnValueForTraceTableModelColumn(traceTableModelColumn);
+                String traceEventKeyStr = traceEvent.getColumnValueForTraceTableModelColumn(traceTableModelColumn);
 
-				if (traceEventKeyStr == null) {
-					traceEventKeyStr = FilterTableModel.NULL_STR;
-				} else if ("".equals(traceEventKeyStr)) {
-					traceEventKeyStr = FilterTableModel.EMPTY_STR;
-				}
+                if (traceEventKeyStr == null) {
+                    traceEventKeyStr = FilterTableModel.NULL_STR;
+                } else if ("".equals(traceEventKeyStr)) {
+                    traceEventKeyStr = FilterTableModel.EMPTY_STR;
+                }
 
-				CheckBoxMenuItemPopupEntry<TraceEventKey> columnFilterEntry;
+                CheckBoxMenuItemPopupEntry<TraceEventKey> columnFilterEntry;
 
-				CheckBoxMenuItemPopupEntry<TraceEventKey> searchKey;
-				searchKey = new CheckBoxMenuItemPopupEntry<TraceEventKey>(traceEventKeyStr);
+                CheckBoxMenuItemPopupEntry<TraceEventKey> searchKey;
+                searchKey = new CheckBoxMenuItemPopupEntry<TraceEventKey>(traceEventKeyStr);
 
-				int index = columnFilterEntryList.indexOf(searchKey);
+                int index = columnFilterEntryList.indexOf(searchKey);
 
-				if (index == -1) {
-					columnFilterEntry = new CheckBoxMenuItemPopupEntry<TraceEventKey>(traceEventKeyStr);
-					columnFilterEntryList.add(columnFilterEntry);
-				} else {
-					columnFilterEntry = columnFilterEntryList.get(index);
-				}
+                if (index == -1) {
+                    columnFilterEntry = new CheckBoxMenuItemPopupEntry<TraceEventKey>(traceEventKeyStr);
+                    columnFilterEntryList.add(columnFilterEntry);
+                } else {
+                    columnFilterEntry = columnFilterEntryList.get(index);
+                }
 
-				TraceEventKey traceEventKey = traceEvent.getKey();
+                TraceEventKey traceEventKey = traceEvent.getKey();
 
-				columnFilterEntry.addRowIndex(traceEventKey);
+                columnFilterEntry.addRowIndex(traceEventKey);
 
-				boolean filterable = traceTableModelColumn.isFilterable();
-				
-				if ((filterable) && (columnFilterEntryList.size() > 1)) {
-					filterColumn.setColumnFilterEnabled(true);
-				}
+                boolean filterable = traceTableModelColumn.isFilterable();
 
-				// boolean columnFilterEnabled =
-				// filterColumn.isColumnFilterEnabled();
-				//
-				// if ((!columnFilterEnabled) && (columnFilterEntryList.size() >
-				// 1)) {
-				// filterColumn.setColumnFilterEnabled(true);
-				// }
-			}
-		}
-	}
+                if ((filterable) && (columnFilterEntryList.size() > 1)) {
+                    filterColumn.setColumnFilterEnabled(true);
+                }
 
-	// performing one by one search because of showing progress in the monitor
-	// also when cancelling the task we should keep the old search results
-	// hence not search result is stored unless the task is completed
-	@Override
-	public boolean search(TraceEventKey key, Object searchStrObj) {
+                // boolean columnFilterEnabled =
+                // filterColumn.isColumnFilterEnabled();
+                //
+                // if ((!columnFilterEnabled) && (columnFilterEntryList.size() >
+                // 1)) {
+                // filterColumn.setColumnFilterEnabled(true);
+                // }
+            }
+        }
+    }
 
-		TraceEvent traceEvent = getEventForKey(key);
+    // performing one by one search because of showing progress in the monitor
+    // also when cancelling the task we should keep the old search results
+    // hence not search result is stored unless the task is completed
+    @Override
+    public boolean search(TraceEventKey key, Object searchStrObj) {
 
-		boolean found = traceEvent.search(searchStrObj);
+        TraceEvent traceEvent = getEventForKey(key);
 
-		return found;
-	}
+        boolean found = traceEvent.search(searchStrObj);
 
-	@Override
-	protected FilterTableModelNavigation<TraceEventKey> getNavigationRowIndex(List<TraceEventKey> resultList,
-			int selectedRowIndex, boolean forward, boolean first, boolean last, boolean wrap) {
+        return found;
+    }
 
-		int currSelectedRowIndex = selectedRowIndex;
-		// tracer viewer search results are NOT reversed
-		TraceEventKey navigationKey = null;
-		int navigationIndex = 0;
-		int navigationRowIndex = 0;
+    @Override
+    protected FilterTableModelNavigation<TraceEventKey> getNavigationRowIndex(List<TraceEventKey> resultList,
+            int selectedRowIndex, boolean forward, boolean first, boolean last, boolean wrap) {
 
-		if ((resultList != null) && (resultList.size() > 0)) {
+        int currSelectedRowIndex = selectedRowIndex;
+        // tracer viewer search results are NOT reversed
+        TraceEventKey navigationKey = null;
+        int navigationIndex = 0;
+        int navigationRowIndex = 0;
 
-			int resultListSize = resultList.size();
+        if ((resultList != null) && (resultList.size() > 0)) {
 
-			List<TraceEventKey> traceEventKeyList = getFtmEntryKeyList();
+            int resultListSize = resultList.size();
 
-			int traceEventKeyListSize = traceEventKeyList.size();
+            List<TraceEventKey> traceEventKeyList = getFtmEntryKeyList();
 
-			if (first) {
+            int traceEventKeyListSize = traceEventKeyList.size();
 
-				int lastIndex = resultListSize - 1;
-				navigationKey = resultList.get(lastIndex);
-				navigationIndex = 1;
+            if (first) {
 
-			} else if (last) {
+                int lastIndex = resultListSize - 1;
+                navigationKey = resultList.get(lastIndex);
+                navigationIndex = 1;
 
-				navigationKey = resultList.get(0);
-				navigationIndex = resultListSize;
+            } else if (last) {
 
-			} else if (forward) {
-				// NEXT
-				if (currSelectedRowIndex >= 0) {
+                navigationKey = resultList.get(0);
+                navigationIndex = resultListSize;
 
-					if (currSelectedRowIndex < (traceEventKeyListSize - 1)) {
-						currSelectedRowIndex++;
-					} else {
-						if (wrap) {
-							currSelectedRowIndex = 0;
-						}
-					}
-				} else {
-					currSelectedRowIndex = 0;
-				}
+            } else if (forward) {
+                // NEXT
+                if (currSelectedRowIndex >= 0) {
 
-				TraceEventKey currSelectedTraceEventKey = traceEventKeyList
-						.get((traceEventKeyListSize - 1) - currSelectedRowIndex);
+                    if (currSelectedRowIndex < (traceEventKeyListSize - 1)) {
+                        currSelectedRowIndex++;
+                    } else {
+                        if (wrap) {
+                            currSelectedRowIndex = 0;
+                        }
+                    }
+                } else {
+                    currSelectedRowIndex = 0;
+                }
 
-				int searchIndex = Collections.binarySearch(resultList, currSelectedTraceEventKey);
+                TraceEventKey currSelectedTraceEventKey = traceEventKeyList
+                        .get((traceEventKeyListSize - 1) - currSelectedRowIndex);
 
-				if (searchIndex >= 0) {
-					// exact search found
-					navigationKey = resultList.get(searchIndex);
-				} else {
+                int searchIndex = Collections.binarySearch(resultList, currSelectedTraceEventKey);
 
-					searchIndex = (searchIndex * -1) - 1;
+                if (searchIndex >= 0) {
+                    // exact search found
+                    navigationKey = resultList.get(searchIndex);
+                } else {
 
-					if ((searchIndex == resultListSize) || (searchIndex == 0)) {
+                    searchIndex = (searchIndex * -1) - 1;
 
-						searchIndex = resultListSize - 1;
-					} else {
-						searchIndex--;
-					}
+                    if ((searchIndex == resultListSize) || (searchIndex == 0)) {
 
-					navigationKey = resultList.get(searchIndex);
-				}
+                        searchIndex = resultListSize - 1;
+                    } else {
+                        searchIndex--;
+                    }
 
-				navigationIndex = resultList.indexOf(navigationKey);
-				navigationIndex = (resultListSize - 1) - navigationIndex + 1;
+                    navigationKey = resultList.get(searchIndex);
+                }
 
-			} else {
-				// PREVIOUS
-				if (currSelectedRowIndex >= 0) {
+                navigationIndex = resultList.indexOf(navigationKey);
+                navigationIndex = (resultListSize - 1) - navigationIndex + 1;
 
-					if (currSelectedRowIndex > 0) {
-						currSelectedRowIndex--;
-					} else {
-						if (wrap) {
-							currSelectedRowIndex = traceEventKeyListSize - 1;
-						}
-					}
-				} else {
-					currSelectedRowIndex = 0;
-				}
+            } else {
+                // PREVIOUS
+                if (currSelectedRowIndex >= 0) {
 
-				TraceEventKey currSelectedTraceEventKey = traceEventKeyList
-						.get((traceEventKeyListSize - 1) - currSelectedRowIndex);
+                    if (currSelectedRowIndex > 0) {
+                        currSelectedRowIndex--;
+                    } else {
+                        if (wrap) {
+                            currSelectedRowIndex = traceEventKeyListSize - 1;
+                        }
+                    }
+                } else {
+                    currSelectedRowIndex = 0;
+                }
 
-				int searchIndex = Collections.binarySearch(resultList, currSelectedTraceEventKey);
+                TraceEventKey currSelectedTraceEventKey = traceEventKeyList
+                        .get((traceEventKeyListSize - 1) - currSelectedRowIndex);
 
-				if (searchIndex >= 0) {
-					// exact search found
-					navigationKey = resultList.get(searchIndex);
-				} else {
+                int searchIndex = Collections.binarySearch(resultList, currSelectedTraceEventKey);
 
-					searchIndex = (searchIndex * -1) - 1;
+                if (searchIndex >= 0) {
+                    // exact search found
+                    navigationKey = resultList.get(searchIndex);
+                } else {
 
-					if (searchIndex == resultListSize) {
-						searchIndex = 0;
-					}
+                    searchIndex = (searchIndex * -1) - 1;
 
-					navigationKey = resultList.get(searchIndex);
-				}
+                    if (searchIndex == resultListSize) {
+                        searchIndex = 0;
+                    }
 
-				navigationIndex = resultList.indexOf(navigationKey);
-				navigationIndex = (resultListSize - 1) - navigationIndex + 1;
-			}
+                    navigationKey = resultList.get(searchIndex);
+                }
 
-			if (navigationKey != null) {
+                navigationIndex = resultList.indexOf(navigationKey);
+                navigationIndex = (resultListSize - 1) - navigationIndex + 1;
+            }
 
-				navigationRowIndex = getIndexOfKey(navigationKey);
-				// navigationRowIndex =
-				// traceEventKeyList.indexOf(navigationKey);
-				//
-				// navigationRowIndex = (traceEventKeyListSize - 1)
-				// - navigationRowIndex;
+            if (navigationKey != null) {
 
-			} else {
-				navigationRowIndex = currSelectedRowIndex;
-			}
+                navigationRowIndex = getIndexOfKey(navigationKey);
+                // navigationRowIndex =
+                // traceEventKeyList.indexOf(navigationKey);
+                //
+                // navigationRowIndex = (traceEventKeyListSize - 1)
+                // - navigationRowIndex;
 
-		}
+            } else {
+                navigationRowIndex = currSelectedRowIndex;
+            }
 
-		FilterTableModelNavigation<TraceEventKey> ttmn = new FilterTableModelNavigation<TraceEventKey>();
-		ttmn.setNavigationIndex(navigationIndex);
-		ttmn.setNavigationRowIndex(navigationRowIndex);
-		ttmn.setNavigationKey(navigationKey);
+        }
 
-		return ttmn;
-	}
+        FilterTableModelNavigation<TraceEventKey> ttmn = new FilterTableModelNavigation<TraceEventKey>();
+        ttmn.setNavigationIndex(navigationIndex);
+        ttmn.setNavigationRowIndex(navigationRowIndex);
+        ttmn.setNavigationKey(navigationKey);
 
-	@Override
-	/**
-	 * this uses treepmap's comparator which is based on traceeventkey's id
-	 */
-	public TraceEvent getEventForKey(TraceEventKey traceEventKey) {
+        return ttmn;
+    }
 
-		TraceEvent traceEvent = null;
+    @Override
+    /**
+     * this uses treepmap's comparator which is based on traceeventkey's id
+     */
+    public TraceEvent getEventForKey(TraceEventKey traceEventKey) {
 
-		if (traceEventKey != null) {
-			Map<TraceEventKey, TraceEvent> traceEventMap = getTraceEventMap();
-			traceEvent = traceEventMap.get(traceEventKey);
-		}
+        TraceEvent traceEvent = null;
 
-		return traceEvent;
-	}
+        if (traceEventKey != null) {
+            Map<TraceEventKey, TraceEvent> traceEventMap = getTraceEventMap();
+            traceEvent = traceEventMap.get(traceEventKey);
+        }
 
-	/**
-	 * alternate implementation to getEventForKey to use traceeventkey's
-	 * traceeventindex. used for reports where entries can change because of compare
-	 * view.
-	 */
-	public TraceEvent getTraceEventForKey(TraceEventKey traceEventKey) {
+        return traceEvent;
+    }
 
-		TraceEvent traceEvent = null;
+    /**
+     * alternate implementation to getEventForKey to use traceeventkey's
+     * traceeventindex. used for reports where entries can change because of compare
+     * view.
+     */
+    public TraceEvent getTraceEventForKey(TraceEventKey traceEventKey) {
 
-		if (traceEventKey != null) {
+        TraceEvent traceEvent = null;
 
-			int traceEventIndex = traceEventKey.getTraceEventIndex();
+        if (traceEventKey != null) {
 
-			if (traceEventIndex != -1) {
+            int traceEventIndex = traceEventKey.getTraceEventIndex();
 
-				Map<TraceEventKey, TraceEvent> traceEventMap = getTraceEventMap();
-				Set<Map.Entry<TraceEventKey, TraceEvent>> traceEventEntrySet = traceEventMap.entrySet();
+            if (traceEventIndex != -1) {
 
-				for (Map.Entry<TraceEventKey, TraceEvent> entry : traceEventEntrySet) {
+                Map<TraceEventKey, TraceEvent> traceEventMap = getTraceEventMap();
+                Set<Map.Entry<TraceEventKey, TraceEvent>> traceEventEntrySet = traceEventMap.entrySet();
 
-					TraceEventKey key = entry.getKey();
-					TraceEvent te = entry.getValue();
+                for (Map.Entry<TraceEventKey, TraceEvent> entry : traceEventEntrySet) {
 
-					if (traceEventIndex == key.getTraceEventIndex()) {
-						traceEvent = te;
-						break;
-					}
-				}
-			} else {
-				traceEvent = getEventForKey(traceEventKey);
-			}
+                    TraceEventKey key = entry.getKey();
+                    TraceEvent te = entry.getValue();
 
-		}
+                    if (traceEventIndex == key.getTraceEventIndex()) {
+                        traceEvent = te;
+                        break;
+                    }
+                }
+            } else {
+                traceEvent = getEventForKey(traceEventKey);
+            }
 
-		return traceEvent;
-	}
+        }
 
-	public void updateRecentFile(String charset) {
+        return traceEvent;
+    }
 
-		RecentFile recentFile = getRecentFile();
+    public void updateRecentFile(String charset) {
 
-		if (charset != null) {
-			recentFile.setAttribute(RecentFile.KEY_CHARSET, charset);
-			// change in character set will trigger reloading of file.
-		}
+        RecentFile recentFile = getRecentFile();
 
-		fireTableDataChanged();
+        if (charset != null) {
+            recentFile.setAttribute(RecentFile.KEY_CHARSET, charset);
+            // change in character set will trigger reloading of file.
+        }
 
-	}
+        fireTableDataChanged();
 
-	@Override
-	public void clearSearchResults(boolean clearResults) {
+    }
 
-		getSearchModel().resetResults(clearResults);
+    @Override
+    public void clearSearchResults(boolean clearResults) {
 
-		clearTraceEventSearchResults();
-	}
+        getSearchModel().resetResults(clearResults);
 
-	protected void clearTraceEventSearchResults() {
-		List<TraceEventKey> filteredList = getFtmEntryKeyList();
+        clearTraceEventSearchResults();
+    }
 
-		Iterator<TraceEventKey> fListIterator = filteredList.iterator();
+    protected void clearTraceEventSearchResults() {
+        List<TraceEventKey> filteredList = getFtmEntryKeyList();
 
-		while (fListIterator.hasNext()) {
+        Iterator<TraceEventKey> listIterator = filteredList.iterator();
 
-			TraceEventKey traceEventKey = fListIterator.next();
+        while (listIterator.hasNext()) {
 
-			TraceEvent traceEvent = getEventForKey(traceEventKey);
-			traceEvent.setSearchFound(false);
-		}
+            TraceEventKey traceEventKey = listIterator.next();
 
-		clearAbstractTraceEventTreeNode(rootTraceEventTreeNode);
+            TraceEvent traceEvent = getEventForKey(traceEventKey);
+            traceEvent.setSearchFound(false);
+        }
 
-		clearAbstractTraceEventTreeNode(rootTraceEventCombinedTreeNode);
-	}
+        clearAbstractTraceEventTreeNode(rootTraceEventTreeNode);
 
-	private void clearAbstractTraceEventTreeNode(AbstractTraceEventTreeNode abstractTraceEventTreeNode) {
+        clearAbstractTraceEventTreeNode(rootTraceEventCombinedTreeNode);
+    }
 
-		for (Enumeration<?> e = abstractTraceEventTreeNode.children(); e.hasMoreElements();) {
+    private void clearAbstractTraceEventTreeNode(AbstractTraceEventTreeNode abstractTraceEventTreeNode) {
 
-			AbstractTraceEventTreeNode childNode = (AbstractTraceEventTreeNode) e.nextElement();
+        for (Enumeration<?> e = abstractTraceEventTreeNode.children(); e.hasMoreElements();) {
 
-			clearAbstractTraceEventTreeNode(childNode);
-		}
+            AbstractTraceEventTreeNode childNode = (AbstractTraceEventTreeNode) e.nextElement();
 
-		abstractTraceEventTreeNode.setSearchFound(false);
-	}
+            clearAbstractTraceEventTreeNode(childNode);
+        }
 
-	@Override
-	public int getIndexOfKey(TraceEventKey traceEventKey) {
+        abstractTraceEventTreeNode.setSearchFound(false);
+    }
 
-		List<TraceEventKey> traceEventIndexList = getFtmEntryKeyList();
+    @Override
+    public int getIndexOfKey(TraceEventKey traceEventKey) {
 
-		int size = traceEventIndexList.size();
+        List<TraceEventKey> traceEventIndexList = getFtmEntryKeyList();
 
-		int reverseIndex = -1;
+        int size = traceEventIndexList.size();
 
-		if (traceEventIndexList != null) {
+        int reverseIndex = -1;
 
-			int index = traceEventIndexList.indexOf(traceEventKey);
+        if (traceEventIndexList != null) {
 
-			if (index != -1) {
-				reverseIndex = size - index - 1;
-			}
-		}
+            int index = traceEventIndexList.indexOf(traceEventKey);
 
-		return reverseIndex;
-	}
+            if (index != -1) {
+                reverseIndex = size - index - 1;
+            }
+        }
 
-	@Override
-	public TraceEventTreeNode getTreeNodeForKey(TraceEventKey key) {
+        return reverseIndex;
+    }
 
-		TraceEventTreeNode traceEventTreeNode = null;
+    @Override
+    public TraceEventTreeNode getTreeNodeForKey(TraceEventKey key) {
 
-		Map<TraceEventKey, TraceEventTreeNode> traceEventTreeNodeMap = getTraceEventTreeNodeMap();
+        TraceEventTreeNode traceEventTreeNode = null;
 
-		traceEventTreeNode = traceEventTreeNodeMap.get(key);
+        Map<TraceEventKey, TraceEventTreeNode> traceEventTreeNodeMap = getTraceEventTreeNodeMap();
 
-		return traceEventTreeNode;
-	}
+        traceEventTreeNode = traceEventTreeNodeMap.get(key);
 
-	public TraceEventCombinedTreeNode getTraceEventCombinedTreeNodeForKey(TraceEventKey key) {
+        return traceEventTreeNode;
+    }
 
-		TraceEventCombinedTreeNode traceEventCombinedTreeNode = null;
+    public TraceEventCombinedTreeNode getTraceEventCombinedTreeNodeForKey(TraceEventKey key) {
 
-		Map<TraceEventKey, TraceEventCombinedTreeNode> traceEventCombinedTreeNodeMap = getTraceEventCombinedTreeNodeMap();
+        TraceEventCombinedTreeNode traceEventCombinedTreeNode = null;
 
-		traceEventCombinedTreeNode = traceEventCombinedTreeNodeMap.get(key);
+        Map<TraceEventKey, TraceEventCombinedTreeNode> traceEventCombinedTreeNodeMap = getTraceEventCombinedTreeNodeMap();
 
-		return traceEventCombinedTreeNode;
-	}
+        traceEventCombinedTreeNode = traceEventCombinedTreeNodeMap.get(key);
 
-	private List<TraceEventKey> getFailedEventKeyList() {
+        return traceEventCombinedTreeNode;
+    }
 
-		if (failedEventKeyList == null) {
-			failedEventKeyList = new ArrayList<TraceEventKey>();
-		}
+    private List<TraceEventKey> getFailedEventKeyList() {
 
-		return failedEventKeyList;
-	}
+        if (failedEventKeyList == null) {
+            failedEventKeyList = new ArrayList<TraceEventKey>();
+        }
 
-	private List<TraceEventKey> getExceptionEventKeyList() {
+        return failedEventKeyList;
+    }
 
-		if (exceptionEventKeyList == null) {
-			exceptionEventKeyList = new ArrayList<TraceEventKey>();
-		}
+    private List<TraceEventKey> getExceptionEventKeyList() {
 
-		return exceptionEventKeyList;
-	}
+        if (exceptionEventKeyList == null) {
+            exceptionEventKeyList = new ArrayList<TraceEventKey>();
+        }
 
-	private List<TraceEventKey> getAlertEventKeyList() {
+        return exceptionEventKeyList;
+    }
 
-		if (alertEventKeyList == null) {
-			alertEventKeyList = new ArrayList<TraceEventKey>();
-		}
+    private List<TraceEventKey> getAlertEventKeyList() {
 
-		return alertEventKeyList;
-	}
+        if (alertEventKeyList == null) {
+            alertEventKeyList = new ArrayList<TraceEventKey>();
+        }
 
-	private List<TraceEventKey> getNoStartEventKeyList() {
+        return alertEventKeyList;
+    }
 
-		if (noStartEventKeyList == null) {
-			noStartEventKeyList = new ArrayList<>();
-		}
+    private List<TraceEventKey> getNoStartEventKeyList() {
 
-		return noStartEventKeyList;
-	}
+        if (noStartEventKeyList == null) {
+            noStartEventKeyList = new ArrayList<>();
+        }
 
-	private List<TraceEventKey> getNoEndEventKeyList() {
+        return noStartEventKeyList;
+    }
 
-		if (noEndEventKeyList == null) {
-			noEndEventKeyList = new ArrayList<>();
-		}
+    private List<TraceEventKey> getNoEndEventKeyList() {
 
-		return noEndEventKeyList;
-	}
+        if (noEndEventKeyList == null) {
+            noEndEventKeyList = new ArrayList<>();
+        }
 
-	private TreeMap<Double, List<TraceEventKey>> getOwnElapsedEventKeyMap() {
+        return noEndEventKeyList;
+    }
 
-		if (ownElapsedEventKeyMap == null) {
-			ownElapsedEventKeyMap = new TreeMap<Double, List<TraceEventKey>>();
-		}
+    private TreeMap<Double, List<TraceEventKey>> getOwnElapsedEventKeyMap() {
 
-		return ownElapsedEventKeyMap;
-	}
+        if (ownElapsedEventKeyMap == null) {
+            ownElapsedEventKeyMap = new TreeMap<Double, List<TraceEventKey>>();
+        }
 
-	private TreeMap<TraceEventRuleset, TreeSet<TraceEventRule>> getRulesInvokedMap() {
+        return ownElapsedEventKeyMap;
+    }
 
-		if (rulesInvokedMap == null) {
-			rulesInvokedMap = new TreeMap<TraceEventRuleset, TreeSet<TraceEventRule>>();
-		}
+    private TreeMap<TraceEventRuleset, TreeSet<TraceEventRule>> getRulesInvokedMap() {
 
-		return rulesInvokedMap;
-	}
+        if (rulesInvokedMap == null) {
+            rulesInvokedMap = new TreeMap<TraceEventRuleset, TreeSet<TraceEventRule>>();
+        }
 
-	private void processTraceEventElapsed(TraceEventTreeNode beginNode, TraceEventTreeNode endNode) {
+        return rulesInvokedMap;
+    }
 
-		TraceEvent endTE = (TraceEvent) endNode.getUserObject();
+    private void processTraceEventElapsed(TraceEventTreeNode beginNode, TraceEventTreeNode endNode) {
 
-		if (endTE != null) {
+        TraceEvent endTE = (TraceEvent) endNode.getUserObject();
 
-			double mainElapsed = endTE.getElapsed();
+        if (endTE != null) {
 
-			if (mainElapsed > 0) {
+            double mainElapsed = endTE.getElapsed();
 
-				double childrenElapsed = 0;
+            if (mainElapsed > 0) {
 
-				for (Enumeration<?> e = beginNode.children(); e.hasMoreElements();) {
+                double childrenElapsed = 0;
 
-					TraceEventTreeNode childNode = (TraceEventTreeNode) e.nextElement();
+                for (Enumeration<?> e = beginNode.children(); e.hasMoreElements();) {
 
-					TraceEvent childTE = (TraceEvent) childNode.getUserObject();
+                    TraceEventTreeNode childNode = (TraceEventTreeNode) e.nextElement();
 
-					double childElapsed = childTE.getElapsed();
+                    TraceEvent childTE = (TraceEvent) childNode.getUserObject();
 
-					if (childElapsed >= 0) {
-						childrenElapsed += childElapsed;
-					}
-				}
+                    double childElapsed = childTE.getElapsed();
 
-				double ownElapsed = mainElapsed - childrenElapsed;
+                    if (childElapsed >= 0) {
+                        childrenElapsed += childElapsed;
+                    }
+                }
 
-				endTE.setChildrenElapsed((beginNode.getChildCount() > 0) ? childrenElapsed : -1);
-				endTE.setOwnElapsed(ownElapsed);
+                double ownElapsed = mainElapsed - childrenElapsed;
 
-				// add ownElapsed to map for reporting
-				TreeMap<Double, List<TraceEventKey>> ownElapsedEventKeyMap = getOwnElapsedEventKeyMap();
+                endTE.setChildrenElapsed((beginNode.getChildCount() > 0) ? childrenElapsed : -1);
+                endTE.setOwnElapsed(ownElapsed);
 
-				List<TraceEventKey> traceEventKeyList = ownElapsedEventKeyMap.get(ownElapsed);
+                // add ownElapsed to map for reporting
+                TreeMap<Double, List<TraceEventKey>> ownElapsedEventKeyMap = getOwnElapsedEventKeyMap();
 
-				if (traceEventKeyList == null) {
-					traceEventKeyList = new ArrayList<TraceEventKey>();
-					ownElapsedEventKeyMap.put(ownElapsed, traceEventKeyList);
-				}
+                List<TraceEventKey> traceEventKeyList = ownElapsedEventKeyMap.get(ownElapsed);
 
-				traceEventKeyList.add(endTE.getKey());
+                if (traceEventKeyList == null) {
+                    traceEventKeyList = new ArrayList<TraceEventKey>();
+                    ownElapsedEventKeyMap.put(ownElapsed, traceEventKeyList);
+                }
 
-			}
-		}
-	}
+                traceEventKeyList.add(endTE.getKey());
 
-	private void processEvent(TraceEvent traceEvent) {
+            }
+        }
+    }
 
-		TraceEventKey traceEventKey = traceEvent.getKey();
+    private void processEvent(TraceEvent traceEvent) {
 
-		if (traceEventKey.getTraceEventIndex() != -1) {
+        TraceEventKey traceEventKey = traceEvent.getKey();
 
-			List<TraceEventKey> failedEventKeyList = getFailedEventKeyList();
-			List<TraceEventKey> exceptionEventKeyList = getExceptionEventKeyList();
-			List<TraceEventKey> alertEventKeyList = getAlertEventKeyList();
-			Map<TraceEventRuleset, TreeSet<TraceEventRule>> rulesInvokedMap = getRulesInvokedMap();
+        if (traceEventKey.getTraceEventIndex() != -1) {
 
-			// add failed events
-			boolean stepStatusFail = traceEvent.isStepStatusFail();
+            List<TraceEventKey> failedEventKeyList = getFailedEventKeyList();
+            List<TraceEventKey> exceptionEventKeyList = getExceptionEventKeyList();
+            List<TraceEventKey> alertEventKeyList = getAlertEventKeyList();
+            Map<TraceEventRuleset, TreeSet<TraceEventRule>> rulesInvokedMap = getRulesInvokedMap();
 
-			if (stepStatusFail) {
-				failedEventKeyList.add(traceEventKey);
-			}
+            // add failed events
+            boolean stepStatusFail = traceEvent.isStepStatusFail();
 
-			// add Exception events
-			boolean stepStatusException = traceEvent.isStepStatusException();
+            if (stepStatusFail) {
+                failedEventKeyList.add(traceEventKey);
+            }
 
-			if (stepStatusException) {
-				exceptionEventKeyList.add(traceEventKey);
-			}
+            // add Exception events
+            boolean stepStatusException = traceEvent.isStepStatusException();
 
-			boolean isAlertEvent = (traceEvent instanceof TraceEventAlert);
+            if (stepStatusException) {
+                exceptionEventKeyList.add(traceEventKey);
+            }
 
-			if (isAlertEvent) {
-				alertEventKeyList.add(traceEventKey);
-			}
+            boolean isAlertEvent = (traceEvent instanceof TraceEventAlert);
 
-			String rulesetVersion = traceEvent.getRuleSet();
+            if (isAlertEvent) {
+                alertEventKeyList.add(traceEventKey);
+            }
 
-			if (rulesetVersion == null) {
-				rulesetVersion = "<NULL>";
-			}
+            String rulesetVersion = traceEvent.getRuleSet();
 
-			TraceEventRuleset traceEventRuleset = new TraceEventRuleset(rulesetVersion);
+            if (rulesetVersion == null) {
+                rulesetVersion = "<NULL>";
+            }
 
-			TreeSet<TraceEventRule> traceEventRules = rulesInvokedMap.get(traceEventRuleset);
+            TraceEventRuleset traceEventRuleset = new TraceEventRuleset(rulesetVersion);
 
-			if (traceEventRules == null) {
-				traceEventRules = new TreeSet<TraceEventRule>();
-				rulesInvokedMap.put(traceEventRuleset, traceEventRules);
-			}
+            TreeSet<TraceEventRule> traceEventRules = rulesInvokedMap.get(traceEventRuleset);
 
-			String insKey = traceEvent.getInsKey();
+            if (traceEventRules == null) {
+                traceEventRules = new TreeSet<TraceEventRule>();
+                rulesInvokedMap.put(traceEventRuleset, traceEventRules);
+            }
 
-			if ((insKey != null) && (!"".equals(insKey))) {
+            String insKey = traceEvent.getInsKey();
 
-				TraceEventType traceEventType = traceEvent.getTraceEventType();
+            if ((insKey != null) && (!"".equals(insKey))) {
 
-				Color background = traceEvent.getColumnBackground(0);
+                TraceEventType traceEventType = traceEvent.getTraceEventType();
 
-				TraceEventRule traceEventRule = new TraceEventRule(insKey, traceEventType, background);
+                Color background = traceEvent.getColumnBackground(0);
 
-				boolean success = traceEventRules.add(traceEventRule);
+                TraceEventRule traceEventRule = new TraceEventRule(insKey, traceEventType, background);
 
-				Boolean isEndEvent = traceEvent.isEndEvent();
+                boolean success = traceEventRules.add(traceEventRule);
 
-				// this is called after processTraceEventElapsed hence timing
-				// info should be available
-				if ((!success) && (isEndEvent != null) && (isEndEvent)) {
+                Boolean isEndEvent = traceEvent.isEndEvent();
 
-					for (TraceEventRule ter : traceEventRules) {
+                // this is called after processTraceEventElapsed hence timing
+                // info should be available
+                if ((!success) && (isEndEvent != null) && (isEndEvent)) {
 
-						if (ter.equals(traceEventRule)) {
+                    for (TraceEventRule ter : traceEventRules) {
 
-							// only increment if the entry is of same type.
-							// in case of activities, the child 'steps' and
-							// 'whens' have the activity's insKey set.
-							if (ter.getTraceEventType().equals(traceEventRule.getTraceEventType())) {
-								ter.incrementExecutionCount();
-							}
+                        if (ter.equals(traceEventRule)) {
 
-							ter.processElapsed(traceEvent.getOwnElapsed());
-						}
-					}
-				} else if (isEndEvent == null) {
-					traceEventRule.incrementExecutionCount();
-					traceEventRule.processElapsed(traceEvent.getOwnElapsed());
-				}
-			}
-		}
-	}
+                            // only increment if the entry is of same type.
+                            // in case of activities, the child 'steps' and
+                            // 'whens' have the activity's insKey set.
+                            if (ter.getTraceEventType().equals(traceEventRule.getTraceEventType())) {
+                                ter.incrementExecutionCount();
+                            }
 
-	public TraceEventTreeNode getRootTraceEventTreeNode() {
+                            ter.processElapsed(traceEvent.getOwnElapsed());
+                        }
+                    }
+                } else if (isEndEvent == null) {
+                    traceEventRule.incrementExecutionCount();
+                    traceEventRule.processElapsed(traceEvent.getOwnElapsed());
+                }
+            }
+        }
+    }
 
-		if (rootTraceEventTreeNode == null) {
-			rootTraceEventTreeNode = new TraceEventTreeNode(null);
-		}
+    public TraceEventTreeNode getRootTraceEventTreeNode() {
 
-		return rootTraceEventTreeNode;
-	}
+        if (rootTraceEventTreeNode == null) {
+            rootTraceEventTreeNode = new TraceEventTreeNode(null);
+        }
 
-	public TraceEventCombinedTreeNode getRootTraceEventCombinedTreeNode() {
+        return rootTraceEventTreeNode;
+    }
 
-		if (rootTraceEventCombinedTreeNode == null) {
-			rootTraceEventCombinedTreeNode = new TraceEventCombinedTreeNode(null);
-		}
+    public TraceEventCombinedTreeNode getRootTraceEventCombinedTreeNode() {
 
-		return rootTraceEventCombinedTreeNode;
-	}
+        if (rootTraceEventCombinedTreeNode == null) {
+            rootTraceEventCombinedTreeNode = new TraceEventCombinedTreeNode(null);
+        }
 
-	private LinkedList<TraceEvent> getTreeBuildTraceEventList() {
+        return rootTraceEventCombinedTreeNode;
+    }
 
-		if (treeBuildTraceEventList == null) {
-			treeBuildTraceEventList = new LinkedList<>();
-		}
+    private LinkedList<TraceEvent> getTreeBuildTraceEventList() {
 
-		return treeBuildTraceEventList;
-	}
+        if (treeBuildTraceEventList == null) {
+            treeBuildTraceEventList = new LinkedList<>();
+        }
 
-	@Override
-	public SearchModel<TraceEventKey> getSearchModel() {
+        return treeBuildTraceEventList;
+    }
 
-		if (searchModel == null) {
+    @Override
+    public SearchModel<TraceEventKey> getSearchModel() {
 
-			searchModel = new SearchModel<TraceEventKey>(searchData) {
+        if (searchModel == null) {
 
-				@Override
-				public void searchInEvents(final Object searchStrObj, final ModalProgressMonitor mProgressMonitor) {
+            searchModel = new SearchModel<TraceEventKey>(searchData) {
 
-					if ((searchStrObj != null) && (!((searchStrObj instanceof SearchEventType)
-							&& searchStrObj.equals(SearchEventType.SEPERATOR))
-							|| !("".equals(searchStrObj.toString())))) {
+                @Override
+                public void searchInEvents(final Object searchStrObj, final ModalProgressMonitor progressMonitor) {
 
-						TraceTableSearchTask ttst = new TraceTableSearchTask(mProgressMonitor, TraceTableModel.this,
-								searchStrObj) {
+                    if ((searchStrObj != null) && (!((searchStrObj instanceof SearchEventType)
+                            && searchStrObj.equals(SearchEventType.SEPERATOR))
+                            || !("".equals(searchStrObj.toString())))) {
 
-							/*
-							 * (non-Javadoc)
-							 * 
-							 * @see javax.swing.SwingWorker#done()
-							 */
-							@Override
-							protected void done() {
+                        TraceTableSearchTask ttst = new TraceTableSearchTask(progressMonitor, TraceTableModel.this,
+                                searchStrObj) {
 
-								try {
-									List<TraceEventKey> searchResultList = get();
+                            /*
+                             * (non-Javadoc)
+                             * 
+                             * @see javax.swing.SwingWorker#done()
+                             */
+                            @Override
+                            protected void done() {
 
-									if (searchResultList != null) {
-										// LOG.info("TraceTableSearchTask
-										// done "
-										// + searchResultList.size()
-										// + " entries found");
-										setSearchResultList(searchStrObj, searchResultList);
+                                try {
+                                    List<TraceEventKey> searchResultList = get();
 
-									}
-								} catch (CancellationException ce) {
-									LOG.info("TraceTableSearchTask cancelled: ");
+                                    if (searchResultList != null) {
+                                        // LOG.info("TraceTableSearchTask
+                                        // done "
+                                        // + searchResultList.size()
+                                        // + " entries found");
+                                        setSearchResultList(searchStrObj, searchResultList);
 
-								} catch (Exception e) {
-									LOG.error("Exception in TraceTableSearchTask", e);
+                                    }
+                                } catch (CancellationException ce) {
+                                    LOG.info("TraceTableSearchTask cancelled: ");
 
-								} finally {
+                                } catch (Exception e) {
+                                    LOG.error("Exception in TraceTableSearchTask", e);
 
-									// general fire will reload the tree,
-									// collapsing the whole tree.
-									// hence generating a special to identify
-									// search action. used in
-									// TraceTreeTableModelAdapter
-									// fireTableDataChanged();
-									fireTableChanged(new SearchTableModelEvent(TraceTableModel.this));
+                                } finally {
 
-									mProgressMonitor.close();
-								}
-							}
-						};
+                                    // general fire will reload the tree,
+                                    // collapsing the whole tree.
+                                    // hence generating a special to identify
+                                    // search action. used in
+                                    // TraceTreeTableModelAdapter
+                                    // fireTableDataChanged();
+                                    fireTableChanged(new SearchTableModelEvent(TraceTableModel.this));
 
-						ttst.execute();
+                                    progressMonitor.close();
+                                }
+                            }
+                        };
 
-					}
-				}
+                        ttst.execute();
 
-				@Override
-				public void resetResults(boolean clearResults) {
+                    }
+                }
 
-					// clears search result on search model and reset the search
-					// panel
-					resetSearchResults(clearResults);
+                @Override
+                public void resetResults(boolean clearResults) {
 
-					// clear search results from within trace events and tree
-					// nodes
-					clearTraceEventSearchResults();
+                    // clears search result on search model and reset the search
+                    // panel
+                    resetSearchResults(clearResults);
 
-					// general fire will reload the tree,
-					// collapsing the whole tree.
-					// hence generating a special to identify
-					// search action. used in
-					// TraceTreeTableModelAdapter
-					// fireTableDataChanged();
-					fireTableChanged(new SearchTableModelEvent(TraceTableModel.this));
-				}
-			};
-		}
+                    // clear search results from within trace events and tree
+                    // nodes
+                    clearTraceEventSearchResults();
 
-		return searchModel;
-	}
+                    // general fire will reload the tree,
+                    // collapsing the whole tree.
+                    // hence generating a special to identify
+                    // search action. used in
+                    // TraceTreeTableModelAdapter
+                    // fireTableDataChanged();
+                    fireTableChanged(new SearchTableModelEvent(TraceTableModel.this));
+                }
+            };
+        }
 
-	public boolean isIncompletedTracerXML() {
+        return searchModel;
+    }
 
-		List<TraceEventKey> reportNoEndEventKeyList = getReportNoEndEventKeyList();
+    public boolean isIncompletedTracerXML() {
 
-		int reportNoEndEventKeyListsize = reportNoEndEventKeyList.size();
+        List<TraceEventKey> reportNoEndEventKeyList = getReportNoEndEventKeyList();
 
-		boolean incompleteTracerXML = reportNoEndEventKeyListsize > 0;
+        int reportNoEndEventKeyListsize = reportNoEndEventKeyList.size();
 
-		if (incompleteTracerXML) {
+        boolean incompleteTracerXML = reportNoEndEventKeyListsize > 0;
 
-			StringBuffer sb = new StringBuffer();
+        if (incompleteTracerXML) {
 
-			for (TraceEventKey traceEventKey : reportNoEndEventKeyList) {
+            StringBuffer sb = new StringBuffer();
 
-				if (sb.length() > 0) {
-					sb.append(", ");
-				}
+            for (TraceEventKey traceEventKey : reportNoEndEventKeyList) {
 
-				sb.append(traceEventKey.toString());
-			}
+                if (sb.length() > 0) {
+                    sb.append(", ");
+                }
 
-			String modelName = getModelName();
+                sb.append(traceEventKey.toString());
+            }
 
-			LOG.info("Incomplete tracer xml: " + modelName + " - " + reportNoEndEventKeyListsize + " events - "
-					+ sb.toString());
-		}
+            String modelName = getModelName();
 
-		return incompleteTracerXML;
-	}
+            LOG.info("Incomplete tracer xml: " + modelName + " - " + reportNoEndEventKeyListsize + " events - "
+                    + sb.toString());
+        }
 
-	@Override
-	protected TableColumnModel getTableColumnModel() {
+        return incompleteTracerXML;
+    }
 
-		TableColumnModel tableColumnModel = new DefaultTableColumnModel();
+    @Override
+    protected TableColumnModel getTableColumnModel() {
 
-		for (int i = 0; i < getColumnCount(); i++) {
+        TableColumnModel tableColumnModel = new DefaultTableColumnModel();
 
-			TableColumn tableColumn = new TableColumn(i);
+        for (int i = 0; i < getColumnCount(); i++) {
 
-			String text = getColumnName(i);
+            TableColumn tableColumn = new TableColumn(i);
 
-			tableColumn.setHeaderValue(text);
+            String text = getColumnName(i);
 
-			TraceTableModelColumn ttmc = getColumn(i);
+            tableColumn.setHeaderValue(text);
 
-			TraceTableCellRenderer ttcr = new TraceTableCellRenderer();
-			ttcr.setBorder(new EmptyBorder(1, 3, 1, 1));
-			ttcr.setHorizontalAlignment(ttmc.getHorizontalAlignment());
+            TraceTableModelColumn ttmc = getColumn(i);
 
-			tableColumn.setCellRenderer(ttcr);
+            TraceTableCellRenderer ttcr = new TraceTableCellRenderer();
+            ttcr.setBorder(new EmptyBorder(1, 3, 1, 1));
+            ttcr.setHorizontalAlignment(ttmc.getHorizontalAlignment());
 
-			int colWidth = ttmc.getPrefColumnWidth();
-			tableColumn.setPreferredWidth(colWidth);
-			// tableColumn.setMinWidth(colWidth);
-			tableColumn.setWidth(colWidth);
-			tableColumn.setResizable(true);
+            tableColumn.setCellRenderer(ttcr);
 
-			tableColumnModel.addColumn(tableColumn);
-		}
+            int colWidth = ttmc.getPrefColumnWidth();
+            tableColumn.setPreferredWidth(colWidth);
+            // tableColumn.setMinWidth(colWidth);
+            tableColumn.setWidth(colWidth);
+            tableColumn.setResizable(true);
 
-		return tableColumnModel;
-	}
+            tableColumnModel.addColumn(tableColumn);
+        }
 
-	public List<TraceEventKey> getReportFailedEventKeyList() {
-		return Collections.unmodifiableList(getFailedEventKeyList());
-	}
+        return tableColumnModel;
+    }
 
-	public List<TraceEventKey> getReportExceptionEventKeyList() {
-		return Collections.unmodifiableList(getExceptionEventKeyList());
-	}
+    public List<TraceEventKey> getReportFailedEventKeyList() {
+        return Collections.unmodifiableList(getFailedEventKeyList());
+    }
 
-	public List<TraceEventKey> getReportAlertEventKeyList() {
-		return Collections.unmodifiableList(getAlertEventKeyList());
-	}
+    public List<TraceEventKey> getReportExceptionEventKeyList() {
+        return Collections.unmodifiableList(getExceptionEventKeyList());
+    }
 
-	public List<TraceEventKey> getReportNoStartEventKeyList() {
-		return Collections.unmodifiableList(getNoStartEventKeyList());
-	}
+    public List<TraceEventKey> getReportAlertEventKeyList() {
+        return Collections.unmodifiableList(getAlertEventKeyList());
+    }
 
-	public List<TraceEventKey> getReportNoEndEventKeyList() {
+    public List<TraceEventKey> getReportNoStartEventKeyList() {
+        return Collections.unmodifiableList(getNoStartEventKeyList());
+    }
 
-		List<TraceEventKey> reportNoEndEventKeyList = new ArrayList<TraceEventKey>();
+    public List<TraceEventKey> getReportNoEndEventKeyList() {
 
-		List<TraceEventKey> noEndEventKeyList = getNoEndEventKeyList();
-		List<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
+        List<TraceEventKey> reportNoEndEventKeyList = new ArrayList<TraceEventKey>();
 
-		for (TraceEventKey traceEventKey : noEndEventKeyList) {
-			reportNoEndEventKeyList.add(traceEventKey);
-		}
+        List<TraceEventKey> noEndEventKeyList = getNoEndEventKeyList();
+        List<TraceEvent> treeBuildTraceEventList = getTreeBuildTraceEventList();
 
-		for (TraceEvent traceEvent : treeBuildTraceEventList) {
-			reportNoEndEventKeyList.add(traceEvent.getKey());
-		}
+        for (TraceEventKey traceEventKey : noEndEventKeyList) {
+            reportNoEndEventKeyList.add(traceEventKey);
+        }
 
-		Collections.sort(reportNoEndEventKeyList);
+        for (TraceEvent traceEvent : treeBuildTraceEventList) {
+            reportNoEndEventKeyList.add(traceEvent.getKey());
+        }
 
-		return Collections.unmodifiableList(reportNoEndEventKeyList);
-	}
+        Collections.sort(reportNoEndEventKeyList);
 
-	public List<TraceEventKey> getReportOwnElapsedEventKeyList() {
+        return Collections.unmodifiableList(reportNoEndEventKeyList);
+    }
 
-		List<TraceEventKey> reportElapsedTimeEventList = new ArrayList<TraceEventKey>();
+    public List<TraceEventKey> getReportOwnElapsedEventKeyList() {
 
-		TreeMap<Double, List<TraceEventKey>> ownElapsedEventKeyMap = getOwnElapsedEventKeyMap();
+        List<TraceEventKey> reportElapsedTimeEventList = new ArrayList<TraceEventKey>();
 
-		// select last 50 items
-		int mapSize = ownElapsedEventKeyMap.size();
-		int size = (mapSize > 50) ? 50 : mapSize;
+        TreeMap<Double, List<TraceEventKey>> ownElapsedEventKeyMap = getOwnElapsedEventKeyMap();
 
-		Iterator<Double> it = ownElapsedEventKeyMap.navigableKeySet().descendingIterator();
+        // select last 50 items
+        int mapSize = ownElapsedEventKeyMap.size();
+        int size = (mapSize > 50) ? 50 : mapSize;
 
-		while (it.hasNext() && size > 0) {
+        Iterator<Double> it = ownElapsedEventKeyMap.navigableKeySet().descendingIterator();
 
-			Double key = it.next();
-			List<TraceEventKey> traceEventKeyList = ownElapsedEventKeyMap.get(key);
+        while (it.hasNext() && size > 0) {
 
-			for (TraceEventKey traceEventKey : traceEventKeyList) {
-				reportElapsedTimeEventList.add(traceEventKey);
-			}
+            Double key = it.next();
+            List<TraceEventKey> traceEventKeyList = ownElapsedEventKeyMap.get(key);
 
-			size--;
-		}
+            for (TraceEventKey traceEventKey : traceEventKeyList) {
+                reportElapsedTimeEventList.add(traceEventKey);
+            }
 
-		return Collections.unmodifiableList(reportElapsedTimeEventList);
+            size--;
+        }
 
-	}
+        return Collections.unmodifiableList(reportElapsedTimeEventList);
 
-	public Map<TraceEventRuleset, TreeSet<TraceEventRule>> getReportRulesInvokedMap() {
-		return Collections.unmodifiableMap(getRulesInvokedMap());
-	}
+    }
+
+    public Map<TraceEventRuleset, TreeSet<TraceEventRule>> getReportRulesInvokedMap() {
+        return Collections.unmodifiableMap(getRulesInvokedMap());
+    }
 }

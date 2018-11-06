@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.report;
 
 import java.awt.BorderLayout;
@@ -61,591 +62,591 @@ import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public class TracerSimpleReportFrame extends JFrame implements TableModelListener {
 
-	private static final long serialVersionUID = -3013669038509576223L;
+    private static final long serialVersionUID = -3013669038509576223L;
 
-	private static final Log4j2Helper LOG = new Log4j2Helper(TracerSimpleReportFrame.class);
+    private static final Log4j2Helper LOG = new Log4j2Helper(TracerSimpleReportFrame.class);
 
-	private TraceTableModel traceTableModel;
+    private TraceTableModel traceTableModel;
 
-	private NavigationTableController<TraceEventKey> navigationTableController;
+    private NavigationTableController<TraceEventKey> navigationTableController;
 
-	private JButton refreshJButton;
+    private JButton refreshJButton;
 
-	private JTabbedPane tracerReportTabbedPane;
+    private JTabbedPane tracerReportTabbedPane;
 
-	private AtomicInteger selectedTab;
+    private AtomicInteger selectedTab;
 
-	private boolean removeAction;
+    private boolean removeAction;
 
-	public TracerSimpleReportFrame(TraceTableModel traceTableModel,
-			NavigationTableController<TraceEventKey> navigationTableController, ImageIcon appIcon, Component parent) {
+    public TracerSimpleReportFrame(TraceTableModel traceTableModel,
+            NavigationTableController<TraceEventKey> navigationTableController, ImageIcon appIcon, Component parent) {
 
-		super();
+        super();
 
-		this.traceTableModel = traceTableModel;
-		this.navigationTableController = navigationTableController;
-		this.selectedTab = new AtomicInteger(0);
-		this.removeAction = false;
+        this.traceTableModel = traceTableModel;
+        this.navigationTableController = navigationTableController;
+        this.selectedTab = new AtomicInteger(0);
+        this.removeAction = false;
 
-		traceTableModel.addTableModelListener(this);
+        traceTableModel.addTableModelListener(this);
 
-		setTitle(traceTableModel.getModelName());
+        setTitle(traceTableModel.getModelName());
 
-		setIconImage(appIcon.getImage());
+        setIconImage(appIcon.getImage());
 
-		setPreferredSize(new Dimension(1150, 600));
+        setPreferredSize(new Dimension(1150, 600));
 
-		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-		setContentPane(getMainJPanel());
+        setContentPane(getMainJPanel());
 
-		pack();
+        pack();
 
-		setLocationRelativeTo(parent);
+        setLocationRelativeTo(parent);
 
-		// visible should be the last step
-		setVisible(true);
+        // visible should be the last step
+        setVisible(true);
 
-	}
+    }
 
-	protected TraceTableModel getTraceTableModel() {
-		return traceTableModel;
-	}
+    protected TraceTableModel getTraceTableModel() {
+        return traceTableModel;
+    }
 
-	protected NavigationTableController<TraceEventKey> getNavigationTableController() {
-		return navigationTableController;
-	}
+    protected NavigationTableController<TraceEventKey> getNavigationTableController() {
+        return navigationTableController;
+    }
 
-	@Override
-	public void tableChanged(TableModelEvent e) {
+    @Override
+    public void tableChanged(TableModelEvent tableModelEvent) {
 
-		if (e.getType() == TableModelEvent.UPDATE) {
-			LOG.info("TracerSimpleReportFrame tableChanged");
-			rebuildOverview();
-		}
-	}
+        if (tableModelEvent.getType() == TableModelEvent.UPDATE) {
+            LOG.info("TracerSimpleReportFrame tableChanged");
+            rebuildOverview();
+        }
+    }
 
-	private void rebuildOverview() {
-		JTabbedPane tracerReportTabbedPane = getTracerReportTabbedPane();
+    private void rebuildOverview() {
+        JTabbedPane tracerReportTabbedPane = getTracerReportTabbedPane();
 
-		removeAction = true;
-		tracerReportTabbedPane.removeAll();
-		buildTabs();
-		removeAction = false;
+        removeAction = true;
+        tracerReportTabbedPane.removeAll();
+        buildTabs();
+        removeAction = false;
 
-		tracerReportTabbedPane.setSelectedIndex(selectedTab.get());
+        tracerReportTabbedPane.setSelectedIndex(selectedTab.get());
 
-		validate();
-		repaint();
-	}
+        validate();
+        repaint();
+    }
 
-	public void destroyFrame() {
-		traceTableModel.removeTableModelListener(this);
-		setVisible(false);
-	}
+    public void destroyFrame() {
+        traceTableModel.removeTableModelListener(this);
+        setVisible(false);
+    }
 
-	private JButton getRefreshJButton() {
+    private JButton getRefreshJButton() {
 
-		if (refreshJButton == null) {
-			refreshJButton = new JButton("Refresh Overview");
-			refreshJButton.addActionListener(new ActionListener() {
+        if (refreshJButton == null) {
+            refreshJButton = new JButton("Refresh Overview");
+            refreshJButton.addActionListener(new ActionListener() {
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					rebuildOverview();
-				}
-			});
-		}
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+                    rebuildOverview();
+                }
+            });
+        }
 
-		return refreshJButton;
-	}
+        return refreshJButton;
+    }
 
-	private JTabbedPane getTracerReportTabbedPane() {
+    private JTabbedPane getTracerReportTabbedPane() {
 
-		if (tracerReportTabbedPane == null) {
-			tracerReportTabbedPane = new JTabbedPane();
+        if (tracerReportTabbedPane == null) {
+            tracerReportTabbedPane = new JTabbedPane();
 
-			tracerReportTabbedPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+            tracerReportTabbedPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-			ChangeListener tabChangeListener = new ChangeListener() {
+            ChangeListener tabChangeListener = new ChangeListener() {
 
-				@Override
-				public void stateChanged(ChangeEvent e) {
+                @Override
+                public void stateChanged(ChangeEvent changeEvent) {
 
-					if (!removeAction) {
-						JTabbedPane sourceTabbedPane = (JTabbedPane) e.getSource();
-						int index = sourceTabbedPane.getSelectedIndex();
-						selectedTab.set(index);
-					}
-				}
-			};
+                    if (!removeAction) {
+                        JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
+                        int index = sourceTabbedPane.getSelectedIndex();
+                        selectedTab.set(index);
+                    }
+                }
+            };
 
-			tracerReportTabbedPane.addChangeListener(tabChangeListener);
-		}
+            tracerReportTabbedPane.addChangeListener(tabChangeListener);
+        }
 
-		return tracerReportTabbedPane;
-	}
+        return tracerReportTabbedPane;
+    }
 
-	private JPanel getMainJPanel() {
+    private JPanel getMainJPanel() {
 
-		JPanel mainJPanel = new JPanel();
-		mainJPanel.setLayout(new BorderLayout());
+        JPanel mainJPanel = new JPanel();
+        mainJPanel.setLayout(new BorderLayout());
 
-		JPanel refreshButtonJPanel = getRefreshButtonJPanel();
-		JTabbedPane tracerReportTabbedPane = getTracerReportTabbedPane();
+        JPanel refreshButtonJPanel = getRefreshButtonJPanel();
+        JTabbedPane tracerReportTabbedPane = getTracerReportTabbedPane();
 
-		mainJPanel.add(refreshButtonJPanel, BorderLayout.NORTH);
-		mainJPanel.add(tracerReportTabbedPane, BorderLayout.CENTER);
+        mainJPanel.add(refreshButtonJPanel, BorderLayout.NORTH);
+        mainJPanel.add(tracerReportTabbedPane, BorderLayout.CENTER);
 
-		buildTabs();
+        buildTabs();
 
-		return mainJPanel;
-	}
+        return mainJPanel;
+    }
 
-	private JPanel getRefreshButtonJPanel() {
+    private JPanel getRefreshButtonJPanel() {
 
-		JPanel refreshButtonJPanel = new JPanel();
+        JPanel refreshButtonJPanel = new JPanel();
 
-		LayoutManager layout = new BoxLayout(refreshButtonJPanel, BoxLayout.LINE_AXIS);
-		refreshButtonJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(refreshButtonJPanel, BoxLayout.LINE_AXIS);
+        refreshButtonJPanel.setLayout(layout);
 
-		Dimension spacer = new Dimension(5, 35);
+        Dimension spacer = new Dimension(5, 35);
 
-		JButton refreshJButton = getRefreshJButton();
+        JButton refreshJButton = getRefreshJButton();
 
-		refreshButtonJPanel.add(Box.createHorizontalGlue());
-		refreshButtonJPanel.add(Box.createRigidArea(spacer));
-		refreshButtonJPanel.add(refreshJButton);
-		refreshButtonJPanel.add(Box.createRigidArea(spacer));
-		refreshButtonJPanel.add(Box.createHorizontalGlue());
+        refreshButtonJPanel.add(Box.createHorizontalGlue());
+        refreshButtonJPanel.add(Box.createRigidArea(spacer));
+        refreshButtonJPanel.add(refreshJButton);
+        refreshButtonJPanel.add(Box.createRigidArea(spacer));
+        refreshButtonJPanel.add(Box.createHorizontalGlue());
 
-		return refreshButtonJPanel;
+        return refreshButtonJPanel;
 
-	}
+    }
 
-	private void buildTabs() {
-		int tabIndex = 0;
+    private void buildTabs() {
+        int tabIndex = 0;
 
-		BookmarkModel<TraceEventKey> bookmarkModel = traceTableModel.getBookmarkModel();
+        BookmarkModel<TraceEventKey> bookmarkModel = traceTableModel.getBookmarkModel();
 
-		List<TraceEventKey> reportFailedEventList = traceTableModel.getReportFailedEventKeyList();
-		List<TraceEventKey> reportExceptionEventList = traceTableModel.getReportExceptionEventKeyList();
-		List<TraceEventKey> reportAlertEventList = traceTableModel.getReportAlertEventKeyList();
-		List<TraceEventKey> reportNoStartEventList = traceTableModel.getReportNoStartEventKeyList();
-		List<TraceEventKey> reportNoEndEventList = traceTableModel.getReportNoEndEventKeyList();
-		List<TraceEventKey> reportOwnElapsedEventList = traceTableModel.getReportOwnElapsedEventKeyList();
+        List<TraceEventKey> reportFailedEventList = traceTableModel.getReportFailedEventKeyList();
+        List<TraceEventKey> reportExceptionEventList = traceTableModel.getReportExceptionEventKeyList();
+        List<TraceEventKey> reportAlertEventList = traceTableModel.getReportAlertEventKeyList();
+        List<TraceEventKey> reportNoStartEventList = traceTableModel.getReportNoStartEventKeyList();
+        List<TraceEventKey> reportNoEndEventList = traceTableModel.getReportNoEndEventKeyList();
+        List<TraceEventKey> reportOwnElapsedEventList = traceTableModel.getReportOwnElapsedEventKeyList();
 
-		Object searchStrObj = traceTableModel.getSearchModel().getSearchStrObj();
+        Object searchStrObj = traceTableModel.getSearchModel().getSearchStrObj();
 
-		boolean containsBookmark = bookmarkModel.getMarkerCount() > 0;
+        boolean containsBookmark = bookmarkModel.getMarkerCount() > 0;
 
-		boolean containsFailure = (reportFailedEventList.size() > 0) ? true : false;
+        boolean containsFailure = (reportFailedEventList.size() > 0) ? true : false;
 
-		boolean containsException = (reportExceptionEventList.size() > 0) ? true : false;
+        boolean containsException = (reportExceptionEventList.size() > 0) ? true : false;
 
-		boolean containsAlerts = (reportAlertEventList.size() > 0) ? true : false;
+        boolean containsAlerts = (reportAlertEventList.size() > 0) ? true : false;
 
-		boolean containsNoStartEvent = (reportNoStartEventList.size() > 0) ? true : false;
+        boolean containsNoStartEvent = (reportNoStartEventList.size() > 0) ? true : false;
 
-		boolean containsNoEndEvent = (reportNoEndEventList.size() > 0) ? true : false;
+        boolean containsNoEndEvent = (reportNoEndEventList.size() > 0) ? true : false;
 
-		boolean containsOwnElapsed = (reportOwnElapsedEventList.size() > 0) ? true : false;
+        boolean containsOwnElapsed = (reportOwnElapsedEventList.size() > 0) ? true : false;
 
-		boolean containsSearch = (searchStrObj != null) ? true : false;
+        boolean containsSearch = (searchStrObj != null) ? true : false;
 
-		if (containsFailure) {
-			JPanel failedEventJPanel = getFailedEventJPanel();
-			String tabText = "Failed Events";
-			addTab(tabText, failedEventJPanel, tabIndex);
-			tabIndex++;
-		}
+        if (containsFailure) {
+            JPanel failedEventJPanel = getFailedEventJPanel();
+            String tabText = "Failed Events";
+            addTab(tabText, failedEventJPanel, tabIndex);
+            tabIndex++;
+        }
 
-		if (containsException) {
-			JPanel exceptionEventJPanel = getExceptionEventJPanel();
-			String tabText = "Exception Events";
-			addTab(tabText, exceptionEventJPanel, tabIndex);
-			tabIndex++;
-		}
+        if (containsException) {
+            JPanel exceptionEventJPanel = getExceptionEventJPanel();
+            String tabText = "Exception Events";
+            addTab(tabText, exceptionEventJPanel, tabIndex);
+            tabIndex++;
+        }
 
-		if (containsAlerts) {
-			JPanel alertEventJPanel = getAlertEventJPanel();
-			String tabText = "Alert Events";
-			addTab(tabText, alertEventJPanel, tabIndex);
-			tabIndex++;
-		}
+        if (containsAlerts) {
+            JPanel alertEventJPanel = getAlertEventJPanel();
+            String tabText = "Alert Events";
+            addTab(tabText, alertEventJPanel, tabIndex);
+            tabIndex++;
+        }
 
-		if (containsNoStartEvent) {
-			JPanel noStartEventJPanel = getNoStartEventJPanel();
-			String tabText = "No Start Events";
-			addTab(tabText, noStartEventJPanel, tabIndex);
-			tabIndex++;
-		}
+        if (containsNoStartEvent) {
+            JPanel noStartEventJPanel = getNoStartEventJPanel();
+            String tabText = "No Start Events";
+            addTab(tabText, noStartEventJPanel, tabIndex);
+            tabIndex++;
+        }
 
-		if (containsNoEndEvent) {
-			JPanel noEndEventJPanel = getNoEndEventJPanel();
-			String tabText = "No End Events";
-			addTab(tabText, noEndEventJPanel, tabIndex);
-			tabIndex++;
-		}
+        if (containsNoEndEvent) {
+            JPanel noEndEventJPanel = getNoEndEventJPanel();
+            String tabText = "No End Events";
+            addTab(tabText, noEndEventJPanel, tabIndex);
+            tabIndex++;
+        }
 
-		if (containsOwnElapsed) {
-			JPanel ownElapsedEventJPanel = getOwnElapsedEventJPanel();
-			String tabText = "Own Elapsed Time";
-			addTab(tabText, ownElapsedEventJPanel, tabIndex);
-			tabIndex++;
-		}
+        if (containsOwnElapsed) {
+            JPanel ownElapsedEventJPanel = getOwnElapsedEventJPanel();
+            String tabText = "Own Elapsed Time";
+            addTab(tabText, ownElapsedEventJPanel, tabIndex);
+            tabIndex++;
+        }
 
-		if (containsSearch) {
-			JPanel searchEventJPanel = getSearchEventJPanel();
-			String tabText = "Search Results";
-			addTab(tabText, searchEventJPanel, tabIndex);
-			tabIndex++;
-		}
+        if (containsSearch) {
+            JPanel searchEventJPanel = getSearchEventJPanel();
+            String tabText = "Search Results";
+            addTab(tabText, searchEventJPanel, tabIndex);
+            tabIndex++;
+        }
 
-		if (containsBookmark) {
+        if (containsBookmark) {
 
-			JPanel bookmarkContainerPanel = getBookmarkContainerPanel();
+            JPanel bookmarkContainerPanel = getBookmarkContainerPanel();
 
-			String tabText = "Bookmarks";
-			addTab(tabText, bookmarkContainerPanel, tabIndex);
-			tabIndex++;
+            String tabText = "Bookmarks";
+            addTab(tabText, bookmarkContainerPanel, tabIndex);
+            tabIndex++;
 
-		}
+        }
 
-		JPanel rulesInvokedJPanel = getRulesInvokedJPanel();
-		String tabText = "Rules invoked";
-		addTab(tabText, rulesInvokedJPanel, tabIndex);
-		tabIndex++;
+        JPanel rulesInvokedJPanel = getRulesInvokedJPanel();
+        String tabText = "Rules invoked";
+        addTab(tabText, rulesInvokedJPanel, tabIndex);
+        tabIndex++;
 
-	}
+    }
 
-	private void addTab(String tabText, JPanel jPanel, int tabIndex) {
+    private void addTab(String tabText, JPanel panel, int tabIndex) {
 
-		JTabbedPane tracerReportTabbedPane = getTracerReportTabbedPane();
+        JTabbedPane tracerReportTabbedPane = getTracerReportTabbedPane();
 
-		JLabel tabLabel = new JLabel(tabText);
-		Font labelFont = tabLabel.getFont();
-		Font tabFont = labelFont.deriveFont(Font.BOLD, 12);
-		Dimension dim = new Dimension(140, 26);
-		tabLabel.setFont(tabFont);
-		tabLabel.setSize(dim);
-		tabLabel.setPreferredSize(dim);
-		tabLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        JLabel tabLabel = new JLabel(tabText);
+        Font labelFont = tabLabel.getFont();
+        Font tabFont = labelFont.deriveFont(Font.BOLD, 12);
+        Dimension dim = new Dimension(140, 26);
+        tabLabel.setFont(tabFont);
+        tabLabel.setSize(dim);
+        tabLabel.setPreferredSize(dim);
+        tabLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-		tracerReportTabbedPane.addTab(tabText, jPanel);
-		tracerReportTabbedPane.setTabComponentAt(tabIndex, tabLabel);
-	}
+        tracerReportTabbedPane.addTab(tabText, panel);
+        tracerReportTabbedPane.setTabComponentAt(tabIndex, tabLabel);
+    }
 
-	private BookmarkContainerPanel<TraceEventKey> getBookmarkContainerPanel() {
+    private BookmarkContainerPanel<TraceEventKey> getBookmarkContainerPanel() {
 
-		BookmarkModel<TraceEventKey> bookmarkModel = traceTableModel.getBookmarkModel();
+        BookmarkModel<TraceEventKey> bookmarkModel = traceTableModel.getBookmarkModel();
 
-		BookmarkContainerPanel<TraceEventKey> bookmarkContainerPanel;
+        BookmarkContainerPanel<TraceEventKey> bookmarkContainerPanel;
 
-		bookmarkContainerPanel = new BookmarkContainerPanel<TraceEventKey>(bookmarkModel, navigationTableController) {
+        bookmarkContainerPanel = new BookmarkContainerPanel<TraceEventKey>(bookmarkModel, navigationTableController) {
 
-			private static final long serialVersionUID = 5672957295689747776L;
+            private static final long serialVersionUID = 5672957295689747776L;
 
-			@Override
-			public FilterTableModel<TraceEventKey> getFilterTableModel() {
-				return getTraceTableModel();
-			}
+            @Override
+            public FilterTableModel<TraceEventKey> getFilterTableModel() {
+                return getTraceTableModel();
+            }
 
-		};
+        };
 
-		return bookmarkContainerPanel;
-	}
+        return bookmarkContainerPanel;
+    }
 
-	private JPanel getFailedEventJPanel() {
+    private JPanel getFailedEventJPanel() {
 
-		String description = "List of innermost trace events that has failed status. Select an entry to select the record on the main table.";
+        String description = "List of innermost trace events that has failed status. Select an entry to select the record on the main table.";
 
-		List<TraceEventKey> reportFailedEventList = traceTableModel.getReportFailedEventKeyList();
+        List<TraceEventKey> reportFailedEventList = traceTableModel.getReportFailedEventKeyList();
 
-		JPanel failedEventJPanel = getTraceReportJPanel(description, reportFailedEventList);
+        JPanel failedEventJPanel = getTraceReportJPanel(description, reportFailedEventList);
 
-		return failedEventJPanel;
-	}
+        return failedEventJPanel;
+    }
 
-	private JPanel getExceptionEventJPanel() {
+    private JPanel getExceptionEventJPanel() {
 
-		String description = "List of innermost trace events that has failed with an exception. Select an entry to select the record on the main table.";
+        String description = "List of innermost trace events that has failed with an exception. Select an entry to "
+                + "select the record on the main table.";
 
-		List<TraceEventKey> reportExceptionEventList = traceTableModel.getReportExceptionEventKeyList();
+        List<TraceEventKey> reportExceptionEventList = traceTableModel.getReportExceptionEventKeyList();
 
-		JPanel exceptionEventJPanel = getTraceReportJPanel(description, reportExceptionEventList);
+        JPanel exceptionEventJPanel = getTraceReportJPanel(description, reportExceptionEventList);
 
-		return exceptionEventJPanel;
-	}
+        return exceptionEventJPanel;
+    }
 
-	private JPanel getAlertEventJPanel() {
+    private JPanel getAlertEventJPanel() {
 
-		String description = "List of Alert trace events. Select an entry to select the record on the main table.";
+        String description = "List of Alert trace events. Select an entry to select the record on the main table.";
 
-		List<TraceEventKey> reportAlertEventList = traceTableModel.getReportAlertEventKeyList();
+        List<TraceEventKey> reportAlertEventList = traceTableModel.getReportAlertEventKeyList();
 
-		JPanel alertEventJPanel = getTraceReportJPanel(description, reportAlertEventList);
+        JPanel alertEventJPanel = getTraceReportJPanel(description, reportAlertEventList);
 
-		return alertEventJPanel;
-	}
+        return alertEventJPanel;
+    }
 
-	private JPanel getNoStartEventJPanel() {
+    private JPanel getNoStartEventJPanel() {
 
-		String description = "List of trace events which doesnt have corresponding 'Begin' event. Select an entry to select the record on the main table.";
-		
-		List<TraceEventKey> reportNoStartEventList = traceTableModel.getReportNoStartEventKeyList();
+        String description = "List of trace events which doesnt have corresponding 'Begin' event. Select an entry to "
+                + "select the record on the main table.";
+        List<TraceEventKey> reportNoStartEventList = traceTableModel.getReportNoStartEventKeyList();
 
-		JPanel noStartEventJPanel = getTraceReportJPanel(description, reportNoStartEventList);
+        JPanel noStartEventJPanel = getTraceReportJPanel(description, reportNoStartEventList);
 
-		return noStartEventJPanel;
-	}
+        return noStartEventJPanel;
+    }
 
-	private JPanel getNoEndEventJPanel() {
+    private JPanel getNoEndEventJPanel() {
 
-		String description = "List of trace events which doesnt have corresponding 'End' event. Select an entry to select the record on the main table.";
-		
-		List<TraceEventKey> reportNoEndEventList = traceTableModel.getReportNoEndEventKeyList();
+        String description = "List of trace events which doesnt have corresponding 'End' event. Select an entry to "
+                + "select the record on the main table.";
+        List<TraceEventKey> reportNoEndEventList = traceTableModel.getReportNoEndEventKeyList();
 
-		JPanel noEndEventJPanel = getTraceReportJPanel(description, reportNoEndEventList);
+        JPanel noEndEventJPanel = getTraceReportJPanel(description, reportNoEndEventList);
 
-		return noEndEventJPanel;
-	}
+        return noEndEventJPanel;
+    }
 
-	private JPanel getOwnElapsedEventJPanel() {
+    private JPanel getOwnElapsedEventJPanel() {
 
-		String description = "List of innermost trace events sorted by 'own elapsed time' in decending order. Select an entry to select the record on the main table.";
-		
-		List<TraceEventKey> reportOwnElapsedEventList = traceTableModel.getReportOwnElapsedEventKeyList();
+        String description = "List of innermost trace events sorted by 'own elapsed time' in decending order. Select "
+                + "an entry to select the record on the main table.";
+        List<TraceEventKey> reportOwnElapsedEventList = traceTableModel.getReportOwnElapsedEventKeyList();
 
-		JPanel ownElapsedEventJPanel = getTraceReportJPanel(description, reportOwnElapsedEventList);
+        JPanel ownElapsedEventJPanel = getTraceReportJPanel(description, reportOwnElapsedEventList);
 
-		return ownElapsedEventJPanel;
-	}
+        return ownElapsedEventJPanel;
+    }
 
-	private JPanel getSearchEventJPanel() {
+    private JPanel getSearchEventJPanel() {
 
-		String description = "List of current search results. Select an entry to select the record on the main table.";
-		
-		SearchModel<TraceEventKey> searchModel = traceTableModel.getSearchModel();
-		Object searchStrObj = searchModel.getSearchStrObj();
-		List<TraceEventKey> searchEventList = searchModel.getSearchResultList(searchStrObj);
+        String description = "List of current search results. Select an entry to select the record on the main table.";
+        SearchModel<TraceEventKey> searchModel = traceTableModel.getSearchModel();
+        Object searchStrObj = searchModel.getSearchStrObj();
+        List<TraceEventKey> searchEventList = searchModel.getSearchResultList(searchStrObj);
 
-		JPanel searchEventJPanel = getTraceReportJPanel(description, searchEventList);
+        JPanel searchEventJPanel = getTraceReportJPanel(description, searchEventList);
 
-		return searchEventJPanel;
-	}
+        return searchEventJPanel;
+    }
 
-	private JPanel getRulesInvokedJPanel() {
+    private JPanel getRulesInvokedJPanel() {
 
-		JPanel rulesInvokedJPanel = new JPanel(new BorderLayout());
+        JPanel rulesInvokedJPanel = new JPanel(new BorderLayout());
 
-		String text = "List all the rules invoked during the trace capture, sorted on total own elapsed time.";
-		JPanel labelJPanel = getLabelJPanel(text);
+        String text = "List all the rules invoked during the trace capture, sorted on total own elapsed time.";
+        JPanel labelJPanel = getLabelJPanel(text);
 
-		JTable rulesInvokedJTable = getRulesInvokedJTable();
+        JTable rulesInvokedJTable = getRulesInvokedJTable();
 
-		JScrollPane ownElapsedEventJTableScrollPane = new JScrollPane(rulesInvokedJTable);
+        JScrollPane ownElapsedEventJTableScrollPane = new JScrollPane(rulesInvokedJTable);
 
-		rulesInvokedJPanel.add(labelJPanel, BorderLayout.NORTH);
-		rulesInvokedJPanel.add(ownElapsedEventJTableScrollPane, BorderLayout.CENTER);
+        rulesInvokedJPanel.add(labelJPanel, BorderLayout.NORTH);
+        rulesInvokedJPanel.add(ownElapsedEventJTableScrollPane, BorderLayout.CENTER);
 
-		return rulesInvokedJPanel;
-	}
+        return rulesInvokedJPanel;
+    }
 
-	private TracerReportRulesTable getRulesInvokedJTable() {
+    private TracerReportRulesTable getRulesInvokedJTable() {
 
-		Map<TraceEventRuleset, TreeSet<TraceEventRule>> reportRulesInvokedMap = traceTableModel.getReportRulesInvokedMap();
+        Map<TraceEventRuleset, TreeSet<TraceEventRule>> reportRulesInvokedMap = traceTableModel.getReportRulesInvokedMap();
 
-		TracerReportRulesTableModel tracerReportRulesTableModel = new TracerReportRulesTableModel(reportRulesInvokedMap);
+        TracerReportRulesTableModel tracerReportRulesTableModel = new TracerReportRulesTableModel(reportRulesInvokedMap);
 
-		TracerReportRulesTable tracerReportRulesTable;
-		tracerReportRulesTable = new TracerReportRulesTable(tracerReportRulesTableModel);
+        TracerReportRulesTable tracerReportRulesTable;
+        tracerReportRulesTable = new TracerReportRulesTable(tracerReportRulesTableModel);
 
-		return tracerReportRulesTable;
+        return tracerReportRulesTable;
 
-	}
+    }
 
-	private JPanel getTraceReportJPanel(String description, List<TraceEventKey> traceEventKeyList) {
+    private JPanel getTraceReportJPanel(String description, List<TraceEventKey> traceEventKeyList) {
 
-		JPanel traceReportJPanel = new JPanel(new BorderLayout());
+        JPanel traceReportJPanel = new JPanel(new BorderLayout());
 
-		JPanel labelJPanel = getLabelJPanel(description);
+        JPanel labelJPanel = getLabelJPanel(description);
 
-		JTable traceReportJTable = getTraceReportJTable(traceEventKeyList);
+        JTable traceReportJTable = getTraceReportJTable(traceEventKeyList);
 
-		JScrollPane traceReportJTableScrollPane = new JScrollPane(traceReportJTable);
+        JScrollPane traceReportJTableScrollPane = new JScrollPane(traceReportJTable);
 
-		traceReportJPanel.add(labelJPanel, BorderLayout.NORTH);
-		traceReportJPanel.add(traceReportJTableScrollPane, BorderLayout.CENTER);
+        traceReportJPanel.add(labelJPanel, BorderLayout.NORTH);
+        traceReportJPanel.add(traceReportJTableScrollPane, BorderLayout.CENTER);
 
-		return traceReportJPanel;
-	}
+        return traceReportJPanel;
+    }
 
-	private JTable getTraceReportJTable(List<TraceEventKey> traceEventKeyList) {
+    private JTable getTraceReportJTable(List<TraceEventKey> traceEventKeyList) {
 
-		TracerReportTableModel tracerReportTableModel;
+        TracerReportTableModel tracerReportTableModel;
 
-		tracerReportTableModel = new TracerReportTableModel(traceEventKeyList, traceTableModel);
+        tracerReportTableModel = new TracerReportTableModel(traceEventKeyList, traceTableModel);
 
-		JTable traceReportJTable = new JTable(tracerReportTableModel);
+        JTable traceReportJTable = new JTable(tracerReportTableModel);
 
-		traceReportJTable.setRowHeight(20);
-		traceReportJTable.setFillsViewportHeight(true);
-		traceReportJTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		traceReportJTable.setRowSelectionAllowed(true);
-		traceReportJTable.setAutoCreateColumnsFromModel(false);
+        traceReportJTable.setRowHeight(20);
+        traceReportJTable.setFillsViewportHeight(true);
+        traceReportJTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        traceReportJTable.setRowSelectionAllowed(true);
+        traceReportJTable.setAutoCreateColumnsFromModel(false);
 
-		TableColumnModel tableColumnModel = getTraceReportTableColumnModel(tracerReportTableModel);
+        TableColumnModel tableColumnModel = getTraceReportTableColumnModel(tracerReportTableModel);
 
-		traceReportJTable.setColumnModel(tableColumnModel);
+        traceReportJTable.setColumnModel(tableColumnModel);
 
-		// setup header
-		JTableHeader tableHeader = traceReportJTable.getTableHeader();
+        // setup header
+        JTableHeader tableHeader = traceReportJTable.getTableHeader();
 
-		tableHeader.setReorderingAllowed(false);
+        tableHeader.setReorderingAllowed(false);
 
-		final TableCellRenderer origTableCellRenderer = tableHeader.getDefaultRenderer();
+        final TableCellRenderer origTableCellRenderer = tableHeader.getDefaultRenderer();
 
-		DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer() {
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer() {
 
-			private static final long serialVersionUID = -5411641633512120668L;
+            private static final long serialVersionUID = -5411641633512120668L;
 
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-					boolean hasFocus, int row, int column) {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                    boolean hasFocus, int row, int column) {
 
-				JLabel origComponent = (JLabel) origTableCellRenderer.getTableCellRendererComponent(table, value,
-						isSelected, hasFocus, row, column);
+                JLabel origComponent = (JLabel) origTableCellRenderer.getTableCellRendererComponent(table, value,
+                        isSelected, hasFocus, row, column);
 
-				origComponent.setHorizontalAlignment(CENTER);
+                origComponent.setHorizontalAlignment(CENTER);
 
-				// set header height
-				Dimension dim = origComponent.getPreferredSize();
-				dim.setSize(dim.getWidth(), 30);
-				origComponent.setPreferredSize(dim);
+                // set header height
+                Dimension dim = origComponent.getPreferredSize();
+                dim.setSize(dim.getWidth(), 30);
+                origComponent.setPreferredSize(dim);
 
-				return origComponent;
-			}
+                return origComponent;
+            }
 
-		};
-		tableHeader.setDefaultRenderer(dtcr);
+        };
+        tableHeader.setDefaultRenderer(dtcr);
 
-		// bold the header
-		Font existingFont = tableHeader.getFont();
-		String existingFontName = existingFont.getName();
-		int existFontSize = existingFont.getSize();
-		Font newFont = new Font(existingFontName, Font.BOLD, existFontSize);
-		tableHeader.setFont(newFont);
+        // bold the header
+        Font existingFont = tableHeader.getFont();
+        String existingFontName = existingFont.getName();
+        int existFontSize = existingFont.getSize();
+        Font newFont = new Font(existingFontName, Font.BOLD, existFontSize);
+        tableHeader.setFont(newFont);
 
-		ListSelectionModel listSelectionModel = traceReportJTable.getSelectionModel();
-		listSelectionModel.addListSelectionListener(new ListSelectionListener() {
+        ListSelectionModel listSelectionModel = traceReportJTable.getSelectionModel();
+        listSelectionModel.addListSelectionListener(new ListSelectionListener() {
 
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				if (!e.getValueIsAdjusting()) {
+            @Override
+            public void valueChanged(ListSelectionEvent listSelectionEvent) {
+                if (!listSelectionEvent.getValueIsAdjusting()) {
 
-					int row = traceReportJTable.getSelectedRow();
+                    int row = traceReportJTable.getSelectedRow();
 
-					TracerReportTableModel tracerReportTableModel;
-					tracerReportTableModel = (TracerReportTableModel) traceReportJTable.getModel();
+                    TracerReportTableModel tracerReportTableModel;
+                    tracerReportTableModel = (TracerReportTableModel) traceReportJTable.getModel();
 
-					TraceEventKey traceEventKey = tracerReportTableModel.getTraceEventKey(row);
+                    TraceEventKey traceEventKey = tracerReportTableModel.getTraceEventKey(row);
 
-					NavigationTableController<TraceEventKey> navigationTableController;
-					navigationTableController = getNavigationTableController();
+                    NavigationTableController<TraceEventKey> navigationTableController;
+                    navigationTableController = getNavigationTableController();
 
-					navigationTableController.scrollToKey(traceEventKey);
-				}
+                    navigationTableController.scrollToKey(traceEventKey);
+                }
 
-			}
-		});
+            }
+        });
 
-		return traceReportJTable;
-	}
+        return traceReportJTable;
+    }
 
-	private TableColumnModel getTraceReportTableColumnModel(TracerReportTableModel tracerReportTableModel) {
+    private TableColumnModel getTraceReportTableColumnModel(TracerReportTableModel tracerReportTableModel) {
 
-		TableColumnModel tableColumnModel = new DefaultTableColumnModel();
+        TableColumnModel tableColumnModel = new DefaultTableColumnModel();
 
-		for (int i = 0; i < tracerReportTableModel.getColumnCount(); i++) {
+        for (int i = 0; i < tracerReportTableModel.getColumnCount(); i++) {
 
-			TableColumn tableColumn = new TableColumn(i);
+            TableColumn tableColumn = new TableColumn(i);
 
-			String text = tracerReportTableModel.getColumnName(i);
+            String text = tracerReportTableModel.getColumnName(i);
 
-			tableColumn.setHeaderValue(text);
+            tableColumn.setHeaderValue(text);
 
-			DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer() {
+            DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer() {
 
-				private static final long serialVersionUID = 5731474707446644101L;
+                private static final long serialVersionUID = 5731474707446644101L;
 
-				@Override
-				public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-						boolean hasFocus, int row, int column) {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                        boolean hasFocus, int row, int column) {
 
-					String text = null;
+                    String text = null;
 
-					if ((value != null) && (value instanceof TraceEvent)) {
+                    if ((value != null) && (value instanceof TraceEvent)) {
 
-						TraceEvent traceEvent = (TraceEvent) value;
+                        TraceEvent traceEvent = (TraceEvent) value;
 
-						TracerReportTableModel tracerReportTableModel;
+                        TracerReportTableModel tracerReportTableModel;
 
-						tracerReportTableModel = (TracerReportTableModel) table.getModel();
+                        tracerReportTableModel = (TracerReportTableModel) table.getModel();
 
-						text = tracerReportTableModel.getColumnValue(traceEvent, column);
+                        text = tracerReportTableModel.getColumnValue(traceEvent, column);
 
-						if (!table.isRowSelected(row)) {
-							setBackground(traceEvent.getColumnBackground(0));
-						}
+                        if (!table.isRowSelected(row)) {
+                            setBackground(traceEvent.getColumnBackground(0));
+                        }
 
-						setHorizontalAlignment(CENTER);
-					}
+                        setHorizontalAlignment(CENTER);
+                    }
 
-					super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);
+                    super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);
 
-					return this;
-				}
+                    return this;
+                }
 
-			};
+            };
 
-			dtcr.setBorder(new EmptyBorder(1, 3, 1, 1));
+            dtcr.setBorder(new EmptyBorder(1, 3, 1, 1));
 
-			tableColumn.setCellRenderer(dtcr);
+            tableColumn.setCellRenderer(dtcr);
 
-			TraceTableModelColumn trtc = tracerReportTableModel.getColumn(i);
+            TraceTableModelColumn trtc = tracerReportTableModel.getColumn(i);
 
-			int colWidth = trtc.getPrefColumnWidth();
-			tableColumn.setPreferredWidth(colWidth);
-			tableColumn.setMinWidth(colWidth);
-			tableColumn.setWidth(colWidth);
-			tableColumn.setResizable(true);
+            int colWidth = trtc.getPrefColumnWidth();
+            tableColumn.setPreferredWidth(colWidth);
+            tableColumn.setMinWidth(colWidth);
+            tableColumn.setWidth(colWidth);
+            tableColumn.setResizable(true);
 
-			tableColumnModel.addColumn(tableColumn);
-		}
+            tableColumnModel.addColumn(tableColumn);
+        }
 
-		return tableColumnModel;
-	}
+        return tableColumnModel;
+    }
 
-	private JPanel getLabelJPanel(String text) {
+    private JPanel getLabelJPanel(String text) {
 
-		JPanel labelJPanel = new JPanel();
+        JPanel labelJPanel = new JPanel();
 
-		LayoutManager layout = new BoxLayout(labelJPanel, BoxLayout.LINE_AXIS);
-		labelJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(labelJPanel, BoxLayout.LINE_AXIS);
+        labelJPanel.setLayout(layout);
 
-		JLabel label = new JLabel(text);
+        JLabel label = new JLabel(text);
 
-		int height = 30;
+        int height = 30;
 
-		Dimension spacer = new Dimension(10, height);
-		labelJPanel.add(Box.createRigidArea(spacer));
-		labelJPanel.add(label);
-		labelJPanel.add(Box.createHorizontalGlue());
+        Dimension spacer = new Dimension(10, height);
+        labelJPanel.add(Box.createRigidArea(spacer));
+        labelJPanel.add(label);
+        labelJPanel.add(Box.createHorizontalGlue());
 
-		labelJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-		return labelJPanel;
+        labelJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        return labelJPanel;
 
-	}
+    }
 
 }

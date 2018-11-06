@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import javax.swing.JTable;
@@ -24,96 +25,100 @@ import com.pega.gcs.fringecommon.guiutilities.treetable.TreeTableModelAdapter;
 
 public class TraceTreeTable extends AbstractTreeTable {
 
-	private static final long serialVersionUID = -7613230824104399834L;
+    private static final long serialVersionUID = -7613230824104399834L;
 
-	public TraceTreeTable(DefaultTreeTableTreeModel traceTreeTableModel, TraceTableModel traceTableModel) {
+    public TraceTreeTable(DefaultTreeTableTreeModel traceTreeTableModel, TraceTableModel traceTableModel) {
 
-		super(traceTreeTableModel, 20, 30);
+        super(traceTreeTableModel, 20, 30);
 
-		TraceTreeTableModelAdapter traceTreeTableModelAdapter;
+        initialize(traceTreeTableModel, traceTableModel);
 
-		traceTreeTableModelAdapter = (TraceTreeTableModelAdapter) getModel();
-		traceTreeTableModelAdapter.setTraceTableModel(traceTableModel);
+    }
 
-		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    private void initialize(DefaultTreeTableTreeModel traceTreeTableModel, TraceTableModel traceTableModel) {
+        TraceTreeTableModelAdapter traceTreeTableModelAdapter;
 
-	}
+        traceTreeTableModelAdapter = (TraceTreeTableModelAdapter) getModel();
+        traceTreeTableModelAdapter.setTraceTableModel(traceTableModel);
 
-	@Override
-	protected DefaultTreeTableTree constructTree(AbstractTreeTableTreeModel abstractTreeTableModel) {
+        setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    }
 
-		DefaultTreeTableTreeCellRenderer defaultTreeTableTreeCellRenderer;
+    @Override
+    protected DefaultTreeTableTree constructTree(AbstractTreeTableTreeModel abstractTreeTableModel) {
 
-		defaultTreeTableTreeCellRenderer = new DefaultTreeTableTreeCellRenderer(this);
-		defaultTreeTableTreeCellRenderer.setOpenIcon(null);
-		defaultTreeTableTreeCellRenderer.setClosedIcon(null);
-		defaultTreeTableTreeCellRenderer.setLeafIcon(null);
+        DefaultTreeTableTreeCellRenderer defaultTreeTableTreeCellRenderer;
 
-		TraceTreeTableTree defaultTreeTableTree = new TraceTreeTableTree(this, abstractTreeTableModel,
-				defaultTreeTableTreeCellRenderer);
+        defaultTreeTableTreeCellRenderer = new DefaultTreeTableTreeCellRenderer(this);
+        defaultTreeTableTreeCellRenderer.setOpenIcon(null);
+        defaultTreeTableTreeCellRenderer.setClosedIcon(null);
+        defaultTreeTableTreeCellRenderer.setLeafIcon(null);
 
-		defaultTreeTableTree.setRootVisible(false);
-		defaultTreeTableTree.setShowsRootHandles(true);
+        TraceTreeTableTree defaultTreeTableTree = new TraceTreeTableTree(this, abstractTreeTableModel,
+                defaultTreeTableTreeCellRenderer);
 
-		return defaultTreeTableTree;
-	}
+        defaultTreeTableTree.setRootVisible(false);
+        defaultTreeTableTree.setShowsRootHandles(true);
 
-	@Override
-	protected TreeTableModelAdapter getTreeTableModelAdapter(DefaultTreeTableTree tree) {
+        return defaultTreeTableTree;
+    }
 
-		TraceTreeTableModelAdapter traceTreeTableModelAdapter;
-		traceTreeTableModelAdapter = new TraceTreeTableModelAdapter(tree);
+    @Override
+    protected TreeTableModelAdapter getTreeTableModelAdapter(DefaultTreeTableTree tree) {
 
-		return traceTreeTableModelAdapter;
-	}
+        TraceTreeTableModelAdapter traceTreeTableModelAdapter;
+        traceTreeTableModelAdapter = new TraceTreeTableModelAdapter(tree);
 
-	@Override
-	protected void setTreeTableColumnModel() {
+        return traceTreeTableModelAdapter;
+    }
 
-		TreeTableModelAdapter model = (TreeTableModelAdapter) getModel();
-		TableColumnModel tableColumnModel = new DefaultTableColumnModel();
+    @Override
+    protected void setTreeTableColumnModel() {
 
-		for (int i = 0; i < model.getColumnCount(); i++) {
+        TreeTableModelAdapter model = (TreeTableModelAdapter) getModel();
+        TableColumnModel tableColumnModel = new DefaultTableColumnModel();
 
-			TableColumn tableColumn = new TableColumn(i);
+        for (int i = 0; i < model.getColumnCount(); i++) {
 
-			TreeTableColumn treeTableColumn = model.getColumn(i);
+            TableColumn tableColumn = new TableColumn(i);
 
-			String text = treeTableColumn.getDisplayName();
+            TreeTableColumn treeTableColumn = model.getColumn(i);
 
-			Class<?> columnClass = treeTableColumn.getColumnClass();
+            String text = treeTableColumn.getDisplayName();
 
-			int preferredWidth = treeTableColumn.getPrefColumnWidth();
+            Class<?> columnClass = treeTableColumn.getColumnClass();
 
-			tableColumn.setHeaderValue(text);
-			tableColumn.setPreferredWidth(preferredWidth);
+            int preferredWidth = treeTableColumn.getPrefColumnWidth();
 
-			TableCellRenderer tcr = null;
+            tableColumn.setHeaderValue(text);
+            tableColumn.setPreferredWidth(preferredWidth);
 
-			if (TreeTableColumn.TREE_COLUMN_CLASS.equals(columnClass)) {
+            TableCellRenderer tcr = null;
 
-				DefaultTreeTableTree treeTableTree = getTree();
-				tcr = treeTableTree;
-				tableColumn.setCellEditor(new TreeTableCellEditor(treeTableTree));
-			} else {
+            if (TreeTableColumn.TREE_COLUMN_CLASS.equals(columnClass)) {
 
-				TraceTreeTableCellRenderer ltcr = new TraceTreeTableCellRenderer();
-				ltcr.setBorder(new EmptyBorder(1, 3, 1, 1));
-				ltcr.setHorizontalAlignment(treeTableColumn.getHorizontalAlignment());
+                DefaultTreeTableTree treeTableTree = getTree();
+                tcr = treeTableTree;
+                tableColumn.setCellEditor(new TreeTableCellEditor(treeTableTree));
+            } else {
 
-				tableColumn.setCellEditor(new TreeTableCellEditor(ltcr));
+                TraceTreeTableCellRenderer ltcr = new TraceTreeTableCellRenderer();
+                ltcr.setBorder(new EmptyBorder(1, 3, 1, 1));
+                ltcr.setHorizontalAlignment(treeTableColumn.getHorizontalAlignment());
 
-				tcr = ltcr;
-			}
+                tableColumn.setCellEditor(new TreeTableCellEditor(ltcr));
 
-			tableColumn.setCellRenderer(tcr);
+                tcr = ltcr;
+            }
 
-			tableColumn.setResizable(true);
+            tableColumn.setCellRenderer(tcr);
 
-			tableColumnModel.addColumn(tableColumn);
-		}
+            tableColumn.setResizable(true);
 
-		setColumnModel(tableColumnModel);
-	}
+            tableColumnModel.addColumn(tableColumn);
+        }
+
+        setColumnModel(tableColumnModel);
+    }
 
 }

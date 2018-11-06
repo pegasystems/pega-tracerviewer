@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -18,63 +19,63 @@ import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public class CompareMarkerModel extends MarkerModel<TraceEventKey> {
 
-	private static final Log4j2Helper LOG = new Log4j2Helper(CompareMarkerModel.class);
+    private static final Log4j2Helper LOG = new Log4j2Helper(CompareMarkerModel.class);
 
-	private TraceTableCompareModel traceTableCompareModel;
+    private TraceTableCompareModel traceTableCompareModel;
 
-	public CompareMarkerModel(Color markerColor, TraceTableCompareModel traceTableCompareModel) {
+    public CompareMarkerModel(Color markerColor, TraceTableCompareModel traceTableCompareModel) {
 
-		super(markerColor, traceTableCompareModel);
+        super(markerColor, traceTableCompareModel);
 
-		this.traceTableCompareModel = traceTableCompareModel;
+        this.traceTableCompareModel = traceTableCompareModel;
 
-		resetFilteredMarkerMap();
-	}
+        resetFilteredMarkerMap();
+    }
 
-	@Override
-	protected void resetFilteredMarkerMap() {
+    @Override
+    protected void resetFilteredMarkerMap() {
 
-		clearFilteredMarkerMap();
+        clearFilteredMarkerMap();
 
-		List<TraceEventKey> compareMarkerList = traceTableCompareModel.getCompareMarkerList();
+        List<TraceEventKey> compareMarkerList = traceTableCompareModel.getCompareMarkerList();
 
-		if (compareMarkerList != null) {
-			Iterator<TraceEventKey> iterator = compareMarkerList.iterator();
+        if (compareMarkerList != null) {
+            Iterator<TraceEventKey> iterator = compareMarkerList.iterator();
 
-			while (iterator.hasNext()) {
+            while (iterator.hasNext()) {
 
-				TraceEventKey key = iterator.next();
+                TraceEventKey key = iterator.next();
 
-				addToFilteredMarkerMap(key);
-			}
-		}
-	}
+                addToFilteredMarkerMap(key);
+            }
+        }
+    }
 
-	@Override
-	public List<Marker<TraceEventKey>> getMarkers(TraceEventKey key) {
+    @Override
+    public List<Marker<TraceEventKey>> getMarkers(TraceEventKey key) {
 
-		Marker<TraceEventKey> marker = new Marker<TraceEventKey>(key, key.toString());
+        Marker<TraceEventKey> marker = new Marker<TraceEventKey>(key, key.toString());
 
-		List<Marker<TraceEventKey>> markerList = new ArrayList<>();
-		markerList.add(marker);
+        List<Marker<TraceEventKey>> markerList = new ArrayList<>();
+        markerList.add(marker);
 
-		return markerList;
-	}
+        return markerList;
+    }
 
-	@Override
-	public void addMarker(Marker<TraceEventKey> marker) {
-		LOG.info("Error: CompareMarkerModel doesnt explictly add marker.");
-	}
+    @Override
+    public void addMarker(Marker<TraceEventKey> marker) {
+        LOG.info("Error: CompareMarkerModel doesnt explictly add marker.");
+    }
 
-	@Override
-	public void removeMarker(TraceEventKey key, int index) {
-		LOG.info("Error: CompareMarkerModel doesnt explictly remove marker.");
-	}
+    @Override
+    public void removeMarker(TraceEventKey key, int index) {
+        LOG.info("Error: CompareMarkerModel doesnt explictly remove marker.");
+    }
 
-	@Override
-	public void clearMarkers() {
-		LOG.info("Error: CompareMarkerModel doesnt explictly clear markers.");
+    @Override
+    public void clearMarkers() {
+        LOG.info("Error: CompareMarkerModel doesnt explictly clear markers.");
 
-	}
+    }
 
 }

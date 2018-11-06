@@ -4,44 +4,44 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import org.dom4j.Element;
 
 public class TraceEventDeclareDecisionTable extends TraceEventNonActivity {
 
-	public TraceEventDeclareDecisionTable(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventDeclareDecisionTable(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.DECLARE_DECISIONTABLE;
-	}
+        traceEventType = TraceEventType.DECLARE_DECISIONTABLE;
+    }
 
-	@Override
-	protected boolean checkStart() {
+    @Override
+    protected boolean checkStart() {
 
-		boolean start = false;
+        boolean start = false;
 
-		String stepMethod = getStepMethod();
+        String stepMethod = getStepMethod();
 
-		if ("Begin".equals(stepMethod)) {
-			start = true;
-		}
+        if ("Begin".equals(stepMethod)) {
+            start = true;
+        }
 
-		return start;
-	}
+        return start;
+    }
 
-	@Override
-	protected boolean checkEnd() {
+    @Override
+    protected boolean checkEnd() {
 
-		boolean end = false;
+        boolean end = false;
 
-		String stepMethod = getStepMethod();
+        String stepMethod = getStepMethod();
 
-		if ("End".equals(stepMethod)) {
-			end = true;
-		}
+        if ("End".equals(stepMethod)) {
+            end = true;
+        }
 
-		return end;
-	}
+        return end;
+    }
 }

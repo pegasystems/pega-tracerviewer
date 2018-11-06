@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Component;
@@ -19,65 +20,65 @@ import com.pega.gcs.fringecommon.guiutilities.RightClickMenuItem;
 
 public class TraceTableCompareMouseListener extends TraceTableMouseListener {
 
-	public TraceTableCompareMouseListener(Component mainWindow) {
-		super(mainWindow);
-	}
+    public TraceTableCompareMouseListener(Component mainWindow) {
+        super(mainWindow);
+    }
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
+    @Override
+    public void mouseClicked(MouseEvent event) {
 
-		if (SwingUtilities.isRightMouseButton(e)) {
+        if (SwingUtilities.isRightMouseButton(event)) {
 
-			final List<Integer> selectedRowList = new ArrayList<Integer>();
+            final List<Integer> selectedRowList = new ArrayList<Integer>();
 
-			final TraceTable source = (TraceTable) e.getSource();
+            final TraceTable source = (TraceTable) event.getSource();
 
-			if (isIntendedSource(source)) {
+            if (isIntendedSource(source)) {
 
-				int[] selectedRows = source.getSelectedRows();
+                int[] selectedRows = source.getSelectedRows();
 
-				// in case the row was not selected when right clicking then
-				// based on the point, select the row.
-				Point point = e.getPoint();
+                // in case the row was not selected when right clicking then
+                // based on the point, select the row.
+                Point point = event.getPoint();
 
-				if ((selectedRows != null) && (selectedRows.length <= 1)) {
+                if ((selectedRows != null) && (selectedRows.length <= 1)) {
 
-					int selectedRow = source.rowAtPoint(point);
+                    int selectedRow = source.rowAtPoint(point);
 
-					if (selectedRow != -1) {
-						// select the row first
-						source.setRowSelectionInterval(selectedRow, selectedRow);
-						selectedRows = new int[] {selectedRow};
-					}
-				}
+                    if (selectedRow != -1) {
+                        // select the row first
+                        source.setRowSelectionInterval(selectedRow, selectedRow);
+                        selectedRows = new int[] {selectedRow};
+                    }
+                }
 
-				for (int selectedRow : selectedRows) {
-					selectedRowList.add(selectedRow);
-				}
+                for (int selectedRow : selectedRows) {
+                    selectedRowList.add(selectedRow);
+                }
 
-				int size = selectedRowList.size();
+                int size = selectedRowList.size();
 
-				if (size > 0) {
+                if (size > 0) {
 
-					JPopupMenu popupMenu = new JPopupMenu();
+                    JPopupMenu popupMenu = new JPopupMenu();
 
-					RightClickMenuItem copyAsXML = getCopyAsXMLRightClickMenuItem(popupMenu, selectedRowList);
+                    RightClickMenuItem copyAsXML = getCopyAsXMLRightClickMenuItem(popupMenu, selectedRowList);
 
-					popupMenu.add(copyAsXML);
+                    popupMenu.add(copyAsXML);
 
-					popupMenu.show(e.getComponent(), e.getX(), e.getY());
-				}
-			}
+                    popupMenu.show(event.getComponent(), event.getX(), event.getY());
+                }
+            }
 
-		} else if (e.getClickCount() == 2) {
+        } else if (event.getClickCount() == 2) {
 
-			TraceTable source = (TraceTable) e.getSource();
+            TraceTable source = (TraceTable) event.getSource();
 
-			performDoubleClick(source);
+            performDoubleClick(source);
 
-		} else {
-			super.mouseClicked(e);
-		}
-	}
+        } else {
+            super.mouseClicked(event);
+        }
+    }
 
 }

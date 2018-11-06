@@ -4,44 +4,44 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import org.dom4j.Element;
 
 public class TraceEventDataFlow extends TraceEventNonActivity {
 
-	public TraceEventDataFlow(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventDataFlow(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.DATA_FLOW;
-	}
+        traceEventType = TraceEventType.DATA_FLOW;
+    }
 
-	@Override
-	protected boolean checkStart() {
+    @Override
+    protected boolean checkStart() {
 
-		boolean start = false;
+        boolean start = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("Data Flow Begin".equals(eventName)) {
-			start = true;
-		}
+        if ("Data Flow Begin".equals(eventName)) {
+            start = true;
+        }
 
-		return start;
-	}
+        return start;
+    }
 
-	@Override
-	protected boolean checkEnd() {
+    @Override
+    protected boolean checkEnd() {
 
-		boolean end = false;
+        boolean end = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if (("Data Flow End".equals(eventName)) || ("Data Flow Fail".equals(eventName))) {
-			end = true;
-		}
+        if (("Data Flow End".equals(eventName)) || ("Data Flow Fail".equals(eventName))) {
+            end = true;
+        }
 
-		return end;
-	}
+        return end;
+    }
 }

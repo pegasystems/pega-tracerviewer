@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -39,392 +40,392 @@ import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
-	private static final Log4j2Helper LOG = new Log4j2Helper(TracerFileLoadTask.class);
+    private static final Log4j2Helper LOG = new Log4j2Helper(TracerFileLoadTask.class);
 
-	private static final String TRACEEVENT_START = "<TraceEvent";
+    private static final String TRACEEVENT_START = "<TraceEvent";
 
-	private static final String TRACEEVENT_END = "</TraceEvent>";
+    private static final String TRACEEVENT_END = "</TraceEvent>";
 
-	private boolean wait;
+    private boolean wait;
 
-	private Component parent;
+    private Component parent;
 
-	private ModalProgressMonitor mProgressMonitor;
+    private ModalProgressMonitor progressMonitor;
 
-	private TraceTableModel traceTableModel;
+    private TraceTableModel traceTableModel;
 
-	private int processedCount;
+    private int processedCount;
 
-	private int errorCount;
+    private int errorCount;
 
-	public TracerFileLoadTask(ModalProgressMonitor mProgressMonitor, TraceTableModel traceTableModel, boolean wait,
-			Component parent) {
+    public TracerFileLoadTask(ModalProgressMonitor progressMonitor, TraceTableModel traceTableModel, boolean wait,
+            Component parent) {
 
-		this.mProgressMonitor = mProgressMonitor;
-		this.traceTableModel = traceTableModel;
-		this.wait = wait;
-		this.parent = parent;
+        this.progressMonitor = progressMonitor;
+        this.traceTableModel = traceTableModel;
+        this.wait = wait;
+        this.parent = parent;
 
-		processedCount = 0;
-		errorCount = 0;
+        processedCount = 0;
+        errorCount = 0;
 
-	}
+    }
 
-	public int getProcessedCount() {
-		return processedCount;
-	}
+    public int getProcessedCount() {
+        return processedCount;
+    }
 
-	public int getErrorCount() {
-		return errorCount;
-	}
+    public int getErrorCount() {
+        return errorCount;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.SwingWorker#doInBackground()
-	 */
-	@Override
-	protected Void doInBackground() throws Exception {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.swing.SwingWorker#doInBackground()
+     */
+    @Override
+    protected Void doInBackground() throws Exception {
 
-		long before = System.currentTimeMillis();
-		int readCounter = 0;
-		int traceEventIndex = 0;
-		String charset = traceTableModel.getCharset();
+        long before = System.currentTimeMillis();
+        int readCounter = 0;
+        int traceEventIndex = 0;
+        String charset = traceTableModel.getCharset();
 
-		String filePath = traceTableModel.getFilePath();
+        String filePath = traceTableModel.getFilePath();
 
-		File tracerFile = new File(filePath);
+        File tracerFile = new File(filePath);
 
-		LOG.info("TracerFileLoadTask - Using Charset: " + charset);
-		LOG.info("TracerFileLoadTask - Loading file: " + tracerFile);
+        LOG.info("TracerFileLoadTask - Using Charset: " + charset);
+        LOG.info("TracerFileLoadTask - Loading file: " + tracerFile);
 
-		FileReadTaskInfo fileReadTaskInfo = new FileReadTaskInfo(0, 0);
-		EventReadTaskInfo eventReadTaskInfo = new EventReadTaskInfo(0, 0);
+        FileReadTaskInfo fileReadTaskInfo = new FileReadTaskInfo(0, 0);
+        EventReadTaskInfo eventReadTaskInfo = new EventReadTaskInfo(0, 0);
 
-		ReadCounterTaskInfo readCounterTaskInfo = new ReadCounterTaskInfo(fileReadTaskInfo);
-		readCounterTaskInfo.setEventReadTaskInfo(eventReadTaskInfo);
+        ReadCounterTaskInfo readCounterTaskInfo = new ReadCounterTaskInfo(fileReadTaskInfo);
+        readCounterTaskInfo.setEventReadTaskInfo(eventReadTaskInfo);
 
-		publish(readCounterTaskInfo);
+        publish(readCounterTaskInfo);
 
-		SAXReader saxReader = new SAXReader();
-		saxReader.setEncoding(charset);
+        SAXReader saxReader = new SAXReader();
+        saxReader.setEncoding(charset);
 
-		AtomicBoolean cancel = new AtomicBoolean(false);
-		FileReaderThread frt;
+        AtomicBoolean cancel = new AtomicBoolean(false);
+        FileReaderThread frt;
 
-		int fileReadQueueCapacity = 5;
+        int fileReadQueueCapacity = 5;
 
-		LinkedBlockingQueue<FileReadByteArray> fileReadQueue;
-		fileReadQueue = new LinkedBlockingQueue<FileReadByteArray>(fileReadQueueCapacity);
+        LinkedBlockingQueue<FileReadByteArray> fileReadQueue;
+        fileReadQueue = new LinkedBlockingQueue<FileReadByteArray>(fileReadQueueCapacity);
 
-		AtomicLong fileSize = new AtomicLong(-1);
+        AtomicLong fileSize = new AtomicLong(-1);
 
-		try {
+        try {
 
-			byte[] startTraceEventStr = TRACEEVENT_START.getBytes();
-			byte[] endTraceEventStr = TRACEEVENT_END.getBytes();
+            byte[] startTraceEventStr = TRACEEVENT_START.getBytes();
+            byte[] endTraceEventStr = TRACEEVENT_END.getBytes();
 
-			long totalread = 0;
-			byte[] balanceByteArray = new byte[0];
+            long totalread = 0;
+            byte[] balanceByteArray = new byte[0];
 
-			boolean first = true;
+            boolean first = true;
 
-			// default is no tail
-			frt = new FileReaderThread(tracerFile, fileSize, fileReadQueue, cancel);
-			Thread frtThread = new Thread(frt);
-			frtThread.start();
+            // default is no tail
+            frt = new FileReaderThread(tracerFile, fileSize, fileReadQueue, cancel);
+            Thread frtThread = new Thread(frt);
+            frtThread.start();
 
-			while (!isCancelled()) {
+            while (!isCancelled()) {
 
-				if (mProgressMonitor.isCanceled()) {
-					cancel.set(true);
-					cancel(true);
-					break;
-				}
+                if (progressMonitor.isCanceled()) {
+                    cancel.set(true);
+                    cancel(true);
+                    break;
+                }
 
-				FileReadByteArray frba = null;
+                FileReadByteArray frba = null;
 
-				try {
-					frba = fileReadQueue.poll(1, TimeUnit.SECONDS);
-				} catch (InterruptedException ie) {
-					// ignore InterruptedException
-				}
+                try {
+                    frba = fileReadQueue.poll(1, TimeUnit.SECONDS);
+                } catch (InterruptedException ie) {
+                    // ignore InterruptedException
+                }
 
-				if (frba != null) {
+                if (frba != null) {
 
-					byte[] byteBuffer = frba.getBytes();
-					int readLen = byteBuffer.length;
+                    byte[] byteBuffer = frba.getBytes();
+                    int readLen = byteBuffer.length;
 
-					totalread = totalread + readLen;
+                    totalread = totalread + readLen;
 
-					readCounter++;
+                    readCounter++;
 
-					int startidx = 0;
-					int index = -1;
+                    int startidx = 0;
+                    int index = -1;
 
-					if (first) {
+                    if (first) {
 
-						startidx = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventStr);
+                        startidx = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventStr);
 
-						if (startidx == -1) {
-							LOG.info("startSeek is -1. exiting..");
-							break;
-						}
+                        if (startidx == -1) {
+                            LOG.info("startSeek is -1. exiting..");
+                            break;
+                        }
 
-						first = false;
-					}
+                        first = false;
+                    }
 
-					// copy the balance byte array
-					int balanceByteArrayLength = balanceByteArray.length;
+                    // copy the balance byte array
+                    int balanceByteArrayLength = balanceByteArray.length;
 
-					if (balanceByteArrayLength > 0) {
+                    if (balanceByteArrayLength > 0) {
 
-						int newSize = readLen + balanceByteArrayLength;
+                        int newSize = readLen + balanceByteArrayLength;
 
-						byte[] byteBufferNew = new byte[newSize];
+                        byte[] byteBufferNew = new byte[newSize];
 
-						// copy the balance to the beginning of new array.
-						System.arraycopy(balanceByteArray, 0, byteBufferNew, 0, balanceByteArrayLength);
+                        // copy the balance to the beginning of new array.
+                        System.arraycopy(balanceByteArray, 0, byteBufferNew, 0, balanceByteArrayLength);
 
-						// copy the newly read byteBuffer to the remaining space
-						System.arraycopy(byteBuffer, 0, byteBufferNew, balanceByteArrayLength, readLen);
+                        // copy the newly read byteBuffer to the remaining space
+                        System.arraycopy(byteBuffer, 0, byteBufferNew, balanceByteArrayLength, readLen);
 
-						byteBuffer = byteBufferNew;
+                        byteBuffer = byteBufferNew;
 
-						// once copied, reset the balance array
-						balanceByteArray = new byte[0];
+                        // once copied, reset the balance array
+                        balanceByteArray = new byte[0];
 
-					}
+                    }
 
-					index = KnuthMorrisPrattAlgorithm.indexOfWithPatternLength(byteBuffer, endTraceEventStr, startidx);
+                    index = KnuthMorrisPrattAlgorithm.indexOfWithPatternLength(byteBuffer, endTraceEventStr, startidx);
 
-					if (index != -1) {
+                    if (index != -1) {
 
-						while (index != -1) {
+                        while (index != -1) {
 
-							int teseRead = index - startidx;
+                            int teseRead = index - startidx;
 
-							byte[] teseByteBuffer = new byte[teseRead];
+                            byte[] teseByteBuffer = new byte[teseRead];
 
-							System.arraycopy(byteBuffer, startidx, teseByteBuffer, 0, teseRead);
+                            System.arraycopy(byteBuffer, startidx, teseByteBuffer, 0, teseRead);
 
-							TraceEvent traceEvent = TraceEventFactory.getTraceEvent(traceEventIndex, teseByteBuffer,
-									charset, saxReader);
+                            TraceEvent traceEvent = TraceEventFactory.getTraceEvent(traceEventIndex, teseByteBuffer,
+                                    charset, saxReader);
 
-							if (traceEvent == null) {
+                            if (traceEvent == null) {
 
-								errorCount++;
+                                errorCount++;
 
-								LOG.info("Error reading trace event id: " + traceEventIndex);
+                                LOG.info("Error reading trace event id: " + traceEventIndex);
 
-								TraceEventKey traceEventKey = new TraceEventKey(traceEventIndex, -1, true);
-								traceEvent = new TraceEventEmpty(traceEventKey, Color.WHITE);
-							}
+                                TraceEventKey traceEventKey = new TraceEventKey(traceEventIndex, -1, true);
+                                traceEvent = new TraceEventEmpty(traceEventKey, Color.WHITE);
+                            }
 
-							traceTableModel.addTraceEventToMap(traceEvent);
+                            traceTableModel.addTraceEventToMap(traceEvent);
 
-							traceEventIndex++;
+                            traceEventIndex++;
 
-							startidx = index;
+                            startidx = index;
 
-							index = KnuthMorrisPrattAlgorithm.indexOfWithPatternLength(byteBuffer, endTraceEventStr,
-									startidx);
-						}
-					}
+                            index = KnuthMorrisPrattAlgorithm.indexOfWithPatternLength(byteBuffer, endTraceEventStr,
+                                    startidx);
+                        }
+                    }
 
-					int byteBufferlen = byteBuffer.length;
-					int balance = byteBufferlen - startidx;
+                    int byteBufferlen = byteBuffer.length;
+                    int balance = byteBufferlen - startidx;
 
-					balanceByteArray = new byte[balance];
+                    balanceByteArray = new byte[balance];
 
-					System.arraycopy(byteBuffer, startidx, balanceByteArray, 0, balance);
+                    System.arraycopy(byteBuffer, startidx, balanceByteArray, 0, balance);
 
-					fileReadTaskInfo = new FileReadTaskInfo(fileSize.get(), totalread);
-					eventReadTaskInfo = new EventReadTaskInfo(traceEventIndex, -1);
+                    fileReadTaskInfo = new FileReadTaskInfo(fileSize.get(), totalread);
+                    eventReadTaskInfo = new EventReadTaskInfo(traceEventIndex, -1);
 
-					readCounterTaskInfo = new ReadCounterTaskInfo(fileReadTaskInfo);
-					readCounterTaskInfo.setEventReadTaskInfo(eventReadTaskInfo);
+                    readCounterTaskInfo = new ReadCounterTaskInfo(fileReadTaskInfo);
+                    readCounterTaskInfo.setEventReadTaskInfo(eventReadTaskInfo);
 
-					publish(readCounterTaskInfo);
+                    publish(readCounterTaskInfo);
 
-				} else {
+                } else {
 
-					if (!frtThread.isAlive()) {
+                    if (!frtThread.isAlive()) {
 
-						LOG.info("File reader Thread finished. Breaking TracerFileLoadTask");
+                        LOG.info("File reader Thread finished. Breaking TracerFileLoadTask");
 
-						// file reader finished. exit this.
-						break;
-					}
-				}
-			}
+                        // file reader finished. exit this.
+                        break;
+                    }
+                }
+            }
 
-			if (isCancelled() || (!frtThread.isAlive())) {
-				// handle cancel operation
-				cancel.set(true);
-			}
+            if (isCancelled() || (!frtThread.isAlive())) {
+                // handle cancel operation
+                cancel.set(true);
+            }
 
-		} finally {
+        } finally {
 
-			processedCount = traceEventIndex;
+            processedCount = traceEventIndex;
 
-			Message.MessageType messageType = MessageType.INFO;
+            Message.MessageType messageType = MessageType.INFO;
 
-			StringBuffer messageB = new StringBuffer();
-			messageB.append(tracerFile.getAbsolutePath());
-			messageB.append(". ");
+            StringBuffer messageB = new StringBuffer();
+            messageB.append(tracerFile.getAbsolutePath());
+            messageB.append(". ");
 
-			String text = "Processed " + processedCount + " trace events.";
-			messageB.append(text);
+            String text = "Processed " + processedCount + " trace events.";
+            messageB.append(text);
 
-			if (errorCount > 0) {
-				text = errorCount + " Error" + (errorCount > 1 ? "s" : "") + " while loading log file";
+            if (errorCount > 0) {
+                text = errorCount + " Error" + (errorCount > 1 ? "s" : "") + " while loading log file";
 
-				messageType = MessageType.ERROR;
-				messageB.append(text);
+                messageType = MessageType.ERROR;
+                messageB.append(text);
 
-			}
+            }
 
-			Message message = new Message(messageType, messageB.toString());
-			traceTableModel.setMessage(message);
+            Message message = new Message(messageType, messageB.toString());
+            traceTableModel.setMessage(message);
 
-			// possibly implement it better later on.
-			// traceTableModel.completeLoad();
+            // possibly implement it better later on.
+            // traceTableModel.completeLoad();
 
-			traceTableModel.fireTableDataChanged();
+            traceTableModel.fireTableDataChanged();
 
-			long diff = System.currentTimeMillis() - before;
+            long diff = System.currentTimeMillis() - before;
 
-			int secs = (int) Math.ceil((double) diff / 1E3);
+            int secs = (int) Math.ceil((double) diff / 1E3);
 
-			double avg = (diff / readCounter);
+            double avg = (diff / readCounter);
 
-			LOG.info("Processed " + processedCount + " trace events in " + secs + " secs Average: " + avg
-					+ " readCounter: " + readCounter);
+            LOG.info("Processed " + processedCount + " trace events in " + secs + " secs Average: " + avg
+                    + " readCounter: " + readCounter);
 
-		}
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.SwingWorker#process(java.util.List)
-	 */
-	@Override
-	protected void process(List<ReadCounterTaskInfo> chunks) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.swing.SwingWorker#process(java.util.List)
+     */
+    @Override
+    protected void process(List<ReadCounterTaskInfo> chunks) {
 
-		if ((isDone()) || (isCancelled()) || (chunks == null) || (chunks.size() == 0)) {
-			return;
-		}
+        if ((isDone()) || (isCancelled()) || (chunks == null) || (chunks.size() == 0)) {
+            return;
+        }
 
-		Collections.sort(chunks);
+        Collections.sort(chunks);
 
-		ReadCounterTaskInfo readCounterTaskInfo = chunks.get(chunks.size() - 1);
+        ReadCounterTaskInfo readCounterTaskInfo = chunks.get(chunks.size() - 1);
 
-		FileReadTaskInfo fileReadTaskInfo = readCounterTaskInfo.getFileReadTaskInfo();
-		EventReadTaskInfo eventReadTaskInfo = readCounterTaskInfo.getEventReadTaskInfo();
+        FileReadTaskInfo fileReadTaskInfo = readCounterTaskInfo.getFileReadTaskInfo();
+        EventReadTaskInfo eventReadTaskInfo = readCounterTaskInfo.getEventReadTaskInfo();
 
-		long fileSize = fileReadTaskInfo.getFileSize();
-		long fileRead = fileReadTaskInfo.getFileRead();
+        long fileSize = fileReadTaskInfo.getFileSize();
+        long fileRead = fileReadTaskInfo.getFileRead();
 
-		long eventCount = eventReadTaskInfo.getEventCount();
+        long eventCount = eventReadTaskInfo.getEventCount();
 
-		int progress = 0;
+        int progress = 0;
 
-		if (fileSize > 0) {
-			progress = (int) ((fileRead * 100) / fileSize);
-		}
+        if (fileSize > 0) {
+            progress = (int) ((fileRead * 100) / fileSize);
+        }
 
-		mProgressMonitor.setProgress(progress);
+        progressMonitor.setProgress(progress);
 
-		String message = String.format("Loaded %d trace events (%d%%)", eventCount, progress);
+        String message = String.format("Loaded %d trace events (%d%%)", eventCount, progress);
 
-		mProgressMonitor.setNote(message);
-		// disabled
-		// statusProgressBar.setText(message);
+        progressMonitor.setNote(message);
+        // disabled
+        // statusProgressBar.setText(message);
 
-	}
+    }
 
-	@Override
-	protected void done() {
-		if (!wait) {
-			completeLoad();
-		}
-	}
+    @Override
+    protected void done() {
+        if (!wait) {
+            completeLoad();
+        }
+    }
 
-	public void completeTask() {
+    public void completeTask() {
 
-		if (wait) {
-			completeLoad();
-		}
-	}
+        if (wait) {
+            completeLoad();
+        }
+    }
 
-	private void completeLoad() {
+    private void completeLoad() {
 
-		String filePath = traceTableModel.getFilePath();
+        String filePath = traceTableModel.getFilePath();
 
-		try {
+        try {
 
-			get();
+            get();
 
-			System.gc();
+            System.gc();
 
-			int processedCount = getProcessedCount();
+            int processedCount = getProcessedCount();
 
-			traceTableModel.fireTableDataChanged();
+            traceTableModel.fireTableDataChanged();
 
-			LOG.info("TracerFileLoadTask - Done: " + filePath + " processedCount:" + processedCount);
+            LOG.info("TracerFileLoadTask - Done: " + filePath + " processedCount:" + processedCount);
 
-		} catch (CancellationException ce) {
+        } catch (CancellationException ce) {
 
-			LOG.error("TracerFileLoadTask - Cancelled " + filePath);
+            LOG.error("TracerFileLoadTask - Cancelled " + filePath);
 
-			MessageType messageType = MessageType.ERROR;
-			Message modelmessage = new Message(messageType, filePath + " - file loading cancelled.");
-			traceTableModel.setMessage(modelmessage);
+            MessageType messageType = MessageType.ERROR;
+            Message modelmessage = new Message(messageType, filePath + " - file loading cancelled.");
+            traceTableModel.setMessage(modelmessage);
 
-		} catch (ExecutionException ee) {
+        } catch (ExecutionException ee) {
 
-			LOG.error("Execution Error during TracerFileLoadTask", ee);
+            LOG.error("Execution Error during TracerFileLoadTask", ee);
 
-			String message = null;
+            String message = null;
 
-			if (ee.getCause() instanceof OutOfMemoryError) {
+            if (ee.getCause() instanceof OutOfMemoryError) {
 
-				message = "Out Of Memory Error has occured while loading " + filePath
-						+ ".\nPlease increase the JVM's max heap size (-Xmx) and try again.";
+                message = "Out Of Memory Error has occured while loading " + filePath
+                        + ".\nPlease increase the JVM's max heap size (-Xmx) and try again.";
 
-				JOptionPane.showMessageDialog(parent, message, "Out Of Memory Error", JOptionPane.ERROR_MESSAGE);
-			} else {
-				message = ee.getCause().getMessage() + " has occured while loading " + filePath + ".";
+                JOptionPane.showMessageDialog(parent, message, "Out Of Memory Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                message = ee.getCause().getMessage() + " has occured while loading " + filePath + ".";
 
-				JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
-			}
+                JOptionPane.showMessageDialog(parent, message, "Error", JOptionPane.ERROR_MESSAGE);
+            }
 
-			MessageType messageType = MessageType.ERROR;
-			Message modelmessage = new Message(messageType, message);
-			traceTableModel.setMessage(modelmessage);
+            MessageType messageType = MessageType.ERROR;
+            Message modelmessage = new Message(messageType, message);
+            traceTableModel.setMessage(modelmessage);
 
-		} catch (Exception e) {
-			LOG.error("Error loading file: " + filePath, e);
-			MessageType messageType = MessageType.ERROR;
+        } catch (Exception e) {
+            LOG.error("Error loading file: " + filePath, e);
+            MessageType messageType = MessageType.ERROR;
 
-			StringBuffer messageB = new StringBuffer();
-			messageB.append("Error loading file: ");
-			messageB.append(filePath);
+            StringBuffer messageB = new StringBuffer();
+            messageB.append("Error loading file: ");
+            messageB.append(filePath);
 
-			Message message = new Message(messageType, messageB.toString());
-			traceTableModel.setMessage(message);
+            Message message = new Message(messageType, messageB.toString());
+            traceTableModel.setMessage(message);
 
-		} finally {
+        } finally {
 
-			if (!mProgressMonitor.isCanceled()) {
-				mProgressMonitor.close();
-			}
+            if (!progressMonitor.isCanceled()) {
+                progressMonitor.close();
+            }
 
-			System.gc();
-		}
-	}
+            System.gc();
+        }
+    }
 }

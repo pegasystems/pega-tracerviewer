@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -33,180 +34,179 @@ import com.pega.gcs.fringecommon.log4j2.Log4j2Helper;
 
 public class TraceTabbedPane extends JTabbedPane implements DropTargetListener {
 
-	private static final long serialVersionUID = 8534656255850550268L;
+    private static final long serialVersionUID = 8534656255850550268L;
 
-	private static final Log4j2Helper LOG = new Log4j2Helper(TraceTabbedPane.class);
+    private static final Log4j2Helper LOG = new Log4j2Helper(TraceTabbedPane.class);
 
-	private TracerViewerSetting tracerViewerSetting;
+    private TracerViewerSetting tracerViewerSetting;
 
-	private RecentFileContainer recentFileContainer;
+    private RecentFileContainer recentFileContainer;
 
-	private Map<String, Integer> fileTabIndexMap;
+    private Map<String, Integer> fileTabIndexMap;
 
-	private Border normalBorder;
+    private Border normalBorder;
 
-	public TraceTabbedPane(TracerViewerSetting tracerViewerSetting, RecentFileContainer recentFileContainer) {
-		super();
+    public TraceTabbedPane(TracerViewerSetting tracerViewerSetting, RecentFileContainer recentFileContainer) {
+        super();
 
-		this.tracerViewerSetting = tracerViewerSetting;
-		this.recentFileContainer = recentFileContainer;
+        this.tracerViewerSetting = tracerViewerSetting;
+        this.recentFileContainer = recentFileContainer;
 
-		fileTabIndexMap = new LinkedHashMap<String, Integer>();
+        fileTabIndexMap = new LinkedHashMap<String, Integer>();
 
-		setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
-		normalBorder = getBorder();
+        normalBorder = getBorder();
 
-		try {
-			DropTarget dt = new DropTarget();
-			dt.addDropTargetListener(this);
-			setDropTarget(dt);
-		} catch (TooManyListenersException e) {
-			LOG.error("Error adding drag drop listener", e);
-		}
-	}
+        try {
+            DropTarget dt = new DropTarget();
+            dt.addDropTargetListener(this);
+            setDropTarget(dt);
+        } catch (TooManyListenersException e) {
+            LOG.error("Error adding drag drop listener", e);
+        }
+    }
 
-	@Override
-	public void dragEnter(DropTargetDragEvent dtde) {
-		if (isDragOk(dtde)) {
+    @Override
+    public void dragEnter(DropTargetDragEvent dtde) {
+        if (isDragOk(dtde)) {
 
-			setBorder(BorderFactory.createLineBorder(Color.RED));
+            setBorder(BorderFactory.createLineBorder(Color.RED));
 
-			dtde.acceptDrag(DnDConstants.ACTION_NONE);
-		} else {
-			dtde.rejectDrag();
-		}
+            dtde.acceptDrag(DnDConstants.ACTION_NONE);
+        } else {
+            dtde.rejectDrag();
+        }
 
-	}
+    }
 
-	@Override
-	public void dragOver(DropTargetDragEvent dtde) {
-		// TODO Auto-generated method stub
+    @Override
+    public void dragOver(DropTargetDragEvent dtde) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void dropActionChanged(DropTargetDragEvent dtde) {
-		if (isDragOk(dtde)) {
-			dtde.acceptDrag(DnDConstants.ACTION_NONE);
-		} else {
-			dtde.rejectDrag();
-		}
+    @Override
+    public void dropActionChanged(DropTargetDragEvent dtde) {
+        if (isDragOk(dtde)) {
+            dtde.acceptDrag(DnDConstants.ACTION_NONE);
+        } else {
+            dtde.rejectDrag();
+        }
 
-	}
+    }
 
-	@Override
-	public void dragExit(DropTargetEvent dte) {
-		setBorder(normalBorder);
-	}
+    @Override
+    public void dragExit(DropTargetEvent dte) {
+        setBorder(normalBorder);
+    }
 
-	@Override
-	public void drop(DropTargetDropEvent dtde) {
+    @Override
+    public void drop(DropTargetDropEvent dtde) {
 
-		try {
-			Transferable tr = dtde.getTransferable();
+        try {
+            Transferable tr = dtde.getTransferable();
 
-			if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
 
-				dtde.acceptDrop(DnDConstants.ACTION_COPY);
+                dtde.acceptDrop(DnDConstants.ACTION_COPY);
 
-				// Get a useful list
-				@SuppressWarnings("unchecked")
-				List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                // Get a useful list
+                @SuppressWarnings("unchecked")
+                List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
 
-				for (File file : fileList) {
-					loadFile(file);
-				}
+                for (File file : fileList) {
+                    loadFile(file);
+                }
 
-				// Mark that drop is completed.
-				dtde.getDropTargetContext().dropComplete(true);
+                // Mark that drop is completed.
+                dtde.getDropTargetContext().dropComplete(true);
 
-			}
+            }
 
-		} catch (Exception e) {
-			LOG.error("Error in drop operation", e);
-		} finally {
-			// reset border
-			setBorder(normalBorder);
-		}
+        } catch (Exception e) {
+            LOG.error("Error in drop operation", e);
+        } finally {
+            // reset border
+            setBorder(normalBorder);
+        }
 
-	}
+    }
 
-	private boolean isDragOk(final DropTargetDragEvent evt) {
+    private boolean isDragOk(final DropTargetDragEvent evt) {
 
-		boolean retValue = false;
+        boolean retValue = false;
 
-		// Get data flavors being dragged
-		DataFlavor[] dataFlavorArray = evt.getCurrentDataFlavors();
+        // Get data flavors being dragged
+        DataFlavor[] dataFlavorArray = evt.getCurrentDataFlavors();
 
-		for (int i = 0; i < dataFlavorArray.length; i++) {
+        for (int i = 0; i < dataFlavorArray.length; i++) {
 
-			final DataFlavor dataFlavor = dataFlavorArray[i];
+            final DataFlavor dataFlavor = dataFlavorArray[i];
 
-			if (dataFlavor.equals(DataFlavor.javaFileListFlavor) || dataFlavor.isRepresentationClassReader()) {
-				retValue = true;
-				break;
-			}
-		}
+            if (dataFlavor.equals(DataFlavor.javaFileListFlavor) || dataFlavor.isRepresentationClassReader()) {
+                retValue = true;
+                break;
+            }
+        }
 
-		return retValue;
-	}
+        return retValue;
+    }
 
-	private void addTab(File selectedFile, JPanel tabPanel) {
+    private void addTab(File selectedFile, JPanel tabPanel) {
 
-		String tabTitle = selectedFile.getName();
+        String tabTitle = selectedFile.getName();
 
-		addTab(tabTitle, null, tabPanel, selectedFile.getPath());
+        addTab(tabTitle, null, tabPanel, selectedFile.getPath());
 
-		int index = getTabCount() - 1;
+        int index = getTabCount() - 1;
 
-		final ButtonTabComponent btc = new ButtonTabComponent(tabTitle, this);
+        final ButtonTabComponent btc = new ButtonTabComponent(tabTitle, this);
 
-		fileTabIndexMap.put(selectedFile.getPath(), index);
+        fileTabIndexMap.put(selectedFile.getPath(), index);
 
-		setTabComponentAt(index, btc);
-		setSelectedIndex(index);
-	}
+        setTabComponentAt(index, btc);
+        setSelectedIndex(index);
+    }
 
-	@Override
-	public void remove(int index) {
-		super.remove(index);
+    @Override
+    public void remove(int index) {
+        super.remove(index);
 
-		fileTabIndexMap.values().remove(index);
+        fileTabIndexMap.values().remove(index);
 
-		int tabIndex = 0;
+        int tabIndex = 0;
 
-		for (String key : fileTabIndexMap.keySet()) {
-			fileTabIndexMap.put(key, tabIndex);
-			tabIndex++;
-		}
+        for (String key : fileTabIndexMap.keySet()) {
+            fileTabIndexMap.put(key, tabIndex);
+            tabIndex++;
+        }
 
-		System.gc();
+        System.gc();
 
-	}
+    }
 
-	public void loadFile(final File selectedFile) throws Exception {
+    public void loadFile(final File selectedFile) throws Exception {
 
-		Integer index = fileTabIndexMap.get(selectedFile.getPath());
+        Integer index = fileTabIndexMap.get(selectedFile.getPath());
 
-		if (index != null) {
+        if (index != null) {
 
-			setSelectedIndex(index);
+            setSelectedIndex(index);
 
-		} else {
+        } else {
 
-			TracerDataMainPanel tracerDataMainPanel = new TracerDataMainPanel(selectedFile, recentFileContainer,
-					tracerViewerSetting);
-			
-			addTab(selectedFile, tracerDataMainPanel);
-		}
+            TracerDataMainPanel tracerDataMainPanel = new TracerDataMainPanel(selectedFile, recentFileContainer,
+                    tracerViewerSetting);
+            addTab(selectedFile, tracerDataMainPanel);
+        }
 
-	}
+    }
 
-	public ArrayList<String> getOpenFileList() {
+    public ArrayList<String> getOpenFileList() {
 
-		ArrayList<String> openFileList = new ArrayList<>(fileTabIndexMap.keySet());
+        ArrayList<String> openFileList = new ArrayList<>(fileTabIndexMap.keySet());
 
-		return openFileList;
-	}
+        return openFileList;
+    }
 }

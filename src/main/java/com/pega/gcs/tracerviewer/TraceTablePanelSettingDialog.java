@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -32,205 +33,199 @@ import com.pega.gcs.fringecommon.guiutilities.GUIUtilities;
 
 public class TraceTablePanelSettingDialog extends JDialog {
 
-	private static final long serialVersionUID = -4890020854049502839L;
+    private static final long serialVersionUID = -4890020854049502839L;
 
-	private String charset;
+    private String charset;
 
-	private boolean settingUpdated;
+    private boolean settingUpdated;
 
-	private AutoCompleteJComboBox<String> charsetJComboBox;
+    private AutoCompleteJComboBox<String> charsetJComboBox;
 
-	public TraceTablePanelSettingDialog(String charset, ImageIcon appIcon, Component parent) {
+    public TraceTablePanelSettingDialog(String charset, ImageIcon appIcon, Component parent) {
 
-		super();
+        super();
 
-		this.charset = charset;
+        this.charset = charset;
 
-		this.settingUpdated = false;
+        this.settingUpdated = false;
 
-		setIconImage(appIcon.getImage());
+        setIconImage(appIcon.getImage());
 
-		// setPreferredSize(new Dimension(350, 175));
-		setTitle("Tracer file Settings");
-		// setResizable(true);
-		setModalityType(ModalityType.APPLICATION_MODAL);
-		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-		// setAlwaysOnTop(true);
+        // setPreferredSize(new Dimension(350, 175));
+        setTitle("Tracer file Settings");
+        // setResizable(true);
+        setModalityType(ModalityType.APPLICATION_MODAL);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        // setAlwaysOnTop(true);
 
-		setContentPane(getMainJPanel());
+        setContentPane(getMainJPanel());
 
-		pack();
+        pack();
 
-		setLocationRelativeTo(parent);
+        setLocationRelativeTo(parent);
 
-		populateSettingsJPanel();
+        populateSettingsJPanel();
 
-		// visible should be the last step
-		setVisible(true);
+        // visible should be the last step
+        setVisible(true);
 
-	}
+    }
 
-	protected String getCharset() {
-		return charset;
-	}
+    protected String getCharset() {
+        return charset;
+    }
 
-	/**
-	 * @return the settingUpdated
-	 */
-	public boolean isSettingUpdated() {
-		return settingUpdated;
-	}
+    public boolean isSettingUpdated() {
+        return settingUpdated;
+    }
 
-	protected void setSettingUpdated(boolean aSettingUpdated) {
-		settingUpdated = aSettingUpdated;
-	}
+    protected void setSettingUpdated(boolean settingUpdated) {
+        this.settingUpdated = settingUpdated;
+    }
 
-	/**
-	 * @return the charsetJComboBox
-	 */
-	public AutoCompleteJComboBox<String> getCharsetJComboBox() {
+    public AutoCompleteJComboBox<String> getCharsetJComboBox() {
 
-		if (charsetJComboBox == null) {
-			charsetJComboBox = GUIUtilities.getCharsetJComboBox();
-		}
+        if (charsetJComboBox == null) {
+            charsetJComboBox = GUIUtilities.getCharsetJComboBox();
+        }
 
-		return charsetJComboBox;
-	}
+        return charsetJComboBox;
+    }
 
-	private JPanel getMainJPanel() {
+    private JPanel getMainJPanel() {
 
-		JPanel mainJPanel = new JPanel();
+        JPanel mainJPanel = new JPanel();
 
-		LayoutManager layout = new BoxLayout(mainJPanel, BoxLayout.Y_AXIS);
-		mainJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(mainJPanel, BoxLayout.Y_AXIS);
+        mainJPanel.setLayout(layout);
 
-		JPanel settingsJPanel = getSettingsJPanel();
-		JPanel buttonsJPanel = getButtonsJPanel();
+        JPanel settingsJPanel = getSettingsJPanel();
+        JPanel buttonsJPanel = getButtonsJPanel();
 
-		mainJPanel.add(settingsJPanel);
-		mainJPanel.add(Box.createRigidArea(new Dimension(4, 2)));
-		mainJPanel.add(buttonsJPanel);
-		mainJPanel.add(Box.createRigidArea(new Dimension(4, 4)));
-		// mainJPanel.add(Box.createHorizontalGlue());
+        mainJPanel.add(settingsJPanel);
+        mainJPanel.add(Box.createRigidArea(new Dimension(4, 2)));
+        mainJPanel.add(buttonsJPanel);
+        mainJPanel.add(Box.createRigidArea(new Dimension(4, 4)));
+        // mainJPanel.add(Box.createHorizontalGlue());
 
-		return mainJPanel;
-	}
+        return mainJPanel;
+    }
 
-	private JPanel getSettingsJPanel() {
-		JPanel settingsJPanel = new JPanel();
-		settingsJPanel.setLayout(new GridBagLayout());
+    private JPanel getSettingsJPanel() {
+        JPanel settingsJPanel = new JPanel();
+        settingsJPanel.setLayout(new GridBagLayout());
 
-		GridBagConstraints gbc1 = new GridBagConstraints();
-		gbc1.gridx = 0;
-		gbc1.gridy = 0;
-		gbc1.weightx = 1.0D;
-		gbc1.weighty = 0.0D;
-		gbc1.fill = GridBagConstraints.BOTH;
-		gbc1.anchor = GridBagConstraints.NORTHWEST;
-		gbc1.insets = new Insets(2, 2, 2, 2);
+        GridBagConstraints gbc1 = new GridBagConstraints();
+        gbc1.gridx = 0;
+        gbc1.gridy = 0;
+        gbc1.weightx = 1.0D;
+        gbc1.weighty = 0.0D;
+        gbc1.fill = GridBagConstraints.BOTH;
+        gbc1.anchor = GridBagConstraints.NORTHWEST;
+        gbc1.insets = new Insets(2, 2, 2, 2);
 
-		GridBagConstraints gbc2 = new GridBagConstraints();
-		gbc2.gridx = 1;
-		gbc2.gridy = 0;
-		gbc2.weightx = 1.0D;
-		gbc2.weighty = 0.0D;
-		gbc2.fill = GridBagConstraints.BOTH;
-		gbc2.anchor = GridBagConstraints.NORTHWEST;
-		gbc2.insets = new Insets(2, 2, 2, 2);
+        GridBagConstraints gbc2 = new GridBagConstraints();
+        gbc2.gridx = 1;
+        gbc2.gridy = 0;
+        gbc2.weightx = 1.0D;
+        gbc2.weighty = 0.0D;
+        gbc2.fill = GridBagConstraints.BOTH;
+        gbc2.anchor = GridBagConstraints.NORTHWEST;
+        gbc2.insets = new Insets(2, 2, 2, 2);
 
-		JLabel charsetJLabel = new JLabel("File Encoding");
+        JLabel charsetJLabel = new JLabel("File Encoding");
 
-		AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
+        AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
 
-		settingsJPanel.add(charsetJLabel, gbc1);
-		settingsJPanel.add(charsetJComboBox, gbc2);
+        settingsJPanel.add(charsetJLabel, gbc1);
+        settingsJPanel.add(charsetJComboBox, gbc2);
 
-		Border loweredEtched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+        Border loweredEtched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 
-		settingsJPanel.setBorder(BorderFactory.createTitledBorder(loweredEtched, "Settings"));
+        settingsJPanel.setBorder(BorderFactory.createTitledBorder(loweredEtched, "Settings"));
 
-		return settingsJPanel;
-	}
+        return settingsJPanel;
+    }
 
-	private JPanel getButtonsJPanel() {
+    private JPanel getButtonsJPanel() {
 
-		JPanel buttonsJPanel = new JPanel();
+        JPanel buttonsJPanel = new JPanel();
 
-		LayoutManager layout = new BoxLayout(buttonsJPanel, BoxLayout.X_AXIS);
-		buttonsJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(buttonsJPanel, BoxLayout.X_AXIS);
+        buttonsJPanel.setLayout(layout);
 
-		// OK Button
-		JButton okJButton = new JButton("OK");
-		okJButton.setToolTipText("OK");
+        // OK Button
+        JButton okJButton = new JButton("OK");
+        okJButton.setToolTipText("OK");
 
-		okJButton.addActionListener(new ActionListener() {
+        okJButton.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				setSettingUpdated(true);
-				dispose();
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                setSettingUpdated(true);
+                dispose();
 
-			}
-		});
+            }
+        });
 
-		// Cancel button
-		JButton cancelJButton = new JButton("Cancel");
-		cancelJButton.setToolTipText("Cancel");
+        // Cancel button
+        JButton cancelJButton = new JButton("Cancel");
+        cancelJButton.setToolTipText("Cancel");
 
-		cancelJButton.addActionListener(new ActionListener() {
+        cancelJButton.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				dispose();
-			}
-		});
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                dispose();
+            }
+        });
 
-		// Reset button
-		JButton resetJButton = new JButton("Reset");
-		resetJButton.setToolTipText("Reset");
+        // Reset button
+        JButton resetJButton = new JButton("Reset");
+        resetJButton.setToolTipText("Reset");
 
-		resetJButton.addActionListener(new ActionListener() {
+        resetJButton.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
 
-				charsetJComboBox.setSelectedItem(getCharset());
-			}
-		});
+                charsetJComboBox.setSelectedItem(getCharset());
+            }
+        });
 
-		Dimension dim = new Dimension(20, 30);
-		buttonsJPanel.add(Box.createHorizontalGlue());
-		buttonsJPanel.add(Box.createRigidArea(dim));
-		buttonsJPanel.add(okJButton);
-		buttonsJPanel.add(Box.createRigidArea(dim));
-		buttonsJPanel.add(cancelJButton);
-		buttonsJPanel.add(Box.createRigidArea(dim));
-		buttonsJPanel.add(resetJButton);
-		buttonsJPanel.add(Box.createRigidArea(dim));
-		buttonsJPanel.add(Box.createHorizontalGlue());
+        Dimension dim = new Dimension(20, 30);
+        buttonsJPanel.add(Box.createHorizontalGlue());
+        buttonsJPanel.add(Box.createRigidArea(dim));
+        buttonsJPanel.add(okJButton);
+        buttonsJPanel.add(Box.createRigidArea(dim));
+        buttonsJPanel.add(cancelJButton);
+        buttonsJPanel.add(Box.createRigidArea(dim));
+        buttonsJPanel.add(resetJButton);
+        buttonsJPanel.add(Box.createRigidArea(dim));
+        buttonsJPanel.add(Box.createHorizontalGlue());
 
-		buttonsJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-		return buttonsJPanel;
-	}
+        buttonsJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        return buttonsJPanel;
+    }
 
-	private void populateSettingsJPanel() {
+    private void populateSettingsJPanel() {
 
-		AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
+        AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
 
-		charsetJComboBox.setSelectedItem(charset);
+        charsetJComboBox.setSelectedItem(charset);
 
-	}
+    }
 
-	public String getSelectedCharset() {
-		AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
-		String charset = (String) charsetJComboBox.getSelectedItem();
+    public String getSelectedCharset() {
+        AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
+        String charset = (String) charsetJComboBox.getSelectedItem();
 
-		if ((charset == null) || ("".equals(charset))) {
-			charset = this.charset;
-		}
+        if ((charset == null) || ("".equals(charset))) {
+            charset = this.charset;
+        }
 
-		return charset;
-	}
+        return charset;
+    }
 
 }

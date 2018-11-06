@@ -4,44 +4,44 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import org.dom4j.Element;
 
 public class TraceEventActivitySteps extends TraceEvent {
 
-	public TraceEventActivitySteps(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
-		
-		super(traceEventKey, bytes, traceEventElement);
+    public TraceEventActivitySteps(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.ACTIVITY_STEP;
-	}
+        traceEventType = TraceEventType.ACTIVITY_STEP;
+    }
 
-	@Override
-	protected boolean checkStart() {
+    @Override
+    protected boolean checkStart() {
 
-		boolean start = false;
+        boolean start = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("Step Begin".equals(eventName)) {
-			start = true;
-		}
+        if ("Step Begin".equals(eventName)) {
+            start = true;
+        }
 
-		return start;
-	}
+        return start;
+    }
 
-	@Override
-	protected boolean checkEnd() {
+    @Override
+    protected boolean checkEnd() {
 
-		boolean end = false;
+        boolean end = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("Step End".equals(eventName)) {
-			end = true;
-		}
+        if ("Step End".equals(eventName)) {
+            end = true;
+        }
 
-		return end;
-	}
+        return end;
+    }
 }

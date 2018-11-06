@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.view;
 
 import javax.swing.JPanel;
@@ -16,37 +17,37 @@ import com.pega.gcs.tracerviewer.TraceTableMouseListener;
 
 public class TracerDataSingleTableView extends TracerDataSingleView {
 
-	private static final long serialVersionUID = -3080637746044405825L;
+    private static final long serialVersionUID = -3080637746044405825L;
 
-	private TraceTable traceTable;
+    private TraceTable traceTable;
 
-	public TracerDataSingleTableView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
-			TraceNavigationTableController traceNavigationTableController) {
-		super(traceTableModel, supplementUtilityJPanel, traceNavigationTableController);
-	}
+    public TracerDataSingleTableView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
+            TraceNavigationTableController traceNavigationTableController) {
+        super(traceTableModel, supplementUtilityJPanel, traceNavigationTableController);
+    }
 
-	@Override
-	protected CustomJTable getTracerDataTable() {
-		if (traceTable == null) {
+    @Override
+    protected CustomJTable getTracerDataTable() {
+        if (traceTable == null) {
 
-			TraceTableModel traceTableModel = getTraceTableModel();
+            TraceTableModel traceTableModel = getTraceTableModel();
 
-			traceTable = new TraceTable(traceTableModel);
-			traceTable.setFillsViewportHeight(true);
+            traceTable = new TraceTable(traceTableModel);
+            traceTable.setFillsViewportHeight(true);
 
-			TraceTableMouseListener traceTableMouseListener = new TraceTableMouseListener(this);
+            TraceTableMouseListener traceTableMouseListener = new TraceTableMouseListener(this);
 
-			traceTableMouseListener.addTraceTable(traceTable);
+            traceTableMouseListener.addTraceTable(traceTable);
 
-			traceTable.addMouseListener(traceTableMouseListener);
-		}
+            traceTable.addMouseListener(traceTableMouseListener);
+        }
 
-		return traceTable;
-	}
+        return traceTable;
+    }
 
-	@Override
-	protected JPanel getAdditionalUtilityPanel() {
-		return null;
-	}
+    @Override
+    protected JPanel getAdditionalUtilityPanel() {
+        return null;
+    }
 
 }

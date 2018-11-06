@@ -4,44 +4,45 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import org.dom4j.Element;
 
 public class TraceEventParseRules extends TraceEventNonActivity {
 
-	public TraceEventParseRules(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+    public TraceEventParseRules(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
 
-		super(traceEventKey, bytes, traceEventElement);
+        super(traceEventKey, bytes, traceEventElement);
 
-		traceEventType = TraceEventType.PARSE_RULES;
-	}
+        traceEventType = TraceEventType.PARSE_RULES;
+    }
 
-	@Override
-	protected boolean checkStart() {
+    @Override
+    protected boolean checkStart() {
 
-		boolean start = false;
+        boolean start = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("Parse Start".equals(eventName)) {
-			start = true;
-		}
+        if ("Parse Start".equals(eventName)) {
+            start = true;
+        }
 
-		return start;
-	}
+        return start;
+    }
 
-	@Override
-	protected boolean checkEnd() {
+    @Override
+    protected boolean checkEnd() {
 
-		boolean end = false;
+        boolean end = false;
 
-		String eventName = getEventName();
+        String eventName = getEventName();
 
-		if ("Parse End".equals(eventName)) {
-			end = true;
-		}
+        if ("Parse End".equals(eventName)) {
+            end = true;
+        }
 
-		return end;
-	}
+        return end;
+    }
 }

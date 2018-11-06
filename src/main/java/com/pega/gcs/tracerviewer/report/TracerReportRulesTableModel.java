@@ -1,12 +1,13 @@
-/*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
- *
- * Contributors:
- *     Manu Varghese
- *******************************************************************************/
 /**
- * 
+ * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * <p>
+ * Contributors:
+ * Manu Varghese
  */
+/**
+ *
+ */
+
 package com.pega.gcs.tracerviewer.report;
 
 import java.awt.Color;
@@ -41,396 +42,384 @@ import com.pega.gcs.tracerviewer.TraceEventRuleset;
 
 public class TracerReportRulesTableModel extends FilterTableModel<Integer> {
 
-	private static final long serialVersionUID = 2010790662059130714L;
+    private static final long serialVersionUID = 2010790662059130714L;
 
-	Map<Integer, RulesetRule> rulesetRuleMap;
+    Map<Integer, RulesetRule> rulesetRuleMap;
 
-	private List<Integer> rulesetRuleIndexList;
+    private List<Integer> rulesetRuleIndexList;
 
-	private TableColumnModel tableColumnModel;
+    private TableColumnModel tableColumnModel;
 
-	public TracerReportRulesTableModel(Map<TraceEventRuleset, TreeSet<TraceEventRule>> rulesInvokedMap) {
+    public TracerReportRulesTableModel(Map<TraceEventRuleset, TreeSet<TraceEventRule>> rulesInvokedMap) {
 
-		super(null);
+        super(null);
 
-		resetModel();
+        resetModel();
 
-		initialise(rulesInvokedMap);
-	}
+        initialise(rulesInvokedMap);
+    }
 
-	/**
-	 * @return the rulesetInsKeyMap
-	 */
-	protected Map<Integer, RulesetRule> getRulesetRuleMap() {
+    protected Map<Integer, RulesetRule> getRulesetRuleMap() {
 
-		if (rulesetRuleMap == null) {
-			rulesetRuleMap = new TreeMap<Integer, RulesetRule>();
-		}
+        if (rulesetRuleMap == null) {
+            rulesetRuleMap = new TreeMap<Integer, RulesetRule>();
+        }
 
-		return rulesetRuleMap;
-	}
+        return rulesetRuleMap;
+    }
 
-	@Override
-	public int getColumnCount() {
-		return TracerReportRulesTableColumn.values().length;
-	}
+    @Override
+    public int getColumnCount() {
+        return TracerReportRulesTableColumn.values().length;
+    }
 
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
 
-		List<Integer> rulesetRuleIndexList = getFtmEntryKeyList();
+        List<Integer> rulesetRuleIndexList = getFtmEntryKeyList();
 
-		Integer rulesetRuleIndex = rulesetRuleIndexList.get(rowIndex);
+        Integer rulesetRuleIndex = rulesetRuleIndexList.get(rowIndex);
 
-		RulesetRule rulesetRule = rulesetRuleMap.get(rulesetRuleIndex);
+        RulesetRule rulesetRule = rulesetRuleMap.get(rulesetRuleIndex);
 
-		return rulesetRule;
-	}
+        return rulesetRule;
+    }
 
-	@Override
-	protected int getModelColumnIndex(int column) {
-		return column;
-	}
+    @Override
+    protected int getModelColumnIndex(int column) {
+        return column;
+    }
 
-	@Override
-	protected boolean search(Integer key, Object searchStrObj) {
-		return false;
-	}
+    @Override
+    protected boolean search(Integer key, Object searchStrObj) {
+        return false;
+    }
 
-	@Override
-	protected FilterTableModelNavigation<Integer> getNavigationRowIndex(List<Integer> resultList, int currSelectedRowIndex, boolean forward,
-			boolean first, boolean last, boolean wrap) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    protected FilterTableModelNavigation<Integer> getNavigationRowIndex(List<Integer> resultList, int currSelectedRowIndex, boolean forward,
+                                                                        boolean first, boolean last, boolean wrap) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public List<Integer> getFtmEntryKeyList() {
+    @Override
+    public List<Integer> getFtmEntryKeyList() {
 
-		if (rulesetRuleIndexList == null) {
-			rulesetRuleIndexList = new ArrayList<Integer>();
-		}
+        if (rulesetRuleIndexList == null) {
+            rulesetRuleIndexList = new ArrayList<Integer>();
+        }
 
-		return rulesetRuleIndexList;
-	}
+        return rulesetRuleIndexList;
+    }
 
-	@Override
-	public void resetModel() {
+    @Override
+    public void resetModel() {
 
-		Map<Integer, RulesetRule> rulesetRuleMap = getRulesetRuleMap();
-		rulesetRuleMap.clear();
+        Map<Integer, RulesetRule> rulesetRuleMap = getRulesetRuleMap();
+        rulesetRuleMap.clear();
 
-		Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<Integer>>> columnFilterMap;
-		columnFilterMap = getColumnFilterMap();
-		columnFilterMap.clear();
+        Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<Integer>>> columnFilterMap;
+        columnFilterMap = getColumnFilterMap();
+        columnFilterMap.clear();
 
-		TracerReportRulesTableColumn[] tracerReportRulesTableColumnArray = TracerReportRulesTableColumn.values();
+        TracerReportRulesTableColumn[] tracerReportRulesTableColumnArray = TracerReportRulesTableColumn.values();
 
-		for (int columnIndex = 0; columnIndex < tracerReportRulesTableColumnArray.length; columnIndex++) {
+        for (int columnIndex = 0; columnIndex < tracerReportRulesTableColumnArray.length; columnIndex++) {
 
-			TracerReportRulesTableColumn tracerReportRulesTableColumn = tracerReportRulesTableColumnArray[columnIndex];
+            TracerReportRulesTableColumn tracerReportRulesTableColumn = tracerReportRulesTableColumnArray[columnIndex];
 
-			// preventing unnecessary buildup of filter map
-			if (tracerReportRulesTableColumn.isFilterable()) {
+            // preventing unnecessary buildup of filter map
+            if (tracerReportRulesTableColumn.isFilterable()) {
 
-				FilterColumn filterColumn = new FilterColumn(columnIndex);
+                FilterColumn filterColumn = new FilterColumn(columnIndex);
 
-				filterColumn.setColumnFilterEnabled(true);
+                filterColumn.setColumnFilterEnabled(true);
 
-				columnFilterMap.put(filterColumn, null);
-			}
-		}
-	}
+                columnFilterMap.put(filterColumn, null);
+            }
+        }
+    }
 
-	@Override
-	public int getIndexOfKey(Integer key) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int getIndexOfKey(Integer key) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public Object getEventForKey(Integer key) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Object getEventForKey(Integer key) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public AbstractTreeTableNode getTreeNodeForKey(Integer key) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public AbstractTreeTableNode getTreeNodeForKey(Integer key) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void clearSearchResults(boolean clearResults) {
-		// TODO Auto-generated method stub
+    @Override
+    public void clearSearchResults(boolean clearResults) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public SearchModel<Integer> getSearchModel() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	}
+    private void initialise(Map<TraceEventRuleset, ? extends Collection<TraceEventRule>> rulesInvokedMap) {
 
-	@Override
-	public SearchModel<Integer> getSearchModel() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        List<Integer> rulesetRuleIndexList = getFtmEntryKeyList();
+        Map<Integer, RulesetRule> rulesetRuleMap = getRulesetRuleMap();
 
-	private void initialise(Map<TraceEventRuleset, ? extends Collection<TraceEventRule>> rulesInvokedMap) {
+        Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<Integer>>> columnFilterMap = getColumnFilterMap();
 
-		List<Integer> rulesetRuleIndexList = getFtmEntryKeyList();
-		Map<Integer, RulesetRule> rulesetRuleMap = getRulesetRuleMap();
+        Comparator<Map.Entry<TraceEventRuleset, TraceEventRule>> comparator;
+        comparator = new Comparator<Map.Entry<TraceEventRuleset, TraceEventRule>>() {
 
-		Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<Integer>>> columnFilterMap = getColumnFilterMap();
+            @Override
+            public int compare(Map.Entry<TraceEventRuleset, TraceEventRule> o1, Map.Entry<TraceEventRuleset, TraceEventRule> o2) {
 
-		Comparator<Map.Entry<TraceEventRuleset, TraceEventRule>> comparator;
-		comparator = new Comparator<Map.Entry<TraceEventRuleset, TraceEventRule>>() {
+                TraceEventRule o1TraceEventRule = o1.getValue();
+                TraceEventRule o2TraceEventRule = o2.getValue();
 
-			@Override
-			public int compare(Map.Entry<TraceEventRuleset, TraceEventRule> o1, Map.Entry<TraceEventRuleset, TraceEventRule> o2) {
+                Double o1totalOwnElapsed = o1TraceEventRule.getTotalOwnElapsed();
+                Double o2totalOwnElapsed = o2TraceEventRule.getTotalOwnElapsed();
 
-				TraceEventRule o1TraceEventRule = o1.getValue();
-				TraceEventRule o2TraceEventRule = o2.getValue();
+                o1totalOwnElapsed = (o1totalOwnElapsed == null) ? 0d : o1totalOwnElapsed;
+                o2totalOwnElapsed = (o2totalOwnElapsed == null) ? 0d : o2totalOwnElapsed;
 
-				Double o1totalOwnElapsed = o1TraceEventRule.getTotalOwnElapsed();
-				Double o2totalOwnElapsed = o2TraceEventRule.getTotalOwnElapsed();
+                return o2totalOwnElapsed.compareTo(o1totalOwnElapsed);
+            }
+        };
 
-				o1totalOwnElapsed = (o1totalOwnElapsed == null) ? 0d : o1totalOwnElapsed;
-				o2totalOwnElapsed = (o2totalOwnElapsed == null) ? 0d : o2totalOwnElapsed;
+        List<Map.Entry<TraceEventRuleset, TraceEventRule>> rulesetInsKeyEntryList = GeneralUtilities.denormalizeNestedListMap(rulesInvokedMap);
 
-				return o2totalOwnElapsed.compareTo(o1totalOwnElapsed);
-			}
-		};
+        Collections.sort(rulesetInsKeyEntryList, comparator);
 
-		List<Map.Entry<TraceEventRuleset, TraceEventRule>> rulesetInsKeyEntryList = GeneralUtilities.denormalizeNestedListMap(rulesInvokedMap);
+        Integer rulesetRuleIndex = 1;
 
-		Collections.sort(rulesetInsKeyEntryList, comparator);
+        for (Map.Entry<TraceEventRuleset, TraceEventRule> rulesetInsKeyEntry : rulesetInsKeyEntryList) {
 
-		Integer rulesetRuleIndex = 1;
+            TraceEventRuleset traceEventRuleset = rulesetInsKeyEntry.getKey();
+            TraceEventRule traceEventRule = rulesetInsKeyEntry.getValue();
 
-		for (Map.Entry<TraceEventRuleset, TraceEventRule> rulesetInsKeyEntry : rulesetInsKeyEntryList) {
+            RulesetRule rulesetRule = new RulesetRule(rulesetRuleIndex, traceEventRuleset, traceEventRule);
 
-			TraceEventRuleset traceEventRuleset = rulesetInsKeyEntry.getKey();
-			TraceEventRule traceEventRule = rulesetInsKeyEntry.getValue();
+            rulesetRuleIndexList.add(rulesetRuleIndex);
+            rulesetRuleMap.put(rulesetRuleIndex, rulesetRule);
 
-			RulesetRule rulesetRule = new RulesetRule(rulesetRuleIndex, traceEventRuleset, traceEventRule);
+            rulesetRuleIndex++;
 
-			rulesetRuleIndexList.add(rulesetRuleIndex);
-			rulesetRuleMap.put(rulesetRuleIndex, rulesetRule);
+            updateColumnFilterMap(rulesetRule, columnFilterMap);
+        }
+    }
 
-			rulesetRuleIndex++;
+    protected String getColumnValue(RulesetRule rulesetRule, int columnIndex) {
 
-			updateColumnFilterMap(rulesetRule, columnFilterMap);
-		}
-	}
+        String columnValue = null;
 
-	protected String getColumnValue(RulesetRule rulesetRule, int columnIndex) {
+        if (rulesetRule != null) {
 
-		String columnValue = null;
+            TracerReportRulesTableColumn tracerReportRulesTableColumn;
+            tracerReportRulesTableColumn = TracerReportRulesTableColumn.values()[columnIndex];
 
-		if (rulesetRule != null) {
+            TraceEventRuleset traceEventRuleset = rulesetRule.getTraceEventRuleset();
+            TraceEventRule traceEventRule = rulesetRule.getTraceEventRule();
 
-			TracerReportRulesTableColumn tracerReportRulesTableColumn;
-			tracerReportRulesTableColumn = TracerReportRulesTableColumn.values()[columnIndex];
+            switch (tracerReportRulesTableColumn) {
+            case SNO:
+                columnValue = String.valueOf(rulesetRule.getRulesetRuleIndex());
+                break;
+            case EXECUTION_COUNT:
+                columnValue = String.valueOf(traceEventRule.getExecutionCount());
+                break;
+            case INSKEY:
+                columnValue = traceEventRule.getInsKey();
+                break;
+            case RULE_TYPE:
+                columnValue = traceEventRule.getTraceEventType().getName();
+                break;
+            case MAX_OWN_ELAPSED:
+                columnValue = TraceEventFactory.getElapsedString(traceEventRule.getMaxOwnElapsed());
+                break;
+            case MIN_OWN_ELAPSED:
+                columnValue = TraceEventFactory.getElapsedString(traceEventRule.getMinOwnElapsed());
+                break;
+            case RULESET:
+                columnValue = traceEventRuleset.getRuleset();
+                break;
+            case RULESET_VERSION:
+                columnValue = traceEventRuleset.getVersion();
+                break;
+            case TOTAL_OWN_ELAPSED:
+                columnValue = TraceEventFactory.getElapsedString(traceEventRule.getTotalOwnElapsed());
+                break;
+            default:
+                break;
+            }
+        }
 
-			TraceEventRuleset traceEventRuleset = rulesetRule.getTraceEventRuleset();
-			TraceEventRule traceEventRule = rulesetRule.getTraceEventRule();
+        return columnValue;
+    }
 
-			switch (tracerReportRulesTableColumn) {
+    // clearing the columnFilterMap will skip the below loop
+    private void updateColumnFilterMap(RulesetRule rulesetRule, Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<Integer>>> columnFilterMap) {
 
-				case SNO:
-					columnValue = String.valueOf(rulesetRule.getRulesetRuleIndex());
-					break;
+        if (rulesetRule != null) {
 
-				case EXECUTION_COUNT:
-					columnValue = String.valueOf(traceEventRule.getExecutionCount());
-					break;
+            Iterator<FilterColumn> fcIterator = columnFilterMap.keySet().iterator();
 
-				case INSKEY:
-					columnValue = traceEventRule.getInsKey();
-					break;
+            while (fcIterator.hasNext()) {
 
-				case RULE_TYPE:
-					columnValue = traceEventRule.getTraceEventType().getName();
-					break;
+                FilterColumn filterColumn = fcIterator.next();
 
-				case MAX_OWN_ELAPSED:
-					columnValue = TraceEventFactory.getElapsedString(traceEventRule.getMaxOwnElapsed());
-					break;
+                List<CheckBoxMenuItemPopupEntry<Integer>> columnFilterEntryList;
+                columnFilterEntryList = columnFilterMap.get(filterColumn);
 
-				case MIN_OWN_ELAPSED:
-					columnValue = TraceEventFactory.getElapsedString(traceEventRule.getMinOwnElapsed());
-					break;
+                if (columnFilterEntryList == null) {
+                    columnFilterEntryList = new ArrayList<CheckBoxMenuItemPopupEntry<Integer>>();
+                    columnFilterMap.put(filterColumn, columnFilterEntryList);
+                }
 
-				case RULESET:
-					columnValue = traceEventRuleset.getRuleset();
-					break;
+                int columnIndex = filterColumn.getIndex();
 
-				case RULESET_VERSION:
-					columnValue = traceEventRuleset.getVersion();
-					break;
+                Integer rulesetRuleIndex = rulesetRule.getRulesetRuleIndex();
+                String rulesetInsKeyStr = getColumnValue(rulesetRule, columnIndex);
 
-				case TOTAL_OWN_ELAPSED:
-					columnValue = TraceEventFactory.getElapsedString(traceEventRule.getTotalOwnElapsed());
-					break;
+                if (rulesetInsKeyStr == null) {
+                    rulesetInsKeyStr = FilterTableModel.NULL_STR;
+                } else if ("".equals(rulesetInsKeyStr)) {
+                    rulesetInsKeyStr = FilterTableModel.EMPTY_STR;
+                }
 
-				default:
-					break;
+                CheckBoxMenuItemPopupEntry<Integer> columnFilterEntry;
 
-			}
-		}
+                CheckBoxMenuItemPopupEntry<Integer> searchKey;
+                searchKey = new CheckBoxMenuItemPopupEntry<Integer>(rulesetInsKeyStr);
 
-		return columnValue;
-	}
+                int index = columnFilterEntryList.indexOf(searchKey);
 
-	// clearing the columnFilterMap will skip the below loop
-	private void updateColumnFilterMap(RulesetRule rulesetRule, Map<FilterColumn, List<CheckBoxMenuItemPopupEntry<Integer>>> columnFilterMap) {
+                if (index == -1) {
+                    columnFilterEntry = new CheckBoxMenuItemPopupEntry<Integer>(rulesetInsKeyStr);
+                    columnFilterEntryList.add(columnFilterEntry);
+                } else {
+                    columnFilterEntry = columnFilterEntryList.get(index);
+                }
 
-		if (rulesetRule != null) {
+                columnFilterEntry.addRowIndex(rulesetRuleIndex);
+            }
+        }
+    }
 
-			Iterator<FilterColumn> fcIterator = columnFilterMap.keySet().iterator();
+    private DefaultTableCellRenderer getDefaultTableCellRenderer() {
 
-			while (fcIterator.hasNext()) {
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer() {
 
-				FilterColumn filterColumn = fcIterator.next();
+            private static final long serialVersionUID = 1504347306097747771L;
 
-				List<CheckBoxMenuItemPopupEntry<Integer>> columnFilterEntryList;
-				columnFilterEntryList = columnFilterMap.get(filterColumn);
+            /* (non-Javadoc)
+             * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable,
+             * java.lang.Object, boolean, boolean, int, int)
+             */
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                           boolean hasFocus, int row, int column) {
 
-				if (columnFilterEntryList == null) {
-					columnFilterEntryList = new ArrayList<CheckBoxMenuItemPopupEntry<Integer>>();
-					columnFilterMap.put(filterColumn, columnFilterEntryList);
-				}
+                RulesetRule rulesetRule = (RulesetRule) value;
 
-				int columnIndex = filterColumn.getIndex();
+                if (rulesetRule != null) {
 
-				Integer rulesetRuleIndex = rulesetRule.getRulesetRuleIndex();
-				String rulesetInsKeyStr = getColumnValue(rulesetRule, columnIndex);
+                    String text = getColumnValue(rulesetRule, column);
 
-				if (rulesetInsKeyStr == null) {
-					rulesetInsKeyStr = FilterTableModel.NULL_STR;
-				} else if ("".equals(rulesetInsKeyStr)) {
-					rulesetInsKeyStr = FilterTableModel.EMPTY_STR;
-				}
+                    super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);
 
-				CheckBoxMenuItemPopupEntry<Integer> columnFilterEntry;
+                    if (!table.isRowSelected(row)) {
 
-				CheckBoxMenuItemPopupEntry<Integer> searchKey;
-				searchKey = new CheckBoxMenuItemPopupEntry<Integer>(rulesetInsKeyStr);
+                        TraceEventRule traceEventRule = rulesetRule.getTraceEventRule();
 
-				int index = columnFilterEntryList.indexOf(searchKey);
+                        Color backgorund = traceEventRule.getBackground();
 
-				if (index == -1) {
-					columnFilterEntry = new CheckBoxMenuItemPopupEntry<Integer>(rulesetInsKeyStr);
-					columnFilterEntryList.add(columnFilterEntry);
-				} else {
-					columnFilterEntry = columnFilterEntryList.get(index);
-				}
+                        setBackground(backgorund);
 
-				columnFilterEntry.addRowIndex(rulesetRuleIndex);
-			}
-		}
-	}
+                    }
 
-	private DefaultTableCellRenderer getDefaultTableCellRenderer() {
+                    setBorder(new EmptyBorder(1, 8, 1, 1));
 
-		DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer() {
+                    setToolTipText(text);
 
-			private static final long serialVersionUID = 1504347306097747771L;
+                } else {
+                    setBackground(Color.WHITE);
+                    super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                }
 
-			/* (non-Javadoc)
-			 * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
-			 */
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                return this;
+            }
+        };
 
-				RulesetRule rulesetRule = (RulesetRule) value;
+        return dtcr;
 
-				if (rulesetRule != null) {
+    }
 
-					String text = getColumnValue(rulesetRule, column);
+    public TableColumnModel getTableColumnModel() {
 
-					super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);
+        if (tableColumnModel == null) {
 
-					if (!table.isRowSelected(row)) {
+            tableColumnModel = new DefaultTableColumnModel();
 
-						TraceEventRule traceEventRule = rulesetRule.getTraceEventRule();
+            TableColumn tableColumn = null;
+            int columnIndex = 0;
 
-						Color backgorund = traceEventRule.getBackground();
+            for (TracerReportRulesTableColumn tracerReportRulesTableColumn : TracerReportRulesTableColumn.values()) {
 
-						setBackground(backgorund);
+                DefaultTableCellRenderer dtcr = getDefaultTableCellRenderer();
+                dtcr.setHorizontalAlignment(tracerReportRulesTableColumn.getHorizontalAlignment());
 
-					}
+                int prefColumnWidth = tracerReportRulesTableColumn.getPrefColumnWidth();
 
-					setBorder(new EmptyBorder(1, 8, 1, 1));
+                tableColumn = new TableColumn(columnIndex++);
+                tableColumn.setHeaderValue(tracerReportRulesTableColumn.getDisplayName());
+                tableColumn.setCellRenderer(dtcr);
+                tableColumn.setPreferredWidth(prefColumnWidth);
+                tableColumn.setWidth(prefColumnWidth);
 
-					setToolTipText(text);
+                tableColumnModel.addColumn(tableColumn);
+            }
+        }
 
-				} else {
-					setBackground(Color.WHITE);
-					super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				}
+        return tableColumnModel;
+    }
 
-				return this;
-			}
-		};
+    protected class RulesetRule {
 
-		return dtcr;
+        private int rulesetRuleIndex;
 
-	}
+        private TraceEventRuleset traceEventRuleset;
 
-	public TableColumnModel getTableColumnModel() {
+        private TraceEventRule traceEventRule;
 
-		if (tableColumnModel == null) {
+        private RulesetRule(int rulesetRuleIndex, TraceEventRuleset traceEventRuleset, TraceEventRule traceEventRule) {
+            super();
+            this.rulesetRuleIndex = rulesetRuleIndex;
+            this.traceEventRuleset = traceEventRuleset;
+            this.traceEventRule = traceEventRule;
+        }
 
-			tableColumnModel = new DefaultTableColumnModel();
+        private int getRulesetRuleIndex() {
+            return rulesetRuleIndex;
+        }
 
-			TableColumn tableColumn = null;
-			int columnIndex = 0;
+        private TraceEventRuleset getTraceEventRuleset() {
+            return traceEventRuleset;
+        }
 
-			for (TracerReportRulesTableColumn tracerReportRulesTableColumn : TracerReportRulesTableColumn.values()) {
+        private TraceEventRule getTraceEventRule() {
+            return traceEventRule;
+        }
 
-				DefaultTableCellRenderer dtcr = getDefaultTableCellRenderer();
-				dtcr.setHorizontalAlignment(tracerReportRulesTableColumn.getHorizontalAlignment());
-
-				int prefColumnWidth = tracerReportRulesTableColumn.getPrefColumnWidth();
-
-				tableColumn = new TableColumn(columnIndex++);
-				tableColumn.setHeaderValue(tracerReportRulesTableColumn.getDisplayName());
-				tableColumn.setCellRenderer(dtcr);
-				tableColumn.setPreferredWidth(prefColumnWidth);
-				tableColumn.setWidth(prefColumnWidth);
-
-				tableColumnModel.addColumn(tableColumn);
-			}
-		}
-
-		return tableColumnModel;
-	}
-
-	protected class RulesetRule {
-
-		private int rulesetRuleIndex;
-
-		private TraceEventRuleset traceEventRuleset;
-
-		private TraceEventRule traceEventRule;
-
-		private RulesetRule(int rulesetRuleIndex, TraceEventRuleset traceEventRuleset, TraceEventRule traceEventRule) {
-			super();
-			this.rulesetRuleIndex = rulesetRuleIndex;
-			this.traceEventRuleset = traceEventRuleset;
-			this.traceEventRule = traceEventRule;
-		}
-
-		private int getRulesetRuleIndex() {
-			return rulesetRuleIndex;
-		}
-
-		private TraceEventRuleset getTraceEventRuleset() {
-			return traceEventRuleset;
-		}
-
-		private TraceEventRule getTraceEventRule() {
-			return traceEventRule;
-		}
-
-	}
+    }
 
 }

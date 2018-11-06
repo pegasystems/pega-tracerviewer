@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.view;
 
 import java.awt.BorderLayout;
@@ -30,170 +31,170 @@ import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public abstract class TracerDataSingleView extends TracerDataView {
 
-	private static final long serialVersionUID = -1109125493476264152L;
+    private static final long serialVersionUID = -1109125493476264152L;
 
-	private SearchPanel<TraceEventKey> searchPanel;
+    private SearchPanel<TraceEventKey> searchPanel;
 
-	private JTextField statusBar;
+    private JTextField statusBar;
 
-	// not using TraceTable to accommodate tree view as well.
-	protected abstract CustomJTable getTracerDataTable();
+    // not using TraceTable to accommodate tree view as well.
+    protected abstract CustomJTable getTracerDataTable();
 
-	protected abstract JPanel getAdditionalUtilityPanel();
+    protected abstract JPanel getAdditionalUtilityPanel();
 
-	public TracerDataSingleView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
-			TraceNavigationTableController traceNavigationTableController) {
+    public TracerDataSingleView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
+            TraceNavigationTableController traceNavigationTableController) {
 
-		super(traceTableModel, traceNavigationTableController, supplementUtilityJPanel);
+        super(traceTableModel, traceNavigationTableController, supplementUtilityJPanel);
 
-		CustomJTable traceTable = getTracerDataTable();
-		traceNavigationTableController.addCustomJTable(traceTable);
+        CustomJTable traceTable = getTracerDataTable();
+        traceNavigationTableController.addCustomJTable(traceTable);
 
-		searchPanel = new SearchPanel<TraceEventKey>(traceNavigationTableController, traceTableModel.getSearchModel());
-		//
-		// SearchModel<TraceEventKey> searchModel =
-		// traceTableModel.getSearchModel();
-		// searchModel.addSearchModelListener(searchPanel);
+        searchPanel = new SearchPanel<TraceEventKey>(traceNavigationTableController, traceTableModel.getSearchModel());
+        //
+        // SearchModel<TraceEventKey> searchModel =
+        // traceTableModel.getSearchModel();
+        // searchModel.addSearchModelListener(searchPanel);
 
-		setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
-		JPanel utilityJPanel = getUtilityJPanel();
-		JPanel tracerDataJPanel = getTracerDataJPanel();
-		JPanel statusBarJPanel = getStatusBarJPanel();
+        JPanel utilityJPanel = getUtilityJPanel();
+        JPanel tracerDataJPanel = getTracerDataJPanel();
+        JPanel statusBarJPanel = getStatusBarJPanel();
 
-		add(utilityJPanel, BorderLayout.NORTH);
-		add(tracerDataJPanel, BorderLayout.CENTER);
-		add(statusBarJPanel, BorderLayout.SOUTH);
+        add(utilityJPanel, BorderLayout.NORTH);
+        add(tracerDataJPanel, BorderLayout.CENTER);
+        add(statusBarJPanel, BorderLayout.SOUTH);
 
-		traceTableModel.addPropertyChangeListener(new PropertyChangeListener() {
+        traceTableModel.addPropertyChangeListener(new PropertyChangeListener() {
 
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
 
-				String propertyName = evt.getPropertyName();
+                String propertyName = evt.getPropertyName();
 
-				if ("message".equals(propertyName)) {
+                if ("message".equals(propertyName)) {
 
-					JTextField statusBar = getStatusBar();
-					Message message = (Message) evt.getNewValue();
-					setMessage(statusBar, message);
-				}
+                    JTextField statusBar = getStatusBar();
+                    Message message = (Message) evt.getNewValue();
+                    setMessage(statusBar, message);
+                }
 
-			}
-		});
+            }
+        });
 
-	}
+    }
 
-	@Override
-	protected void updateSupplementUtilityJPanel() {
+    @Override
+    protected void updateSupplementUtilityJPanel() {
 
-		JPanel supplementUtilityJPanel = getSupplementUtilityJPanel();
+        JPanel supplementUtilityJPanel = getSupplementUtilityJPanel();
 
-		supplementUtilityJPanel.removeAll();
-		LayoutManager layout = new BoxLayout(supplementUtilityJPanel, BoxLayout.LINE_AXIS);
-		supplementUtilityJPanel.setLayout(layout);
-		supplementUtilityJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        supplementUtilityJPanel.removeAll();
+        LayoutManager layout = new BoxLayout(supplementUtilityJPanel, BoxLayout.LINE_AXIS);
+        supplementUtilityJPanel.setLayout(layout);
+        supplementUtilityJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		supplementUtilityJPanel.revalidate();
-		supplementUtilityJPanel.repaint();
-	}
+        supplementUtilityJPanel.revalidate();
+        supplementUtilityJPanel.repaint();
+    }
 
-	private JPanel getUtilityJPanel() {
+    private JPanel getUtilityJPanel() {
 
-		JPanel utilityJPanel = new JPanel();
+        JPanel utilityJPanel = new JPanel();
 
-		LayoutManager layout = new BoxLayout(utilityJPanel, BoxLayout.LINE_AXIS);
-		utilityJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(utilityJPanel, BoxLayout.LINE_AXIS);
+        utilityJPanel.setLayout(layout);
 
-		// SearchPanel<TraceEventKey> searchPanel = getSearchPanel();
-		JPanel tracerUtilsJPanel = getTracerUtilsJPanel();
+        // SearchPanel<TraceEventKey> searchPanel = getSearchPanel();
+        JPanel tracerUtilsJPanel = getTracerUtilsJPanel();
 
-		utilityJPanel.add(searchPanel);
-		utilityJPanel.add(tracerUtilsJPanel);
+        utilityJPanel.add(searchPanel);
+        utilityJPanel.add(tracerUtilsJPanel);
 
-		return utilityJPanel;
-	}
+        return utilityJPanel;
+    }
 
-	private JPanel getTracerDataJPanel() {
+    private JPanel getTracerDataJPanel() {
 
-		// table can be tree or table
-		CustomJTable tracerDataTable = getTracerDataTable();
+        // table can be tree or table
+        CustomJTable tracerDataTable = getTracerDataTable();
 
-		JPanel traceTableJPanel = new JPanel();
-		traceTableJPanel.setLayout(new BorderLayout());
+        JPanel traceTableJPanel = new JPanel();
+        traceTableJPanel.setLayout(new BorderLayout());
 
-		JScrollPane traceTableScrollpane = new JScrollPane(tracerDataTable,
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane traceTableScrollpane = new JScrollPane(tracerDataTable,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		tracerDataTable.setPreferredScrollableViewportSize(traceTableScrollpane.getPreferredSize());
+        tracerDataTable.setPreferredScrollableViewportSize(traceTableScrollpane.getPreferredSize());
 
-		// use the stored traceTableModel, as table can be tree or table
-		TraceTableModel traceTableModel = getTraceTableModel();
+        // use the stored traceTableModel, as table can be tree or table
+        TraceTableModel traceTableModel = getTraceTableModel();
 
-		JPanel markerBarPanel = getMarkerBarPanel(traceTableModel);
+        JPanel markerBarPanel = getMarkerBarPanel(traceTableModel);
 
-		traceTableJPanel.add(traceTableScrollpane, BorderLayout.CENTER);
-		traceTableJPanel.add(markerBarPanel, BorderLayout.EAST);
+        traceTableJPanel.add(traceTableScrollpane, BorderLayout.CENTER);
+        traceTableJPanel.add(markerBarPanel, BorderLayout.EAST);
 
-		return traceTableJPanel;
-	}
+        return traceTableJPanel;
+    }
 
-	private JPanel getStatusBarJPanel() {
+    private JPanel getStatusBarJPanel() {
 
-		JPanel statusBarJPanel = new JPanel();
+        JPanel statusBarJPanel = new JPanel();
 
-		LayoutManager layout = new BoxLayout(statusBarJPanel, BoxLayout.LINE_AXIS);
-		statusBarJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(statusBarJPanel, BoxLayout.LINE_AXIS);
+        statusBarJPanel.setLayout(layout);
 
-		Dimension spacer = new Dimension(5, 16);
+        Dimension spacer = new Dimension(5, 16);
 
-		JTextField statusBar = getStatusBar();
+        JTextField statusBar = getStatusBar();
 
-		statusBarJPanel.add(Box.createRigidArea(spacer));
-		statusBarJPanel.add(statusBar);
-		statusBarJPanel.add(Box.createRigidArea(spacer));
+        statusBarJPanel.add(Box.createRigidArea(spacer));
+        statusBarJPanel.add(statusBar);
+        statusBarJPanel.add(Box.createRigidArea(spacer));
 
-		statusBarJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        statusBarJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		return statusBarJPanel;
+        return statusBarJPanel;
 
-	}
+    }
 
-	private JPanel getTracerUtilsJPanel() {
+    private JPanel getTracerUtilsJPanel() {
 
-		JPanel tracerReportJPanel = new JPanel();
+        JPanel tracerReportJPanel = new JPanel();
 
-		LayoutManager layout = new BoxLayout(tracerReportJPanel, BoxLayout.LINE_AXIS);
-		tracerReportJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(tracerReportJPanel, BoxLayout.LINE_AXIS);
+        tracerReportJPanel.setLayout(layout);
 
-		JPanel additionalUtilityPanel = getAdditionalUtilityPanel();
+        JPanel additionalUtilityPanel = getAdditionalUtilityPanel();
 
-		Dimension dim = new Dimension(5, 30);
+        Dimension dim = new Dimension(5, 30);
 
-		tracerReportJPanel.add(Box.createHorizontalGlue());
-		tracerReportJPanel.add(Box.createRigidArea(dim));
+        tracerReportJPanel.add(Box.createHorizontalGlue());
+        tracerReportJPanel.add(Box.createRigidArea(dim));
 
-		if (additionalUtilityPanel != null) {
-			tracerReportJPanel.add(additionalUtilityPanel);
-			tracerReportJPanel.add(Box.createRigidArea(dim));
-		}
+        if (additionalUtilityPanel != null) {
+            tracerReportJPanel.add(additionalUtilityPanel);
+            tracerReportJPanel.add(Box.createRigidArea(dim));
+        }
 
-		tracerReportJPanel.add(Box.createHorizontalGlue());
+        tracerReportJPanel.add(Box.createHorizontalGlue());
 
-		tracerReportJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        tracerReportJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-		return tracerReportJPanel;
-	}
+        return tracerReportJPanel;
+    }
 
-	protected JTextField getStatusBar() {
+    protected JTextField getStatusBar() {
 
-		if (statusBar == null) {
-			statusBar = new JTextField();
-			statusBar.setEditable(false);
-			statusBar.setBackground(null);
-			statusBar.setBorder(null);
-		}
+        if (statusBar == null) {
+            statusBar = new JTextField();
+            statusBar.setEditable(false);
+            statusBar.setBackground(null);
+            statusBar.setBorder(null);
+        }
 
-		return statusBar;
-	}
+        return statusBar;
+    }
 }

@@ -1,0 +1,27 @@
+jar {
+    manifest {
+        attributes 'Implementation-Title': "${project.name}",
+                   'Implementation-Version': "${->project.version}",
+                   'Built-By': System.getProperty('user.name'),
+                   'Built-Date': new Date(),
+                   'Built-JDK': System.getProperty('java.version'),
+                   'Built-Gradle': gradle.gradleVersion
+    }
+}
+
+task sourcesJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task docsJar(type: Jar, dependsOn: javadoc) {
+    classifier 'docs'
+    from javadoc.destinationDir
+}
+
+task testsJar(type: Jar) {
+    classifier = 'tests'
+    from sourceSets.test.output
+}
+
+

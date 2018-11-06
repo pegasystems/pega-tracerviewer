@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.util.List;
@@ -13,24 +14,24 @@ import com.pega.gcs.tracerviewer.model.TraceEvent;
 
 public abstract class AbstractTraceEventTreeNode extends AbstractTreeTableNode {
 
-	private static final long serialVersionUID = 3659089820253269445L;
+    private static final long serialVersionUID = 3659089820253269445L;
 
-	private boolean searchFound;
+    private boolean searchFound;
 
-	public abstract boolean search(Object searchStrObj);
+    public abstract boolean search(Object searchStrObj);
 
-	public abstract List<TraceEvent> getTraceEvents();
+    public abstract List<TraceEvent> getTraceEvents();
 
-	public AbstractTraceEventTreeNode(TraceEvent traceEvent) {
-		super(traceEvent);
-	}
+    public AbstractTraceEventTreeNode(TraceEvent traceEvent) {
+        super(traceEvent);
+    }
 
-	public boolean isSearchFound() {
-		return searchFound;
-	}
+    public boolean isSearchFound() {
+        return searchFound;
+    }
 
-	public void setSearchFound(boolean searchFound) {
-		this.searchFound = searchFound;
-	}
+    public void setSearchFound(boolean searchFound) {
+        this.searchFound = searchFound;
+    }
 
 }

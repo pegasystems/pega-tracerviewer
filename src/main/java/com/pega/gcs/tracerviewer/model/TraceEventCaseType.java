@@ -4,44 +4,42 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer.model;
 
 import org.dom4j.Element;
 
 public class TraceEventCaseType extends TraceEvent {
 
-	public TraceEventCaseType(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+    public TraceEventCaseType(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+        super(traceEventKey, bytes, traceEventElement);
+        traceEventType = TraceEventType.CASE_TYPE;
+    }
 
-		super(traceEventKey, bytes, traceEventElement);
+    @Override
+    protected boolean checkStart() {
+        boolean start = false;
 
-		traceEventType = TraceEventType.CASE_TYPE;
-	}
+        String eventName = getEventName();
 
-	@Override
-	protected boolean checkStart() {
+        if ("CaseType Start".equals(eventName)) {
+            start = true;
+        }
 
-		boolean start = false;
+        return start;
+    }
 
-		String eventName = getEventName();
+    @Override
+    protected boolean checkEnd() {
 
-		if ("CaseType Start".equals(eventName)) {
-			start = true;
-		}
+        boolean end = false;
 
-		return start;
-	}
+        String eventName = getEventName();
 
-	@Override
-	protected boolean checkEnd() {
+        if ("CaseType End".equals(eventName)) {
+            end = true;
+        }
 
-		boolean end = false;
-
-		String eventName = getEventName();
-
-		if ("CaseType End".equals(eventName)) {
-			end = true;
-		}
-
-		return end;
-	}
+        return end;
+    }
 }

@@ -4,6 +4,7 @@
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
+
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
@@ -18,49 +19,49 @@ import com.pega.gcs.tracerviewer.model.TraceEvent;
 
 public class TraceTableCellRenderer extends DefaultTableCellRenderer {
 
-	private static final long serialVersionUID = -5768343434033636406L;
+    private static final long serialVersionUID = -5768343434033636406L;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent
-	 * (javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
-	 */
-	@Override
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent
+     * (javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+     */
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
-		TraceEvent te = (TraceEvent) value;
+        TraceEvent te = (TraceEvent) value;
 
-		if (te != null) {
+        if (te != null) {
 
-			TraceTableModel traceTableModel = (TraceTableModel) table.getModel();
-			TraceTableModelColumn traceTableModelColumn = traceTableModel.getColumn(column);
+            TraceTableModel traceTableModel = (TraceTableModel) table.getModel();
+            TraceTableModelColumn traceTableModelColumn = traceTableModel.getColumn(column);
 
-			String text = te.getColumnValueForTraceTableModelColumn(traceTableModelColumn);
+            String text = te.getColumnValueForTraceTableModelColumn(traceTableModelColumn);
 
-			super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);
+            super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);
 
-			if (!table.isRowSelected(row)) {
-				boolean searchFound = te.isSearchFound();
+            if (!table.isRowSelected(row)) {
+                boolean searchFound = te.isSearchFound();
 
-				if (searchFound) {
-					setBackground(MyColor.LIGHT_YELLOW);
-				} else {
-					setBackground(te.getColumnBackground(column));
-				}
-			}
+                if (searchFound) {
+                    setBackground(MyColor.LIGHT_YELLOW);
+                } else {
+                    setBackground(te.getColumnBackground(column));
+                }
+            }
 
-			setBorder(new EmptyBorder(1, 3, 1, 1));
+            setBorder(new EmptyBorder(1, 3, 1, 1));
 
-			setToolTipText(text);
+            setToolTipText(text);
 
-		} else {
-			setBackground(Color.WHITE);
-			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		}
+        } else {
+            setBackground(Color.WHITE);
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        }
 
-		return this;
-	}
+        return this;
+    }
 
 }
