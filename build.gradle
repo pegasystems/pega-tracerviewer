@@ -44,8 +44,8 @@ tasks.withType(JavaCompile) {
 }
 
 repositories {
-     maven { url "http://dl.bintray.com/pegasystems/fringeutils" }
-     maven { url "http://repo.maven.apache.org/maven2" }
+     maven { url "https://dl.bintray.com/pegasystems/fringeutils" }
+     maven { url "https://repo.maven.apache.org/maven2" }
 }
 
 dependencies {
