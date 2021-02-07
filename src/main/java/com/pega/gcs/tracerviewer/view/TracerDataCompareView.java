@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -11,6 +11,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.LayoutManager;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -32,10 +33,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.TableColumnModel;
 
+import com.pega.gcs.fringecommon.guiutilities.GUIUtilities;
 import com.pega.gcs.fringecommon.guiutilities.Message;
 import com.pega.gcs.fringecommon.guiutilities.ModalProgressMonitor;
 import com.pega.gcs.fringecommon.guiutilities.MyColor;
@@ -88,9 +90,9 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
     protected abstract TraceTable getTracerDataTableRight();
 
-    private JScrollPane jscrollPaneLeft;
+    private JScrollPane scrollPaneLeft;
 
-    private JScrollPane jscrollPaneRight;
+    private JScrollPane scrollPaneRight;
 
     public TracerDataCompareView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
             TraceNavigationTableController traceNavigationTableController, RecentFileContainer recentFileContainer,
@@ -118,7 +120,7 @@ public abstract class TracerDataCompareView extends TracerDataView {
         add(traceCompareJSplitPane, BorderLayout.CENTER);
         add(compareMarkerJPanel, BorderLayout.EAST);
 
-        updateSupplementUtilityJPanel();
+        updateSupplementUtilityPanel();
     }
 
     protected RecentFileContainer getRecentFileContainer() {
@@ -130,65 +132,81 @@ public abstract class TracerDataCompareView extends TracerDataView {
     }
 
     @Override
-    protected void updateSupplementUtilityJPanel() {
+    protected void updateSupplementUtilityPanel() {
 
-        JPanel supplementUtilityJPanel = getSupplementUtilityJPanel();
+        JPanel supplementUtilityPanel = getSupplementUtilityPanel();
 
-        supplementUtilityJPanel.removeAll();
+        supplementUtilityPanel.removeAll();
 
-        LayoutManager layout = new BoxLayout(supplementUtilityJPanel, BoxLayout.LINE_AXIS);
-        supplementUtilityJPanel.setLayout(layout);
-
-        Dimension spacer = new Dimension(5, 10);
-        Dimension endspacer = new Dimension(15, 10);
-
-        JButton compareFileOpenJButton = getFileOpenJButton();
-
-        JPanel compareFileOpenPanel = new JPanel();
-        layout = new BoxLayout(compareFileOpenPanel, BoxLayout.LINE_AXIS);
-
-        compareFileOpenPanel.add(Box.createRigidArea(spacer));
-        compareFileOpenPanel.add(compareFileOpenJButton);
-        compareFileOpenPanel.add(Box.createRigidArea(spacer));
-        // compareFileOpenPanel.setBorder(BorderFactory.createLineBorder(MyColor.LIGHT_GRAY,
-        // 1));
-
+        JPanel compareFileOpenPanel = getCompareFileOpenPanel();
         JPanel navigationPanel = getNavigationPanel();
 
-        supplementUtilityJPanel.add(Box.createHorizontalGlue());
-        supplementUtilityJPanel.add(Box.createRigidArea(endspacer));
-        supplementUtilityJPanel.add(compareFileOpenPanel);
-        supplementUtilityJPanel.add(navigationPanel);
-        supplementUtilityJPanel.add(Box.createRigidArea(endspacer));
+        supplementUtilityPanel.add(compareFileOpenPanel);
+        supplementUtilityPanel.add(navigationPanel);
 
-        supplementUtilityJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        supplementUtilityPanel.setBorder(null);
 
-        supplementUtilityJPanel.revalidate();
-        supplementUtilityJPanel.repaint();
+        supplementUtilityPanel.revalidate();
+        supplementUtilityPanel.repaint();
     }
 
-    private JScrollPane getjscrollPaneLeft() {
+    @Override
+    protected void performComponentResized(Rectangle oldBounds, Rectangle newBounds) {
 
-        if (jscrollPaneLeft == null) {
+        TraceTable traceTableLeft = getTracerDataTableLeft();
+        TraceTable traceTableRight = getTracerDataTableRight();
+
+        TableColumnModel tableColumnModelLeft = traceTableLeft.getColumnModel();
+        TableColumnModel tableColumnModelRight = traceTableRight.getColumnModel();
+
+        GUIUtilities.applyTableColumnResize(tableColumnModelLeft, oldBounds, newBounds);
+        GUIUtilities.applyTableColumnResize(tableColumnModelRight, oldBounds, newBounds);
+    }
+
+    private JScrollPane getScrollPaneLeft() {
+
+        if (scrollPaneLeft == null) {
 
             TraceTable traceTableLeft = getTracerDataTableLeft();
 
-            jscrollPaneLeft = getJScrollPane(traceTableLeft);
+            scrollPaneLeft = getJScrollPane(traceTableLeft);
         }
 
-        return jscrollPaneLeft;
+        return scrollPaneLeft;
     }
 
-    private JScrollPane getjscrollPaneRight() {
+    private JScrollPane getScrollPaneRight() {
 
-        if (jscrollPaneRight == null) {
+        if (scrollPaneRight == null) {
 
             TraceTable traceTableRight = getTracerDataTableRight();
 
-            jscrollPaneRight = getJScrollPane(traceTableRight);
+            scrollPaneRight = getJScrollPane(traceTableRight);
         }
 
-        return jscrollPaneRight;
+        return scrollPaneRight;
+    }
+
+    private JPanel getCompareFileOpenPanel() {
+
+        JPanel compareFileOpenPanel = new JPanel();
+
+        LayoutManager layout = new BoxLayout(compareFileOpenPanel, BoxLayout.LINE_AXIS);
+        compareFileOpenPanel.setLayout(layout);
+
+        JButton compareFileOpenJButton = getFileOpenJButton();
+
+        Dimension spacer = new Dimension(15, 40);
+
+        compareFileOpenPanel.add(Box.createHorizontalGlue());
+        compareFileOpenPanel.add(Box.createRigidArea(spacer));
+        compareFileOpenPanel.add(compareFileOpenJButton);
+        compareFileOpenPanel.add(Box.createRigidArea(spacer));
+        compareFileOpenPanel.add(Box.createHorizontalGlue());
+
+        compareFileOpenPanel.setBorder(BorderFactory.createLineBorder(MyColor.LIGHT_GRAY, 1));
+
+        return compareFileOpenPanel;
     }
 
     private JSplitPane getCompareJSplitPane() {
@@ -218,11 +236,11 @@ public abstract class TracerDataCompareView extends TracerDataView {
         traceTableRight.getColumnModel().addColumnModelListener(tableWidthColumnModelListener);
 
         // setup JScrollBar
-        JScrollPane jscrollPaneLeft = getjscrollPaneLeft();
-        JScrollPane jscrollPaneRight = getjscrollPaneRight();
+        JScrollPane scrollPaneLeft = getScrollPaneLeft();
+        JScrollPane scrollPaneRight = getScrollPaneRight();
 
-        JPanel traceTablePanelLeft = getSingleTableJPanel(jscrollPaneLeft, traceTableLeft, false);
-        JPanel traceTablePanelRight = getSingleTableJPanel(jscrollPaneRight, traceTableRight, true);
+        JPanel traceTablePanelLeft = getSingleTableJPanel(scrollPaneLeft, traceTableLeft, false);
+        JPanel traceTablePanelRight = getSingleTableJPanel(scrollPaneRight, traceTableRight, true);
 
         JSplitPane traceCompareJSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, traceTablePanelLeft,
                 traceTablePanelRight);
@@ -266,12 +284,12 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
     private JScrollPane getJScrollPane(TraceTable traceTable) {
 
-        JScrollPane jscrollpane = new JScrollPane(traceTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+        JScrollPane scrollpane = new JScrollPane(traceTable, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-        traceTable.setPreferredScrollableViewportSize(jscrollpane.getPreferredSize());
+        traceTable.setPreferredScrollableViewportSize(scrollpane.getPreferredSize());
 
-        return jscrollpane;
+        return scrollpane;
     }
 
     private JPanel getSingleTableJPanel(JScrollPane traceTableScrollpane, TraceTable traceTable, boolean isRightSide) {
@@ -309,6 +327,11 @@ public abstract class TracerDataCompareView extends TracerDataView {
                 if ("message".equals(propertyName)) {
                     Message message = (Message) evt.getNewValue();
                     setMessage(statusBar, message);
+                } else if ("traceTableModel".equals(propertyName)) {
+                    // 'traceTableModel' fired by TraceTableModel as the type
+                    // of tracer file (dxApi or not) is known after parsing the file
+
+                    traceTable.setColumnModel(traceTableModel.getTableColumnModel());
                 }
 
             }
@@ -384,16 +407,16 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
             fileOpenJButton.setIcon(ii);
 
-            Dimension size = new Dimension(250, 20);
+            Dimension size = new Dimension(250, 26);
             fileOpenJButton.setPreferredSize(size);
             // compareJButton.setMinimumSize(size);
-            fileOpenJButton.setMaximumSize(size);
-            fileOpenJButton.setHorizontalTextPosition(SwingConstants.LEADING);
+            // fileOpenJButton.setMaximumSize(size);
+            // fileOpenJButton.setHorizontalTextPosition(SwingConstants.LEADING);
 
             fileOpenJButton.addActionListener(new ActionListener() {
 
                 @Override
-                public void actionPerformed(ActionEvent event) {
+                public void actionPerformed(ActionEvent actionEvent) {
 
                     File fileChooserBase = null;
 
@@ -426,10 +449,10 @@ public abstract class TracerDataCompareView extends TracerDataView {
                     FileFilter fileFilter = TracerViewer.getDefaultFileFilter(TracerViewer.FILE_CHOOSER_FILTER_DESC,
                             Arrays.asList(TracerViewer.FILE_CHOOSER_FILTER_EXT));
 
-                    File file = TracerViewer.openFileChooser(getFileOpenJButton(), TracerViewer.class,
+                    File compareFile = TracerViewer.openFileChooser(getFileOpenJButton(), TracerViewer.class,
                             TracerViewer.FILE_CHOOSER_DIALOG_TITLE, fileFilter, fileChooserBase);
 
-                    if (file != null) {
+                    if (compareFile != null) {
 
                         // for compare tree, the compare tree view should be
                         // inherited from compare table view, so that the same
@@ -442,20 +465,22 @@ public abstract class TracerDataCompareView extends TracerDataView {
                         String charset = getTracerViewerSetting().getCharset();
 
                         RecentFile compareRecentFile;
-                        compareRecentFile = recentFileContainer.getRecentFile(file, charset);
+                        compareRecentFile = recentFileContainer.getRecentFile(compareFile, charset);
 
                         // also reset the model and clears old stuff
                         traceTableCompareModel.setRecentFile(compareRecentFile);
 
                         // save the compare file path to main file
-                        recentFile.setAttribute(TracerViewer.RECENT_FILE_PREV_COMPARE_FILE, file.getAbsolutePath());
+                        recentFile.setAttribute(TracerViewer.RECENT_FILE_PREV_COMPARE_FILE,
+                                compareFile.getAbsolutePath());
 
                         TraceTable tracerDataTableLeft = getTracerDataTableLeft();
 
                         UIManager.put("ModalProgressMonitor.progressText", "Loading Tracer XML file");
 
                         final ModalProgressMonitor progressMonitor = new ModalProgressMonitor(
-                                TracerDataCompareView.this, "", "Loaded 0 trace events (0%)", 0, 100);
+                                TracerDataCompareView.this, "",
+                                "Loaded 0 trace events (0%)                                            ", 0, 100);
 
                         progressMonitor.setMillisToDecideToPopup(0);
                         progressMonitor.setMillisToPopup(0);
@@ -487,7 +512,7 @@ public abstract class TracerDataCompareView extends TracerDataView {
                                         getNavigationPanel().setEnabled(true);
 
                                         MarkerModel<TraceEventKey> thisMarkerModel;
-                                        thisMarkerModel = new CompareMarkerModel(MyColor.LIGHT_GREEN,
+                                        thisMarkerModel = new CompareMarkerModel(MyColor.LIGHT_FADED_GREEN,
                                                 traceTableCompareModelLeft);
 
                                         MarkerModel<TraceEventKey> otherMarkerModel;
@@ -758,16 +783,16 @@ public abstract class TracerDataCompareView extends TracerDataView {
 
     protected void syncScrollBars() {
 
-        JScrollPane jscrollPaneLeft = getjscrollPaneLeft();
-        JScrollPane jscrollPaneRight = getjscrollPaneRight();
+        JScrollPane scrollPaneLeft = getScrollPaneLeft();
+        JScrollPane scrollPaneRight = getScrollPaneRight();
 
-        JScrollBar jscrollBarLeftH = jscrollPaneLeft.getHorizontalScrollBar();
-        JScrollBar jscrollBarLeftV = jscrollPaneLeft.getVerticalScrollBar();
-        JScrollBar jscrollBarRightH = jscrollPaneRight.getHorizontalScrollBar();
-        JScrollBar jscrollBarRightV = jscrollPaneRight.getVerticalScrollBar();
+        JScrollBar scrollBarLeftH = scrollPaneLeft.getHorizontalScrollBar();
+        JScrollBar scrollBarLeftV = scrollPaneLeft.getVerticalScrollBar();
+        JScrollBar scrollBarRightH = scrollPaneRight.getHorizontalScrollBar();
+        JScrollBar scrollBarRightV = scrollPaneRight.getVerticalScrollBar();
 
-        jscrollBarRightH.setModel(jscrollBarLeftH.getModel());
-        jscrollBarRightV.setModel(jscrollBarLeftV.getModel());
+        scrollBarRightH.setModel(scrollBarLeftH.getModel());
+        scrollBarRightV.setModel(scrollBarLeftV.getModel());
     }
 
 }

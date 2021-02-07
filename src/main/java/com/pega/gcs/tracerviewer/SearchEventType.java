@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -17,7 +17,7 @@ public enum SearchEventType {
     SEPERATOR("--------------------------------");
     //@formatter:on
 
-    private String name;
+    private final String name;
 
     private SearchEventType(String name) {
         this.name = name;

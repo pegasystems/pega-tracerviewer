@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -7,6 +7,7 @@
 
 package com.pega.gcs.tracerviewer;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,39 +18,29 @@ public class TraceEventTreeNode extends AbstractTraceEventTreeNode {
 
     private static final long serialVersionUID = 6721834740223154002L;
 
-    public TraceEventTreeNode(TraceEvent traceEvent) {
+    private String nodeName;
+
+    public TraceEventTreeNode(TraceEvent traceEvent, String nodeName) {
         super(traceEvent);
+
+        this.nodeName = nodeName;
     }
 
     @Override
-    public int compareTo(AbstractTreeTableNode node) {
+    public int compareTo(AbstractTreeTableNode other) {
         // Don't want to perform sort here
         return 0;
     }
 
     @Override
     public String getNodeName() {
-        return getNodeValue(0);
+        return nodeName;
     }
 
     @Override
     // 0 based column index
     public String getNodeValue(int column) {
         String nodeValue = null;
-
-        Object userObject = getUserObject();
-
-        if ((userObject != null) && (userObject instanceof TraceEvent)) {
-
-            TraceTableModelColumn[] traceTreeTableModelColumnArray;
-            traceTreeTableModelColumnArray = TraceTableModelColumn.getTraceTreeTableModelColumnArray();
-
-            TraceTableModelColumn traceTreeTableModelColumn = traceTreeTableModelColumnArray[column];
-
-            TraceEvent te = (TraceEvent) userObject;
-
-            nodeValue = te.getColumnValueForTraceTableModelColumn(traceTreeTableModelColumn);
-        }
 
         return nodeValue;
     }
@@ -58,29 +49,6 @@ public class TraceEventTreeNode extends AbstractTraceEventTreeNode {
     public Object[] getNodeElements() {
 
         String[] elementArray = new String[] {};
-
-        Object userObject = getUserObject();
-
-        if ((userObject != null) && (userObject instanceof TraceEvent)) {
-
-            TraceEvent te = (TraceEvent) userObject;
-
-            List<String> valueList = new ArrayList<String>();
-
-            TraceTableModelColumn[] traceTreeTableModelColumnArray;
-            traceTreeTableModelColumnArray = TraceTableModelColumn.getTraceTreeTableModelColumnArray();
-
-            int columnCount = traceTreeTableModelColumnArray.length;
-
-            for (int column = 0; column < columnCount; column++) {
-
-                TraceTableModelColumn traceTreeTableModelColumn = traceTreeTableModelColumnArray[column];
-
-                valueList.add(te.getColumnValueForTraceTableModelColumn(traceTreeTableModelColumn));
-            }
-
-            elementArray = (String[]) valueList.toArray(new String[valueList.size()]);
-        }
 
         return elementArray;
     }
@@ -103,7 +71,7 @@ public class TraceEventTreeNode extends AbstractTraceEventTreeNode {
     }
 
     @Override
-    public boolean search(Object searchStrObj) {
+    public boolean search(Object searchStrObj, Charset charset) {
 
         boolean found = false;
 
@@ -113,10 +81,25 @@ public class TraceEventTreeNode extends AbstractTraceEventTreeNode {
 
             TraceEvent te = (TraceEvent) userObject;
 
-            found = te.search(searchStrObj);
+            found = te.search(searchStrObj, charset);
         }
 
         return found;
     }
 
+    // 0 based column index
+    public String getTraceEventNodeValue(TraceEventColumn traceEventColumn) {
+        String nodeValue = null;
+
+        Object userObject = getUserObject();
+
+        if ((userObject != null) && (userObject instanceof TraceEvent)) {
+
+            TraceEvent te = (TraceEvent) userObject;
+
+            nodeValue = te.getColumnValueForTraceTableModelColumn(traceEventColumn);
+        }
+
+        return nodeValue;
+    }
 }

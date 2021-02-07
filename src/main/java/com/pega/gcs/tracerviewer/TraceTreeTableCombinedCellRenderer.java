@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -36,7 +36,11 @@ public class TraceTreeTableCombinedCellRenderer extends TraceTreeTableCellRender
 
         if (startEvent != null) {
 
-            String text = traceEventTreeNode.getNodeValue(column);
+            TraceTreeTableModelAdapter model = (TraceTreeTableModelAdapter) table.getModel();
+
+            TraceEventColumn traceEventColumn = model.getTraceTableModelColumn(column);
+
+            String text = traceEventTreeNode.getTraceEventNodeValue(traceEventColumn);
 
             boolean searchFound = false;
             boolean leafSearchFound = false;
@@ -47,12 +51,12 @@ public class TraceTreeTableCombinedCellRenderer extends TraceTreeTableCellRender
             if ((endEvent != null) && (!(endEvent instanceof TraceEventEmpty))) {
                 searchFound = traceEventTreeNode.isSearchFound();
                 leafSearchFound = startEvent.isSearchFound() || endEvent.isSearchFound();
-                background = endEvent.getColumnBackground(column);
+                background = endEvent.getColumnBackground(traceEventColumn);
 
             } else {
                 searchFound = traceEventTreeNode.isSearchFound();
                 leafSearchFound = startEvent.isSearchFound();
-                background = startEvent.getColumnBackground(column);
+                background = startEvent.getColumnBackground(traceEventColumn);
             }
 
             super.getTableCellRendererComponent(table, text, isSelected, hasFocus, row, column);

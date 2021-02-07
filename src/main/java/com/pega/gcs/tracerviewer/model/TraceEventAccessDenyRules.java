@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -12,7 +12,9 @@ import org.dom4j.Element;
 public class TraceEventAccessDenyRules extends TraceEvent {
 
     public TraceEventAccessDenyRules(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+
         super(traceEventKey, bytes, traceEventElement);
+
         traceEventType = TraceEventType.ACCESS_DENY_RULES;
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -11,9 +11,12 @@ import java.awt.Color;
 
 /**
  * For corrupt and compare event types.
+ * 
  * @author vargm
  */
 public class TraceEventEmpty extends TraceEvent {
+
+    private Color baseColumnBackground;
 
     public TraceEventEmpty(TraceEventKey traceEventKey, Color background) {
 
@@ -21,7 +24,11 @@ public class TraceEventEmpty extends TraceEvent {
 
         traceEventType = null;
 
-        fillColumnBackground(background);
+        baseColumnBackground = background;
     }
 
+    @Override
+    public Color getBaseColumnBackground() {
+        return baseColumnBackground;
+    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -19,12 +19,12 @@ public class TraceEventDataTransformAction extends TraceEvent {
     }
 
     @Override
-    protected void setStepPage(Element traceEventElement) {
+    protected void setStepPageFromElement(Element traceEventElement) {
 
         // setting the steppage first because we may need it below.
-        super.setStepPage(traceEventElement);
+        super.setStepPageFromElement(traceEventElement);
 
-        StringBuffer stepPageSB = new StringBuffer();
+        StringBuilder stepPageSB = new StringBuilder();
 
         Element element = traceEventElement.element("ActionTargetPageName");
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -42,20 +42,15 @@ public class TraceTableCompareModel extends TraceTableModel {
     @Override
     public void resetModel() {
 
-        super.resetModel();
-
         compareNavIndex = 0;
         compareNavTraceEventKey = null;
         compareResultsWrap = false;
         compareNavIndexMap = new HashMap<TraceEventKey, List<TraceEventKey>>();
         compareMarkerList = null;
 
-    }
+        // moving super call to last as it fires events that reads compareMarkerList
+        super.resetModel();
 
-    @Override
-    protected void buildTree(TraceEvent currentTraceEvent) {
-        // fix Issue #1 - Compare functionality not working
-        // do nothing - compare model doesn't implements tree
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -12,6 +12,7 @@ import org.dom4j.Element;
 public class TraceEventLogMessages extends TraceEventNonActivity {
 
     public TraceEventLogMessages(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+
         super(traceEventKey, bytes, traceEventElement);
 
         traceEventType = TraceEventType.LOG_MESSAGES;
@@ -20,12 +21,12 @@ public class TraceEventLogMessages extends TraceEventNonActivity {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getName()
+     * @see com.fringe.tracerviewer.TraceEvent#getNameFromElement()
      */
     @Override
-    protected void setName(Element traceEventElement) {
+    protected void setNameFromElement(Element traceEventElement) {
 
-        String name = "";
+        String name = null;
 
         Element element = traceEventElement.element("EventKey");
 
@@ -47,11 +48,11 @@ public class TraceEventLogMessages extends TraceEventNonActivity {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getRuleSet()
+     * @see com.fringe.tracerviewer.TraceEvent#getRuleSetFromElement()
      */
     @Override
-    protected void setRuleSet(Element traceEventElement) {
-        setRuleSet("");
+    protected void setRuleSetFromElement(Element traceEventElement) {
+        setRuleSet(null);
     }
 
 }

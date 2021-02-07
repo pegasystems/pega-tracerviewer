@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -48,6 +48,11 @@ public class TracerDataSingleTableView extends TracerDataSingleView {
     @Override
     protected JPanel getAdditionalUtilityPanel() {
         return null;
+    }
+
+    @Override
+    protected void updateTreeTableColumnModel() {
+        // Do nothing
     }
 
 }

@@ -1,11 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
 
 package com.pega.gcs.tracerviewer;
+
+import java.nio.charset.Charset;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -18,7 +20,7 @@ import com.pega.gcs.fringecommon.guiutilities.treetable.DefaultTreeTableTree;
 import com.pega.gcs.fringecommon.guiutilities.treetable.TreeTableModelAdapter;
 import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
-public class TraceTreeTableModelAdapter extends TreeTableModelAdapter {
+public abstract class TraceTreeTableModelAdapter extends TreeTableModelAdapter {
 
     private static final long serialVersionUID = -4334926703683969380L;
 
@@ -61,6 +63,14 @@ public class TraceTreeTableModelAdapter extends TreeTableModelAdapter {
         return traceTableModel.getModelName();
     }
 
+    public String getFilePath() {
+        return traceTableModel.getFilePath();
+    }
+
+    public Charset getCharset() {
+        return traceTableModel.getCharset();
+    }
+
     public SearchModel<TraceEventKey> getSearchModel() {
         return traceTableModel.getSearchModel();
     }
@@ -68,6 +78,10 @@ public class TraceTreeTableModelAdapter extends TreeTableModelAdapter {
     public BookmarkModel<TraceEventKey> getBookmarkModel() {
 
         return traceTableModel.getBookmarkModel();
+    }
+
+    public TraceEventColumn getTraceTableModelColumn(int column) {
+        return traceTableModel.getColumn(column);
     }
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -35,85 +35,80 @@ public class TraceTablePanelSettingDialog extends JDialog {
 
     private static final long serialVersionUID = -4890020854049502839L;
 
-    private String charset;
+    private String charsetName;
 
     private boolean settingUpdated;
 
-    private AutoCompleteJComboBox<String> charsetJComboBox;
+    private AutoCompleteJComboBox<String> charsetComboBox;
 
-    public TraceTablePanelSettingDialog(String charset, ImageIcon appIcon, Component parent) {
+    public TraceTablePanelSettingDialog(String charsetName, ImageIcon appIcon, Component parent) {
 
         super();
 
-        this.charset = charset;
+        this.charsetName = charsetName;
 
         this.settingUpdated = false;
 
         setIconImage(appIcon.getImage());
 
-        // setPreferredSize(new Dimension(350, 175));
         setTitle("Tracer file Settings");
-        // setResizable(true);
+
         setModalityType(ModalityType.APPLICATION_MODAL);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        // setAlwaysOnTop(true);
 
-        setContentPane(getMainJPanel());
+        setContentPane(getMainPanel());
 
         pack();
 
         setLocationRelativeTo(parent);
 
-        populateSettingsJPanel();
+        populateSettings();
 
         // visible should be the last step
         setVisible(true);
 
     }
 
-    protected String getCharset() {
-        return charset;
+    private String getCharsetName() {
+        return charsetName;
     }
 
     public boolean isSettingUpdated() {
         return settingUpdated;
     }
 
-    protected void setSettingUpdated(boolean settingUpdated) {
+    private void setSettingUpdated(boolean settingUpdated) {
         this.settingUpdated = settingUpdated;
     }
 
-    public AutoCompleteJComboBox<String> getCharsetJComboBox() {
+    public AutoCompleteJComboBox<String> getCharsetComboBox() {
 
-        if (charsetJComboBox == null) {
-            charsetJComboBox = GUIUtilities.getCharsetJComboBox();
+        if (charsetComboBox == null) {
+            charsetComboBox = GUIUtilities.getCharsetJComboBox();
         }
 
-        return charsetJComboBox;
+        return charsetComboBox;
     }
 
-    private JPanel getMainJPanel() {
+    private JPanel getMainPanel() {
 
-        JPanel mainJPanel = new JPanel();
+        JPanel mainPanel = new JPanel();
 
-        LayoutManager layout = new BoxLayout(mainJPanel, BoxLayout.Y_AXIS);
-        mainJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
+        mainPanel.setLayout(layout);
 
-        JPanel settingsJPanel = getSettingsJPanel();
-        JPanel buttonsJPanel = getButtonsJPanel();
+        JPanel settingsPanel = getSettingsPanel();
+        JPanel buttonsPanel = getButtonsPanel();
 
-        mainJPanel.add(settingsJPanel);
-        mainJPanel.add(Box.createRigidArea(new Dimension(4, 2)));
-        mainJPanel.add(buttonsJPanel);
-        mainJPanel.add(Box.createRigidArea(new Dimension(4, 4)));
-        // mainJPanel.add(Box.createHorizontalGlue());
+        mainPanel.add(settingsPanel);
+        mainPanel.add(buttonsPanel);
 
-        return mainJPanel;
+        return mainPanel;
     }
 
-    private JPanel getSettingsJPanel() {
-        JPanel settingsJPanel = new JPanel();
-        settingsJPanel.setLayout(new GridBagLayout());
+    private JPanel getSettingsPanel() {
+        JPanel settingsPanel = new JPanel();
+        settingsPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc1 = new GridBagConstraints();
         gbc1.gridx = 0;
@@ -122,7 +117,7 @@ public class TraceTablePanelSettingDialog extends JDialog {
         gbc1.weighty = 0.0D;
         gbc1.fill = GridBagConstraints.BOTH;
         gbc1.anchor = GridBagConstraints.NORTHWEST;
-        gbc1.insets = new Insets(2, 2, 2, 2);
+        gbc1.insets = new Insets(10, 10, 10, 2);
 
         GridBagConstraints gbc2 = new GridBagConstraints();
         gbc2.gridx = 1;
@@ -131,34 +126,34 @@ public class TraceTablePanelSettingDialog extends JDialog {
         gbc2.weighty = 0.0D;
         gbc2.fill = GridBagConstraints.BOTH;
         gbc2.anchor = GridBagConstraints.NORTHWEST;
-        gbc2.insets = new Insets(2, 2, 2, 2);
+        gbc2.insets = new Insets(10, 2, 10, 10);
 
         JLabel charsetJLabel = new JLabel("File Encoding");
 
-        AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
+        AutoCompleteJComboBox<String> charsetComboBox = getCharsetComboBox();
 
-        settingsJPanel.add(charsetJLabel, gbc1);
-        settingsJPanel.add(charsetJComboBox, gbc2);
+        settingsPanel.add(charsetJLabel, gbc1);
+        settingsPanel.add(charsetComboBox, gbc2);
 
         Border loweredEtched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 
-        settingsJPanel.setBorder(BorderFactory.createTitledBorder(loweredEtched, "Settings"));
+        settingsPanel.setBorder(BorderFactory.createTitledBorder(loweredEtched, "Settings"));
 
-        return settingsJPanel;
+        return settingsPanel;
     }
 
-    private JPanel getButtonsJPanel() {
+    private JPanel getButtonsPanel() {
 
-        JPanel buttonsJPanel = new JPanel();
+        JPanel buttonsPanel = new JPanel();
 
-        LayoutManager layout = new BoxLayout(buttonsJPanel, BoxLayout.X_AXIS);
-        buttonsJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(buttonsPanel, BoxLayout.X_AXIS);
+        buttonsPanel.setLayout(layout);
 
         // OK Button
-        JButton okJButton = new JButton("OK");
-        okJButton.setToolTipText("OK");
+        JButton okButton = new JButton("OK");
+        okButton.setToolTipText("OK");
 
-        okJButton.addActionListener(new ActionListener() {
+        okButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent event) {
@@ -169,10 +164,10 @@ public class TraceTablePanelSettingDialog extends JDialog {
         });
 
         // Cancel button
-        JButton cancelJButton = new JButton("Cancel");
-        cancelJButton.setToolTipText("Cancel");
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.setToolTipText("Cancel");
 
-        cancelJButton.addActionListener(new ActionListener() {
+        cancelButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent event) {
@@ -181,51 +176,53 @@ public class TraceTablePanelSettingDialog extends JDialog {
         });
 
         // Reset button
-        JButton resetJButton = new JButton("Reset");
-        resetJButton.setToolTipText("Reset");
+        JButton resetButton = new JButton("Reset");
+        resetButton.setToolTipText("Reset");
 
-        resetJButton.addActionListener(new ActionListener() {
+        resetButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent event) {
-                AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
+                AutoCompleteJComboBox<String> charsetComboBox = getCharsetComboBox();
 
-                charsetJComboBox.setSelectedItem(getCharset());
+                charsetComboBox.setSelectedItem(getCharsetName());
             }
         });
 
-        Dimension dim = new Dimension(20, 30);
-        buttonsJPanel.add(Box.createHorizontalGlue());
-        buttonsJPanel.add(Box.createRigidArea(dim));
-        buttonsJPanel.add(okJButton);
-        buttonsJPanel.add(Box.createRigidArea(dim));
-        buttonsJPanel.add(cancelJButton);
-        buttonsJPanel.add(Box.createRigidArea(dim));
-        buttonsJPanel.add(resetJButton);
-        buttonsJPanel.add(Box.createRigidArea(dim));
-        buttonsJPanel.add(Box.createHorizontalGlue());
+        Dimension dim = new Dimension(20, 40);
+        buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.add(Box.createRigidArea(dim));
+        buttonsPanel.add(okButton);
+        buttonsPanel.add(Box.createRigidArea(dim));
+        buttonsPanel.add(cancelButton);
+        buttonsPanel.add(Box.createRigidArea(dim));
+        buttonsPanel.add(resetButton);
+        buttonsPanel.add(Box.createRigidArea(dim));
+        buttonsPanel.add(Box.createHorizontalGlue());
 
-        buttonsJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-        return buttonsJPanel;
+        buttonsPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+
+        return buttonsPanel;
     }
 
-    private void populateSettingsJPanel() {
+    private void populateSettings() {
 
-        AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
+        AutoCompleteJComboBox<String> charsetJComboBox = getCharsetComboBox();
 
-        charsetJComboBox.setSelectedItem(charset);
-
+        charsetJComboBox.setSelectedItem(charsetName);
     }
 
-    public String getSelectedCharset() {
-        AutoCompleteJComboBox<String> charsetJComboBox = getCharsetJComboBox();
-        String charset = (String) charsetJComboBox.getSelectedItem();
+    public String getSelectedCharsetName() {
 
-        if ((charset == null) || ("".equals(charset))) {
-            charset = this.charset;
+        AutoCompleteJComboBox<String> charsetJComboBox = getCharsetComboBox();
+
+        String selectedCharsetName = (String) charsetJComboBox.getSelectedItem();
+
+        if ((selectedCharsetName == null) || ("".equals(selectedCharsetName))) {
+            selectedCharsetName = this.charsetName;
         }
 
-        return charset;
+        return selectedCharsetName;
     }
 
 }

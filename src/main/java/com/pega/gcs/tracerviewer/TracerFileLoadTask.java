@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -10,6 +10,7 @@ package com.pega.gcs.tracerviewer;
 import java.awt.Color;
 import java.awt.Component;
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -32,6 +33,9 @@ import com.pega.gcs.fringecommon.guiutilities.Message;
 import com.pega.gcs.fringecommon.guiutilities.Message.MessageType;
 import com.pega.gcs.fringecommon.guiutilities.ModalProgressMonitor;
 import com.pega.gcs.fringecommon.guiutilities.ReadCounterTaskInfo;
+import com.pega.gcs.fringecommon.guiutilities.RecentFile;
+import com.pega.gcs.fringecommon.guiutilities.bookmark.BookmarkContainer;
+import com.pega.gcs.fringecommon.guiutilities.bookmark.BookmarkModel;
 import com.pega.gcs.fringecommon.log4j2.Log4j2Helper;
 import com.pega.gcs.fringecommon.utilities.KnuthMorrisPrattAlgorithm;
 import com.pega.gcs.tracerviewer.model.TraceEvent;
@@ -50,7 +54,9 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
     private Component parent;
 
-    private ModalProgressMonitor progressMonitor;
+    private ModalProgressMonitor modalProgressMonitor;
+
+    private TracerType tracerType;
 
     private TraceTableModel traceTableModel;
 
@@ -58,14 +64,15 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
     private int errorCount;
 
-    public TracerFileLoadTask(ModalProgressMonitor progressMonitor, TraceTableModel traceTableModel, boolean wait,
+    public TracerFileLoadTask(ModalProgressMonitor modalProgressMonitor, TraceTableModel traceTableModel, boolean wait,
             Component parent) {
 
-        this.progressMonitor = progressMonitor;
+        this.modalProgressMonitor = modalProgressMonitor;
         this.traceTableModel = traceTableModel;
         this.wait = wait;
         this.parent = parent;
 
+        tracerType = null;
         processedCount = 0;
         errorCount = 0;
 
@@ -90,7 +97,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
         long before = System.currentTimeMillis();
         int readCounter = 0;
         int traceEventIndex = 0;
-        String charset = traceTableModel.getCharset();
+        Charset charset = traceTableModel.getCharset();
 
         String filePath = traceTableModel.getFilePath();
 
@@ -108,7 +115,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
         publish(readCounterTaskInfo);
 
         SAXReader saxReader = new SAXReader();
-        saxReader.setEncoding(charset);
+        saxReader.setEncoding(charset.name());
 
         AtomicBoolean cancel = new AtomicBoolean(false);
         FileReaderThread frt;
@@ -122,8 +129,8 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
         try {
 
-            byte[] startTraceEventStr = TRACEEVENT_START.getBytes();
-            byte[] endTraceEventStr = TRACEEVENT_END.getBytes();
+            byte[] startTraceEventStr = TRACEEVENT_START.getBytes(charset);
+            byte[] endTraceEventStr = TRACEEVENT_END.getBytes(charset);
 
             long totalread = 0;
             byte[] balanceByteArray = new byte[0];
@@ -137,7 +144,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
             while (!isCancelled()) {
 
-                if (progressMonitor.isCanceled()) {
+                if (modalProgressMonitor.isCanceled()) {
                     cancel.set(true);
                     cancel(true);
                     break;
@@ -163,18 +170,6 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                     int startidx = 0;
                     int index = -1;
 
-                    if (first) {
-
-                        startidx = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventStr);
-
-                        if (startidx == -1) {
-                            LOG.info("startSeek is -1. exiting..");
-                            break;
-                        }
-
-                        first = false;
-                    }
-
                     // copy the balance byte array
                     int balanceByteArrayLength = balanceByteArray.length;
 
@@ -197,11 +192,24 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
                     }
 
+                    startidx = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventStr);
+
+                    if (startidx == -1) {
+
+                        if (first) {
+                            first = false;
+                            LOG.info("startSeek is -1. exiting..");
+                            break;
+                        }
+
+                        startidx = 0;
+                    }
+
                     index = KnuthMorrisPrattAlgorithm.indexOfWithPatternLength(byteBuffer, endTraceEventStr, startidx);
 
                     if (index != -1) {
 
-                        while (index != -1) {
+                        while ((!isCancelled()) && (index != -1)) {
 
                             int teseRead = index - startidx;
 
@@ -210,7 +218,20 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                             System.arraycopy(byteBuffer, startidx, teseByteBuffer, 0, teseRead);
 
                             TraceEvent traceEvent = TraceEventFactory.getTraceEvent(traceEventIndex, teseByteBuffer,
-                                    charset, saxReader);
+                                    saxReader);
+
+                            if ((tracerType == null) && (traceEvent != null)) {
+
+                                String dxApiInteractionId = traceEvent.getDxApiInteractionId();
+
+                                if ((dxApiInteractionId != null) && (!"".equals(dxApiInteractionId))) {
+                                    tracerType = TracerType.DX_API;
+                                } else {
+                                    tracerType = TracerType.NORMAL;
+                                }
+
+                                traceTableModel.setTracerType(tracerType);
+                            }
 
                             if (traceEvent == null) {
 
@@ -226,7 +247,16 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
                             traceEventIndex++;
 
-                            startidx = index;
+                            // to handle eventxxxx.bin files, every serialised trace event entry is preceded
+                            // with some bytes of trace event length data. hence need to recalculate the
+                            // begin position.
+                            // startidx = index;
+                            startidx = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventStr, index);
+
+                            // cant find the start event hence set the startidx as last read position
+                            if (startidx == -1) {
+                                startidx = index;
+                            }
 
                             index = KnuthMorrisPrattAlgorithm.indexOfWithPatternLength(byteBuffer, endTraceEventStr,
                                     startidx);
@@ -271,7 +301,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
             Message.MessageType messageType = MessageType.INFO;
 
-            StringBuffer messageB = new StringBuffer();
+            StringBuilder messageB = new StringBuilder();
             messageB.append(tracerFile.getAbsolutePath());
             messageB.append(". ");
 
@@ -289,10 +319,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
             Message message = new Message(messageType, messageB.toString());
             traceTableModel.setMessage(message);
 
-            // possibly implement it better later on.
-            // traceTableModel.completeLoad();
-
-            traceTableModel.fireTableDataChanged();
+            // traceTableModel.fireTableDataChanged();
 
             long diff = System.currentTimeMillis() - before;
 
@@ -301,7 +328,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
             double avg = (diff / readCounter);
 
             LOG.info("Processed " + processedCount + " trace events in " + secs + " secs Average: " + avg
-                    + " readCounter: " + readCounter);
+                    + " FileReadByteArray blocks: " + readCounter);
 
         }
 
@@ -338,11 +365,11 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
             progress = (int) ((fileRead * 100) / fileSize);
         }
 
-        progressMonitor.setProgress(progress);
+        modalProgressMonitor.setProgress(progress);
 
         String message = String.format("Loaded %d trace events (%d%%)", eventCount, progress);
 
-        progressMonitor.setNote(message);
+        modalProgressMonitor.setNote(message);
         // disabled
         // statusProgressBar.setText(message);
 
@@ -362,6 +389,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void completeLoad() {
 
         String filePath = traceTableModel.getFilePath();
@@ -373,6 +401,23 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
             System.gc();
 
             int processedCount = getProcessedCount();
+
+            RecentFile recentFile = traceTableModel.getRecentFile();
+
+            BookmarkContainer<TraceEventKey> bookmarkContainer;
+            bookmarkContainer = (BookmarkContainer<TraceEventKey>) recentFile.getAttribute(RecentFile.KEY_BOOKMARK);
+
+            if (bookmarkContainer == null) {
+
+                bookmarkContainer = new BookmarkContainer<TraceEventKey>();
+
+                recentFile.setAttribute(RecentFile.KEY_BOOKMARK, bookmarkContainer);
+            }
+
+            BookmarkModel<TraceEventKey> bookmarkModel = new BookmarkModel<TraceEventKey>(bookmarkContainer,
+                    traceTableModel);
+
+            traceTableModel.setBookmarkModel(bookmarkModel);
 
             traceTableModel.fireTableDataChanged();
 
@@ -412,7 +457,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
             LOG.error("Error loading file: " + filePath, e);
             MessageType messageType = MessageType.ERROR;
 
-            StringBuffer messageB = new StringBuffer();
+            StringBuilder messageB = new StringBuilder();
             messageB.append("Error loading file: ");
             messageB.append(filePath);
 
@@ -421,8 +466,8 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
         } finally {
 
-            if (!progressMonitor.isCanceled()) {
-                progressMonitor.close();
+            if (!modalProgressMonitor.isCanceled()) {
+                modalProgressMonitor.close();
             }
 
             System.gc();

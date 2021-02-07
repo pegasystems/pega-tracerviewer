@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -29,7 +29,8 @@ public class TraceNavigationTableController extends NavigationTableController<Tr
         for (CustomJTable customJTable : getCustomJTableList()) {
 
             if (customJTable instanceof TraceTreeCombinedTable) {
-                TraceEventCombinedTreeNode traceEventCombinedTreeNode = traceTableModel.getTraceEventCombinedTreeNodeForKey(key);
+                TraceEventCombinedTreeNode traceEventCombinedTreeNode = traceTableModel
+                        .getTraceEventCombinedTreeNodeForKey(key);
 
                 if (traceEventCombinedTreeNode != null) {
                     ((AbstractTreeTable) customJTable).scrollNodeToVisible(traceEventCombinedTreeNode);

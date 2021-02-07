@@ -1,11 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
 
 package com.pega.gcs.tracerviewer;
+
+import java.util.Objects;
 
 public class TraceEventRuleset implements Comparable<TraceEventRuleset> {
 
@@ -16,7 +18,7 @@ public class TraceEventRuleset implements Comparable<TraceEventRuleset> {
     public TraceEventRuleset(String rulesetVersion) {
         super();
 
-        String[] rulesetVersionArray = rulesetVersion.split(" ");
+        String[] rulesetVersionArray = rulesetVersion.split(" ", 0);
 
         this.ruleset = rulesetVersionArray[0].trim();
 
@@ -33,48 +35,15 @@ public class TraceEventRuleset implements Comparable<TraceEventRuleset> {
         return version;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((ruleset == null) ? 0 : ruleset.hashCode());
-        result = prime * result + ((version == null) ? 0 : version.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        TraceEventRuleset other = (TraceEventRuleset) obj;
-        if (ruleset == null) {
-            if (other.ruleset != null) {
-                return false;
-            }
-        } else if (!ruleset.equals(other.ruleset)) {
-            return false;
-        }
-        if (version == null) {
-            if (other.version != null) {
-                return false;
-            }
-        } else if (!version.equals(other.version)) {
-            return false;
-        }
-        return true;
-    }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         sb.append(getRuleset());
 
@@ -86,9 +55,44 @@ public class TraceEventRuleset implements Comparable<TraceEventRuleset> {
         return sb.toString();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
     @Override
-    public int compareTo(TraceEventRuleset eventRuleset) {
-        return toString().compareTo(eventRuleset.toString());
+    public int hashCode() {
+        return Objects.hash(ruleset, version);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (!(obj instanceof TraceEventRuleset)) {
+            return false;
+        }
+
+        TraceEventRuleset other = (TraceEventRuleset) obj;
+
+        return Objects.equals(ruleset, other.ruleset) && Objects.equals(version, other.version);
+    }
+
+    @Override
+    public int compareTo(TraceEventRuleset other) {
+        return toString().compareTo(other.toString());
     }
 
 }

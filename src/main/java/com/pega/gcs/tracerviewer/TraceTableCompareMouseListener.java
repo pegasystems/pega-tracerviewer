@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -25,13 +25,13 @@ public class TraceTableCompareMouseListener extends TraceTableMouseListener {
     }
 
     @Override
-    public void mouseClicked(MouseEvent event) {
+    public void mouseClicked(MouseEvent mouseEvent) {
 
-        if (SwingUtilities.isRightMouseButton(event)) {
+        if (SwingUtilities.isRightMouseButton(mouseEvent)) {
 
             final List<Integer> selectedRowList = new ArrayList<Integer>();
 
-            final TraceTable source = (TraceTable) event.getSource();
+            final TraceTable source = (TraceTable) mouseEvent.getSource();
 
             if (isIntendedSource(source)) {
 
@@ -39,7 +39,7 @@ public class TraceTableCompareMouseListener extends TraceTableMouseListener {
 
                 // in case the row was not selected when right clicking then
                 // based on the point, select the row.
-                Point point = event.getPoint();
+                Point point = mouseEvent.getPoint();
 
                 if ((selectedRows != null) && (selectedRows.length <= 1)) {
 
@@ -48,7 +48,7 @@ public class TraceTableCompareMouseListener extends TraceTableMouseListener {
                     if (selectedRow != -1) {
                         // select the row first
                         source.setRowSelectionInterval(selectedRow, selectedRow);
-                        selectedRows = new int[] {selectedRow};
+                        selectedRows = new int[] { selectedRow };
                     }
                 }
 
@@ -62,22 +62,25 @@ public class TraceTableCompareMouseListener extends TraceTableMouseListener {
 
                     JPopupMenu popupMenu = new JPopupMenu();
 
-                    RightClickMenuItem copyAsXML = getCopyAsXMLRightClickMenuItem(popupMenu, selectedRowList);
+                    // expected menus - so that they can be added as per order in the last
+                    RightClickMenuItem copyEventXMLMenuItem = null;
 
-                    popupMenu.add(copyAsXML);
+                    copyEventXMLMenuItem = getCopyEventXMLRightClickMenuItem(popupMenu, selectedRowList);
 
-                    popupMenu.show(event.getComponent(), event.getX(), event.getY());
+                    popupMenu.add(copyEventXMLMenuItem);
+
+                    popupMenu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
                 }
             }
 
-        } else if (event.getClickCount() == 2) {
+        } else if (mouseEvent.getClickCount() == 2) {
 
-            TraceTable source = (TraceTable) event.getSource();
+            TraceTable source = (TraceTable) mouseEvent.getSource();
 
             performDoubleClick(source);
 
         } else {
-            super.mouseClicked(event);
+            super.mouseClicked(mouseEvent);
         }
     }
 

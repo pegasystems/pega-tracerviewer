@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -22,11 +22,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TooManyListenersException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.Border;
+
+import org.dom4j.Element;
 
 import com.pega.gcs.fringecommon.guiutilities.ButtonTabComponent;
 import com.pega.gcs.fringecommon.guiutilities.RecentFileContainer;
@@ -42,9 +45,11 @@ public class TraceTabbedPane extends JTabbedPane implements DropTargetListener {
 
     private RecentFileContainer recentFileContainer;
 
-    private Map<String, Integer> fileTabIndexMap;
+    private Map<String, Integer> tabIndexMap;
 
     private Border normalBorder;
+
+    private AtomicInteger snippetCounter;
 
     public TraceTabbedPane(TracerViewerSetting tracerViewerSetting, RecentFileContainer recentFileContainer) {
         super();
@@ -52,7 +57,9 @@ public class TraceTabbedPane extends JTabbedPane implements DropTargetListener {
         this.tracerViewerSetting = tracerViewerSetting;
         this.recentFileContainer = recentFileContainer;
 
-        fileTabIndexMap = new LinkedHashMap<String, Integer>();
+        tabIndexMap = new LinkedHashMap<String, Integer>();
+
+        snippetCounter = new AtomicInteger(0);
 
         setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
@@ -153,17 +160,31 @@ public class TraceTabbedPane extends JTabbedPane implements DropTargetListener {
         return retValue;
     }
 
-    private void addTab(File selectedFile, JPanel tabPanel) {
+    // private void addTab(File selectedFile, JPanel tabPanel) {
+    //
+    // String tabTitle = selectedFile.getName();
+    //
+    // addTab(tabTitle, null, tabPanel, selectedFile.getPath());
+    //
+    // int index = getTabCount() - 1;
+    //
+    // final ButtonTabComponent btc = new ButtonTabComponent(tabTitle, this);
+    //
+    // tabIndexMap.put(selectedFile.getPath(), index);
+    //
+    // setTabComponentAt(index, btc);
+    // setSelectedIndex(index);
+    // }
 
-        String tabTitle = selectedFile.getName();
+    private void addTab(String tabTitle, String tooltip, String tabIndexKey, JPanel tabPanel) {
 
-        addTab(tabTitle, null, tabPanel, selectedFile.getPath());
+        addTab(tabTitle, null, tabPanel, tooltip);
 
         int index = getTabCount() - 1;
 
         final ButtonTabComponent btc = new ButtonTabComponent(tabTitle, this);
 
-        fileTabIndexMap.put(selectedFile.getPath(), index);
+        tabIndexMap.put(tabIndexKey, index);
 
         setTabComponentAt(index, btc);
         setSelectedIndex(index);
@@ -173,12 +194,12 @@ public class TraceTabbedPane extends JTabbedPane implements DropTargetListener {
     public void remove(int index) {
         super.remove(index);
 
-        fileTabIndexMap.values().remove(index);
+        tabIndexMap.values().remove(index);
 
         int tabIndex = 0;
 
-        for (String key : fileTabIndexMap.keySet()) {
-            fileTabIndexMap.put(key, tabIndex);
+        for (String key : tabIndexMap.keySet()) {
+            tabIndexMap.put(key, tabIndex);
             tabIndex++;
         }
 
@@ -188,7 +209,7 @@ public class TraceTabbedPane extends JTabbedPane implements DropTargetListener {
 
     public void loadFile(final File selectedFile) throws Exception {
 
-        Integer index = fileTabIndexMap.get(selectedFile.getPath());
+        Integer index = tabIndexMap.get(selectedFile.getPath());
 
         if (index != null) {
 
@@ -198,15 +219,37 @@ public class TraceTabbedPane extends JTabbedPane implements DropTargetListener {
 
             TracerDataMainPanel tracerDataMainPanel = new TracerDataMainPanel(selectedFile, recentFileContainer,
                     tracerViewerSetting);
-            addTab(selectedFile, tracerDataMainPanel);
+
+            String tabTitle = selectedFile.getName();
+            String tooltip = selectedFile.getPath();
+            String tabIndexKey = selectedFile.getPath();
+
+            addTab(tabTitle, tooltip, tabIndexKey, tracerDataMainPanel);
         }
 
     }
 
     public ArrayList<String> getOpenFileList() {
 
-        ArrayList<String> openFileList = new ArrayList<>(fileTabIndexMap.keySet());
+        ArrayList<String> openFileList = new ArrayList<>(tabIndexMap.keySet());
 
         return openFileList;
+    }
+
+    public void openXMLSnippet(Element xmlElement, String filename) {
+
+        int snippetIndex = snippetCounter.incrementAndGet();
+
+        TraceXMLSnippetMainPanel traceXMLSnippetMainPanel;
+        traceXMLSnippetMainPanel = new TraceXMLSnippetMainPanel(xmlElement, tracerViewerSetting);
+
+        String xmlSnippet = "XML Snippet - ";
+
+        String tabTitle = (filename != null && !"".equals(filename)) ? (xmlSnippet + filename)
+                : (xmlSnippet + snippetIndex);
+        String tooltip = tabTitle;
+        String tabIndexKey = tabTitle;
+
+        addTab(tabTitle, tooltip, tabIndexKey, traceXMLSnippetMainPanel);
     }
 }

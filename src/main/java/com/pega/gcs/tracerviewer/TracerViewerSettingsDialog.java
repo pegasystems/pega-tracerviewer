@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -44,11 +44,11 @@ public class TracerViewerSettingsDialog extends JDialog {
 
     private TracerViewerSetting tracerViewerSetting;
 
-    private JTextField recentItemsJTextField;
+    private JTextField recentItemsTextField;
 
-    private JComboBox<String> charsetJComboBox;
+    private JComboBox<String> charsetComboBox;
 
-    private JCheckBox reloadPreviousFilesJComboBox;
+    private JCheckBox reloadPreviousFilesCheckBox;
 
     private boolean settingUpdated;
 
@@ -62,23 +62,21 @@ public class TracerViewerSettingsDialog extends JDialog {
 
         setIconImage(appIcon.getImage());
 
-        setPreferredSize(new Dimension(300, 220));
         setTitle("Tracer Viewer Default Settings");
-        // setResizable(true);
+
         setModalityType(ModalityType.APPLICATION_MODAL);
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        // setAlwaysOnTop(true);
 
-        setContentPane(getMainJPanel());
+        setContentPane(getMainPanel());
 
         pack();
 
         setLocationRelativeTo(parent);
 
-        populateSettingsJPanel();
+        populateSettings();
 
-        // visible should be the last step
-        setVisible(true);
+        // setVisible called by caller.
+        // setVisible(true);
 
     }
 
@@ -94,42 +92,26 @@ public class TracerViewerSettingsDialog extends JDialog {
         this.settingUpdated = settingUpdated;
     }
 
-    private JPanel getMainJPanel() {
+    private JPanel getMainPanel() {
 
-        JPanel mainJPanel = new JPanel();
+        JPanel mainPanel = new JPanel();
 
-        mainJPanel.setLayout(new GridBagLayout());
+        LayoutManager layout = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
+        mainPanel.setLayout(layout);
 
-        GridBagConstraints gbc1 = new GridBagConstraints();
-        gbc1.gridx = 0;
-        gbc1.gridy = 0;
-        gbc1.weightx = 1.0D;
-        gbc1.weighty = 1.0D;
-        gbc1.fill = GridBagConstraints.BOTH;
-        gbc1.anchor = GridBagConstraints.NORTHWEST;
-        gbc1.insets = new Insets(2, 2, 0, 2);
+        JPanel settingsPanel = getSettingsPanel();
+        JPanel buttonsPanel = getButtonsPanel();
 
-        GridBagConstraints gbc2 = new GridBagConstraints();
-        gbc2.gridx = 0;
-        gbc2.gridy = 1;
-        gbc2.weightx = 1.0D;
-        gbc2.weighty = 1.0D;
-        gbc2.fill = GridBagConstraints.BOTH;
-        gbc2.anchor = GridBagConstraints.NORTHWEST;
-        gbc2.insets = new Insets(0, 4, 2, 4);
+        mainPanel.add(settingsPanel);
+        mainPanel.add(buttonsPanel);
 
-        JPanel settingsJPanel = getSettingsJPanel();
-        JPanel buttonsJPanel = getButtonsJPanel();
-
-        mainJPanel.add(settingsJPanel, gbc1);
-        mainJPanel.add(buttonsJPanel, gbc2);
-
-        return mainJPanel;
+        return mainPanel;
     }
 
-    private JPanel getSettingsJPanel() {
-        JPanel settingsJPanel = new JPanel();
-        settingsJPanel.setLayout(new GridBagLayout());
+    private JPanel getSettingsPanel() {
+
+        JPanel settingsPanel = new JPanel();
+        settingsPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc1 = new GridBagConstraints();
         gbc1.gridx = 0;
@@ -138,7 +120,7 @@ public class TracerViewerSettingsDialog extends JDialog {
         gbc1.weighty = 0.0D;
         gbc1.fill = GridBagConstraints.BOTH;
         gbc1.anchor = GridBagConstraints.NORTHWEST;
-        gbc1.insets = new Insets(2, 2, 2, 2);
+        gbc1.insets = new Insets(10, 10, 3, 2);
 
         GridBagConstraints gbc2 = new GridBagConstraints();
         gbc2.gridx = 1;
@@ -147,7 +129,7 @@ public class TracerViewerSettingsDialog extends JDialog {
         gbc2.weighty = 0.0D;
         gbc2.fill = GridBagConstraints.BOTH;
         gbc2.anchor = GridBagConstraints.NORTHWEST;
-        gbc2.insets = new Insets(2, 2, 2, 2);
+        gbc2.insets = new Insets(10, 2, 3, 10);
 
         GridBagConstraints gbc3 = new GridBagConstraints();
         gbc3.gridx = 0;
@@ -156,7 +138,7 @@ public class TracerViewerSettingsDialog extends JDialog {
         gbc3.weighty = 0.0D;
         gbc3.fill = GridBagConstraints.BOTH;
         gbc3.anchor = GridBagConstraints.NORTHWEST;
-        gbc3.insets = new Insets(2, 2, 2, 2);
+        gbc3.insets = new Insets(3, 10, 3, 2);
 
         GridBagConstraints gbc4 = new GridBagConstraints();
         gbc4.gridx = 1;
@@ -165,7 +147,7 @@ public class TracerViewerSettingsDialog extends JDialog {
         gbc4.weighty = 0.0D;
         gbc4.fill = GridBagConstraints.BOTH;
         gbc4.anchor = GridBagConstraints.NORTHWEST;
-        gbc4.insets = new Insets(2, 2, 2, 2);
+        gbc4.insets = new Insets(3, 2, 3, 10);
 
         GridBagConstraints gbc5 = new GridBagConstraints();
         gbc5.gridx = 0;
@@ -174,7 +156,7 @@ public class TracerViewerSettingsDialog extends JDialog {
         gbc5.weighty = 0.0D;
         gbc5.fill = GridBagConstraints.BOTH;
         gbc5.anchor = GridBagConstraints.NORTHWEST;
-        gbc5.insets = new Insets(2, 2, 2, 2);
+        gbc5.insets = new Insets(0, 10, 3, 10);
         gbc5.gridwidth = GridBagConstraints.REMAINDER;
 
         GridBagConstraints gbc6 = new GridBagConstraints();
@@ -184,7 +166,7 @@ public class TracerViewerSettingsDialog extends JDialog {
         gbc6.weighty = 0.0D;
         gbc6.fill = GridBagConstraints.BOTH;
         gbc6.anchor = GridBagConstraints.NORTHWEST;
-        gbc6.insets = new Insets(2, 2, 2, 2);
+        gbc6.insets = new Insets(3, 10, 10, 2);
 
         GridBagConstraints gbc7 = new GridBagConstraints();
         gbc7.gridx = 1;
@@ -193,54 +175,55 @@ public class TracerViewerSettingsDialog extends JDialog {
         gbc7.weighty = 0.0D;
         gbc7.fill = GridBagConstraints.BOTH;
         gbc7.anchor = GridBagConstraints.NORTHWEST;
-        gbc7.insets = new Insets(2, 2, 2, 2);
+        gbc7.insets = new Insets(3, 2, 10, 10);
 
-        JLabel recentItemsJLabel = new JLabel("Recent Counts");
-        JLabel charsetJLabel = new JLabel("File Encoding");
+        JLabel recentItemsLabel = new JLabel("Recent Counts");
+        JLabel charsetLabel = new JLabel("File Encoding");
 
-        JTextArea charsetInfoJTextArea = new JTextArea(
-                "This charset is applied only for new files.Files from recent menu will use previously applied setting.");
-        charsetInfoJTextArea.setEditable(false);
-        charsetInfoJTextArea.setWrapStyleWord(true);
-        charsetInfoJTextArea.setLineWrap(true);
-        charsetInfoJTextArea.setRows(2);
-        charsetInfoJTextArea.setFont(this.getFont());
-        charsetInfoJTextArea.setBackground(null);
-        charsetInfoJTextArea.setForeground(MyColor.LIGHT_BLUE);
+        JTextArea charsetInfoTextArea;
+        charsetInfoTextArea = new JTextArea("This charset is applied only for new files. Files from recent "
+                + "menu will still use previously applied setting.");
+        charsetInfoTextArea.setEditable(false);
+        charsetInfoTextArea.setWrapStyleWord(true);
+        charsetInfoTextArea.setLineWrap(true);
+        charsetInfoTextArea.setRows(2);
+        charsetInfoTextArea.setFont(this.getFont());
+        charsetInfoTextArea.setBackground(null);
+        charsetInfoTextArea.setForeground(MyColor.LIGHT_BLUE);
 
-        JLabel reloadPreviousFilesJLabel = new JLabel("Reload previous open files");
+        JLabel reloadPreviousFilesLabel = new JLabel("Reload previous open files");
 
-        JTextField recentItemsJTextField = getRecentItemsJTextField();
-        JComboBox<String> charsetJComboBox = getCharsetJComboBox();
-        JCheckBox reloadPreviousFilesJComboBox = getReloadPreviousFilesJComboBox();
+        JTextField recentItemsTextField = getRecentItemsTextField();
+        JComboBox<String> charsetComboBox = getCharsetComboBox();
+        JCheckBox reloadPreviousFilesCheckBox = getReloadPreviousFilesCheckBox();
 
-        settingsJPanel.add(recentItemsJLabel, gbc1);
-        settingsJPanel.add(recentItemsJTextField, gbc2);
-        settingsJPanel.add(charsetJLabel, gbc3);
-        settingsJPanel.add(charsetJComboBox, gbc4);
-        settingsJPanel.add(charsetInfoJTextArea, gbc5);
-        settingsJPanel.add(reloadPreviousFilesJLabel, gbc6);
-        settingsJPanel.add(reloadPreviousFilesJComboBox, gbc7);
+        settingsPanel.add(recentItemsLabel, gbc1);
+        settingsPanel.add(recentItemsTextField, gbc2);
+        settingsPanel.add(charsetLabel, gbc3);
+        settingsPanel.add(charsetComboBox, gbc4);
+        settingsPanel.add(charsetInfoTextArea, gbc5);
+        settingsPanel.add(reloadPreviousFilesLabel, gbc6);
+        settingsPanel.add(reloadPreviousFilesCheckBox, gbc7);
 
         Border loweredEtched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
 
-        settingsJPanel.setBorder(BorderFactory.createTitledBorder(loweredEtched, "Settings"));
+        settingsPanel.setBorder(BorderFactory.createTitledBorder(loweredEtched, "Settings"));
 
-        return settingsJPanel;
+        return settingsPanel;
     }
 
-    private JPanel getButtonsJPanel() {
+    private JPanel getButtonsPanel() {
 
-        JPanel buttonsJPanel = new JPanel();
+        JPanel buttonsPanel = new JPanel();
 
-        LayoutManager layout = new BoxLayout(buttonsJPanel, BoxLayout.X_AXIS);
-        buttonsJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(buttonsPanel, BoxLayout.X_AXIS);
+        buttonsPanel.setLayout(layout);
 
         // OK Button
-        JButton okJButton = new JButton("OK");
-        okJButton.setToolTipText("OK");
+        JButton okButton = new JButton("OK");
+        okButton.setToolTipText("OK");
 
-        okJButton.addActionListener(new ActionListener() {
+        okButton.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent event) {
@@ -250,10 +233,10 @@ public class TracerViewerSettingsDialog extends JDialog {
         });
 
         // Cancel button
-        JButton cancelJButton = new JButton("Cancel");
-        cancelJButton.setToolTipText("Cancel");
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.setToolTipText("Cancel");
 
-        cancelJButton.addActionListener(new ActionListener() {
+        cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
                 dispose();
@@ -268,73 +251,73 @@ public class TracerViewerSettingsDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent event) {
                 getTracerViewerSetting().setDefault();
-                populateSettingsJPanel();
+                populateSettings();
             }
         });
 
-        Dimension dim = new Dimension(20, 30);
-        buttonsJPanel.add(Box.createHorizontalGlue());
-        buttonsJPanel.add(Box.createRigidArea(dim));
-        buttonsJPanel.add(okJButton);
-        buttonsJPanel.add(Box.createRigidArea(dim));
-        buttonsJPanel.add(cancelJButton);
-        buttonsJPanel.add(Box.createRigidArea(dim));
-        buttonsJPanel.add(resetJButton);
-        buttonsJPanel.add(Box.createRigidArea(dim));
-        buttonsJPanel.add(Box.createHorizontalGlue());
+        Dimension dim = new Dimension(20, 40);
+        buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.add(Box.createRigidArea(dim));
+        buttonsPanel.add(okButton);
+        buttonsPanel.add(Box.createRigidArea(dim));
+        buttonsPanel.add(cancelButton);
+        buttonsPanel.add(Box.createRigidArea(dim));
+        buttonsPanel.add(resetJButton);
+        buttonsPanel.add(Box.createRigidArea(dim));
+        buttonsPanel.add(Box.createHorizontalGlue());
 
-        buttonsJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-        return buttonsJPanel;
+        buttonsPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        return buttonsPanel;
     }
 
-    private JTextField getRecentItemsJTextField() {
+    private JTextField getRecentItemsTextField() {
 
-        if (recentItemsJTextField == null) {
-            recentItemsJTextField = new JTextField();
+        if (recentItemsTextField == null) {
+            recentItemsTextField = new JTextField();
         }
 
-        return recentItemsJTextField;
+        return recentItemsTextField;
     }
 
-    private JComboBox<String> getCharsetJComboBox() {
+    private JComboBox<String> getCharsetComboBox() {
 
-        if (charsetJComboBox == null) {
-            charsetJComboBox = GUIUtilities.getCharsetJComboBox();
+        if (charsetComboBox == null) {
+            charsetComboBox = GUIUtilities.getCharsetJComboBox();
         }
 
-        return charsetJComboBox;
+        return charsetComboBox;
     }
 
-    private JCheckBox getReloadPreviousFilesJComboBox() {
+    private JCheckBox getReloadPreviousFilesCheckBox() {
 
-        if (reloadPreviousFilesJComboBox == null) {
-            reloadPreviousFilesJComboBox = new JCheckBox();
+        if (reloadPreviousFilesCheckBox == null) {
+            reloadPreviousFilesCheckBox = new JCheckBox();
         }
 
-        return reloadPreviousFilesJComboBox;
+        return reloadPreviousFilesCheckBox;
     }
 
-    protected void populateSettingsJPanel() {
+    protected void populateSettings() {
 
-        JTextField recentItemsJTextField = getRecentItemsJTextField();
-        JComboBox<String> charsetJComboBox = getCharsetJComboBox();
-        JCheckBox reloadPreviousFilesJComboBox = getReloadPreviousFilesJComboBox();
+        JTextField recentItemsTextField = getRecentItemsTextField();
+        JComboBox<String> charsetComboBox = getCharsetComboBox();
+        JCheckBox reloadPreviousFilesCheckBox = getReloadPreviousFilesCheckBox();
 
         String text = String.valueOf(tracerViewerSetting.getRecentItemsCount());
-        recentItemsJTextField.setText(text);
+        recentItemsTextField.setText(text);
 
         String charset = tracerViewerSetting.getCharset();
-        charsetJComboBox.setSelectedItem(charset);
+        charsetComboBox.setSelectedItem(charset);
 
         boolean reloadPreviousFiles = tracerViewerSetting.isReloadPreviousFiles();
-        reloadPreviousFilesJComboBox.setSelected(reloadPreviousFiles);
+        reloadPreviousFilesCheckBox.setSelected(reloadPreviousFiles);
     }
 
     public int getRecentItemsCount() {
 
         int recentItemsCount = tracerViewerSetting.getRecentItemsCount();
 
-        String text = getRecentItemsJTextField().getText();
+        String text = getRecentItemsTextField().getText();
 
         try {
             recentItemsCount = Integer.parseInt(text);
@@ -347,7 +330,7 @@ public class TracerViewerSettingsDialog extends JDialog {
 
     public String getSelectedCharset() {
 
-        String charset = (String) getCharsetJComboBox().getSelectedItem();
+        String charset = (String) getCharsetComboBox().getSelectedItem();
 
         if ((charset == null) || ("".equals(charset))) {
             charset = tracerViewerSetting.getCharset();
@@ -358,9 +341,9 @@ public class TracerViewerSettingsDialog extends JDialog {
 
     public boolean isReloadPreviousFiles() {
 
-        JCheckBox reloadPreviousFilesJComboBox = getReloadPreviousFilesJComboBox();
+        JCheckBox reloadPreviousFilesCheckBox = getReloadPreviousFilesCheckBox();
 
-        boolean reloadPreviousFiles = reloadPreviousFilesJComboBox.isSelected();
+        boolean reloadPreviousFiles = reloadPreviousFilesCheckBox.isSelected();
 
         return reloadPreviousFiles;
     }

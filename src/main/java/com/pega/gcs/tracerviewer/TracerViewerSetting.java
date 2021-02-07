@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -8,11 +8,16 @@
 package com.pega.gcs.tracerviewer;
 
 import java.io.Serializable;
-import java.nio.charset.Charset;
 
 public class TracerViewerSetting implements Serializable {
 
     private static final long serialVersionUID = 211297964995715046L;
+
+    // force reset, in case any default value changes
+    private static final int SETTING_VERSION = 1;
+
+    // for kryo obj persistence
+    private final int objVersion;
 
     private int recentItemsCount;
 
@@ -21,14 +26,26 @@ public class TracerViewerSetting implements Serializable {
     private boolean reloadPreviousFiles;
 
     public TracerViewerSetting() {
+
         super();
+
+        this.objVersion = SETTING_VERSION;
+
         setDefault();
     }
 
+    public static int getSettingVersion() {
+        return SETTING_VERSION;
+    }
+
+    public int getObjVersion() {
+        return objVersion;
+    }
+
     public void setDefault() {
-        recentItemsCount = 10;
-        charset = Charset.defaultCharset().name();
-        reloadPreviousFiles = true;
+        recentItemsCount = 20;
+        charset = "UTF-8";
+        reloadPreviousFiles = false;
     }
 
     public int getRecentItemsCount() {

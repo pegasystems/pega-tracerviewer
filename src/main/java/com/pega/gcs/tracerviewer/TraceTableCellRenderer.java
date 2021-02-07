@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -24,19 +24,19 @@ public class TraceTableCellRenderer extends DefaultTableCellRenderer {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent
-     * (javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+     * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent (javax.swing.JTable, java.lang.Object, boolean,
+     * boolean, int, int)
      */
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+            int row, int column) {
 
         TraceEvent te = (TraceEvent) value;
 
         if (te != null) {
 
             TraceTableModel traceTableModel = (TraceTableModel) table.getModel();
-            TraceTableModelColumn traceTableModelColumn = traceTableModel.getColumn(column);
+            TraceEventColumn traceTableModelColumn = traceTableModel.getColumn(column);
 
             String text = te.getColumnValueForTraceTableModelColumn(traceTableModelColumn);
 
@@ -48,7 +48,7 @@ public class TraceTableCellRenderer extends DefaultTableCellRenderer {
                 if (searchFound) {
                     setBackground(MyColor.LIGHT_YELLOW);
                 } else {
-                    setBackground(te.getColumnBackground(column));
+                    setBackground(te.getColumnBackground(traceTableModelColumn));
                 }
             }
 

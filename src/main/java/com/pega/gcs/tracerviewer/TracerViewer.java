@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -29,6 +29,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
+import org.dom4j.Element;
+
 import com.pega.gcs.fringecommon.guiutilities.BaseFrame;
 import com.pega.gcs.fringecommon.guiutilities.RecentFile;
 import com.pega.gcs.fringecommon.guiutilities.RecentFileContainer;
@@ -45,6 +47,8 @@ public class TracerViewer extends BaseFrame {
     private static final long serialVersionUID = -90660332725468972L;
 
     private static final Log4j2Helper LOG = new Log4j2Helper(TracerViewer.class);
+
+    private static TracerViewer _INSTANCE;
 
     public static final String FILE_CHOOSER_FILTER_DESC = "Tracer XML Files";
 
@@ -69,7 +73,7 @@ public class TracerViewer extends BaseFrame {
 
     private ArrayList<String> openFileList;
 
-    protected TracerViewer() throws Exception {
+    private TracerViewer() throws Exception {
 
         super();
 
@@ -90,6 +94,19 @@ public class TracerViewer extends BaseFrame {
         }
 
         LOG.info("TracerViewer - Started");
+    }
+
+    public static TracerViewer getInstance() {
+
+        if (_INSTANCE == null) {
+            try {
+                _INSTANCE = new TracerViewer();
+            } catch (Exception e) {
+                LOG.error("Error  instantiating TracerViewer ", e);
+            }
+        }
+
+        return _INSTANCE;
     }
 
     protected File getSelectedFile() {
@@ -119,10 +136,21 @@ public class TracerViewer extends BaseFrame {
         byteArray = GeneralUtilities.getPreferenceByteArray(TracerViewer.class, PREF_SETTINGS);
 
         if (byteArray != null) {
+
             try {
+
                 tracerViewerSetting = KryoSerializer.decompress(byteArray, TracerViewerSetting.class);
+
+                int settingVersion = TracerViewerSetting.getSettingVersion();
+                int objVersion = tracerViewerSetting.getObjVersion();
+
+                if (settingVersion != objVersion) {
+                    LOG.info("TracerViewerSetting defaults changed - resetting to ootb");
+                    tracerViewerSetting = null;
+                }
+
             } catch (Exception exception) {
-                LOG.error("Error in decompressing tracerviewersetting", exception);
+                LOG.error("Error in decompressing Tracer Viewer Setting", exception);
             }
         }
 
@@ -198,12 +226,12 @@ public class TracerViewer extends BaseFrame {
 
         if (appName == null) {
 
-            Package apackage = TracerViewer.class.getPackage();
+            Package tracerViewerPackage = TracerViewer.class.getPackage();
 
-            StringBuffer sb = new StringBuffer();
-            sb.append(apackage.getImplementationTitle());
+            StringBuilder sb = new StringBuilder();
+            sb.append(tracerViewerPackage.getImplementationTitle());
             sb.append(" ");
-            sb.append(apackage.getImplementationVersion());
+            sb.append(tracerViewerPackage.getImplementationVersion());
 
             appName = sb.toString();
         }
@@ -219,6 +247,7 @@ public class TracerViewer extends BaseFrame {
     @Override
     protected void release() {
         savePreferences();
+        LOG.info("TracerViewer - Stopped");
     }
 
     protected void savePreferences() {
@@ -278,6 +307,41 @@ public class TracerViewer extends BaseFrame {
 
         fileJMenu.setMnemonic(KeyEvent.VK_F);
 
+        JMenuItem fileOpenJMenuItem = getFileOpenJMenuItem();
+        JMenuItem loadSnippetJMenuItem = getLoadSnippetJMenuItem();
+        RecentFileJMenu recentFileJMenu = getRecentFileJMenu();
+        JMenuItem clearRecentJMenuItem = getClearRecentJMenuItem();
+        JMenuItem exitJMenuItem = getExitJMenuItem();
+
+        // fileJMenu.addSeparator();
+        fileJMenu.add(fileOpenJMenuItem);
+        fileJMenu.add(loadSnippetJMenuItem);
+        fileJMenu.add(recentFileJMenu);
+        fileJMenu.add(clearRecentJMenuItem);
+        fileJMenu.add(exitJMenuItem);
+
+        // ---- EDIT ----
+        JMenu editJMenu = new JMenu("   Edit   ");
+        editJMenu.setMnemonic(KeyEvent.VK_E);
+
+        JMenuItem settingsJMenuItem = getSettingJMenuItem();
+
+        editJMenu.add(settingsJMenuItem);
+
+        // ---- HELP ----
+        JMenu helpJMenu = getHelpAboutJMenu();
+
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.add(fileJMenu);
+        menuBar.add(editJMenu);
+        menuBar.add(helpJMenu);
+
+        return menuBar;
+
+    }
+
+    private JMenuItem getFileOpenJMenuItem() {
+
         JMenuItem fileOpenJMenuItem = new JMenuItem("Load Pega Tracer File");
 
         fileOpenJMenuItem.setMnemonic(KeyEvent.VK_L);
@@ -306,90 +370,45 @@ public class TracerViewer extends BaseFrame {
             }
         });
 
-        RecentFileJMenu recentFileJMenu = getRecentFileJMenu();
+        return fileOpenJMenuItem;
+    }
 
-        JMenuItem clearRecentJMenuItem = new JMenuItem("Clear Recent");
-        clearRecentJMenuItem.setMnemonic(KeyEvent.VK_C);
-        clearRecentJMenuItem.setToolTipText("Clear Recent");
+    private JMenuItem getLoadSnippetJMenuItem() {
 
-        clearRecentJMenuItem.setIcon(ii);
+        JMenuItem loadSnippetJMenuItem = new JMenuItem("Load XML Snippet");
+        loadSnippetJMenuItem.setMnemonic(KeyEvent.VK_M);
+        loadSnippetJMenuItem.setToolTipText("Load XML Snippet");
 
-        clearRecentJMenuItem.addActionListener(new ActionListener() {
+        ImageIcon ii = FileUtilities.getImageIcon(this.getClass(), "open.png");
+
+        loadSnippetJMenuItem.setIcon(ii);
+
+        loadSnippetJMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                clearRecentPreferences();
-                savePreferences();
-            }
-        });
 
-        JMenuItem exitJMenuItem = new JMenuItem("Exit");
-        exitJMenuItem.setMnemonic(KeyEvent.VK_X);
-        exitJMenuItem.setToolTipText("Exit application");
+                TracerViewerSetting tracerViewerSetting = getTracerViewerSetting();
 
-        ii = FileUtilities.getImageIcon(this.getClass(), "exit.png");
+                String title = "Load XML Snippet";
 
-        exitJMenuItem.setIcon(ii);
-
-        exitJMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                exit(0);
-            }
-        });
-
-        // fileJMenu.addSeparator();
-        fileJMenu.add(fileOpenJMenuItem);
-        fileJMenu.add(recentFileJMenu);
-        fileJMenu.add(clearRecentJMenuItem);
-        fileJMenu.add(exitJMenuItem);
-
-        // ---- EDIT ----
-        JMenu editJMenu = new JMenu("   Edit   ");
-        editJMenu.setMnemonic(KeyEvent.VK_E);
-
-        JMenuItem settingsJMenuItem = new JMenuItem("Settings");
-        settingsJMenuItem.setToolTipText("Settings");
-
-        ii = FileUtilities.getImageIcon(this.getClass(), "settings.png");
-        settingsJMenuItem.setIcon(ii);
-
-        settingsJMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                TracerViewerSettingsDialog tracerViewerSettingsDialog;
-                tracerViewerSettingsDialog = new TracerViewerSettingsDialog(getTracerViewerSetting(), getAppIcon(),
+                TraceXMLLoadSnippetJDialog traceXMLLoadSnippetJDialog;
+                traceXMLLoadSnippetJDialog = new TraceXMLLoadSnippetJDialog(title, tracerViewerSetting, getAppIcon(),
                         TracerViewer.this);
 
-                if (tracerViewerSettingsDialog.isSettingUpdated()) {
+                Element xmlElement = traceXMLLoadSnippetJDialog.getXmlElement();
+                String filename = traceXMLLoadSnippetJDialog.getFilename();
 
-                    int recentItemsCount = tracerViewerSettingsDialog.getRecentItemsCount();
-                    String charset = tracerViewerSettingsDialog.getSelectedCharset();
-                    boolean reloadPreviousFiles = tracerViewerSettingsDialog.isReloadPreviousFiles();
-
-                    TracerViewerSetting tracerViewerSetting = getTracerViewerSetting();
-
-                    tracerViewerSetting.setRecentItemsCount(recentItemsCount);
-                    tracerViewerSetting.setCharset(charset);
-                    tracerViewerSetting.setReloadPreviousFiles(reloadPreviousFiles);
+                if (xmlElement != null) {
+                    TraceTabbedPane traceTabbedPane = getTraceTabbedPane();
+                    traceTabbedPane.openXMLSnippet(xmlElement, filename);
                 }
             }
         });
 
-        editJMenu.add(settingsJMenuItem);
-
-        // ---- HELP ----
-        JMenu helpJMenu = getHelpAboutJMenu();
-
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.add(fileJMenu);
-        menuBar.add(editJMenu);
-        menuBar.add(helpJMenu);
-
-        return menuBar;
-
+        return loadSnippetJMenuItem;
     }
 
-    public RecentFileJMenu getRecentFileJMenu() {
+    private RecentFileJMenu getRecentFileJMenu() {
 
         if (recentFileJMenu == null) {
 
@@ -400,9 +419,9 @@ public class TracerViewer extends BaseFrame {
                 @Override
                 public void onSelect(RecentFile recentFile) {
 
-                    String fileName = (String) recentFile.getAttribute(RecentFile.KEY_FILE);
+                    String filePath = (String) recentFile.getPath();
 
-                    File file = new File(fileName);
+                    File file = new File(filePath);
 
                     if (file.exists() && file.isFile() && file.canRead()) {
                         loadFile(file);
@@ -421,9 +440,80 @@ public class TracerViewer extends BaseFrame {
         return recentFileJMenu;
     }
 
+    private JMenuItem getClearRecentJMenuItem() {
+
+        JMenuItem clearRecentJMenuItem = new JMenuItem("Clear Recent");
+        clearRecentJMenuItem.setMnemonic(KeyEvent.VK_C);
+        clearRecentJMenuItem.setToolTipText("Clear Recent");
+
+        clearRecentJMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                clearRecentPreferences();
+                savePreferences();
+            }
+        });
+
+        return clearRecentJMenuItem;
+    }
+
+    private JMenuItem getExitJMenuItem() {
+
+        JMenuItem exitJMenuItem = new JMenuItem("Exit");
+        exitJMenuItem.setMnemonic(KeyEvent.VK_X);
+        exitJMenuItem.setToolTipText("Exit application");
+
+        ImageIcon ii = FileUtilities.getImageIcon(this.getClass(), "exit.png");
+
+        exitJMenuItem.setIcon(ii);
+
+        exitJMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                exit(0);
+            }
+        });
+
+        return exitJMenuItem;
+    }
+
+    private JMenuItem getSettingJMenuItem() {
+
+        JMenuItem settingsJMenuItem = new JMenuItem("Settings");
+        settingsJMenuItem.setToolTipText("Settings");
+
+        ImageIcon ii = FileUtilities.getImageIcon(this.getClass(), "settings.png");
+        settingsJMenuItem.setIcon(ii);
+
+        settingsJMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                TracerViewerSettingsDialog tracerViewerSettingsDialog;
+                tracerViewerSettingsDialog = new TracerViewerSettingsDialog(getTracerViewerSetting(), getAppIcon(),
+                        TracerViewer.this);
+
+                tracerViewerSettingsDialog.setVisible(true);
+
+                if (tracerViewerSettingsDialog.isSettingUpdated()) {
+
+                    int recentItemsCount = tracerViewerSettingsDialog.getRecentItemsCount();
+                    String charset = tracerViewerSettingsDialog.getSelectedCharset();
+                    boolean reloadPreviousFiles = tracerViewerSettingsDialog.isReloadPreviousFiles();
+
+                    TracerViewerSetting tracerViewerSetting = getTracerViewerSetting();
+
+                    tracerViewerSetting.setRecentItemsCount(recentItemsCount);
+                    tracerViewerSetting.setCharset(charset);
+                    tracerViewerSetting.setReloadPreviousFiles(reloadPreviousFiles);
+                }
+            }
+        });
+
+        return settingsJMenuItem;
+    }
+
     protected void clearRecentPreferences() {
         recentFileContainer.clearRecentFilesPreferrence();
-        tracerViewerSetting = new TracerViewerSetting();
         openFileList = new ArrayList<>();
     }
 
@@ -564,11 +654,11 @@ public class TracerViewer extends BaseFrame {
                         if (isReport) {
                             generateReport(fileNameList);
                         } else {
-                            TracerViewer tracerViewer = new TracerViewer();
+                            TracerViewer tracerViewer = TracerViewer.getInstance();
                             tracerViewer.loadFile(fileNameList);
                         }
                     } else {
-                        TracerViewer tracerViewer = new TracerViewer();
+                        TracerViewer tracerViewer = TracerViewer.getInstance();
                         tracerViewer.setVisible(true);
                     }
 
@@ -580,7 +670,7 @@ public class TracerViewer extends BaseFrame {
     }
 
     protected static void printUsageAndExit() {
-        String usageStr = "\t-f <space seperated list of file path> \n\t-r <true|false generate report, no UI \n\t-h <print command usage>";
+        String usageStr = "\t-f <space seperated list of file path> \n\t-r <true|false generate report, no UI> \n\t-h <print command usage>";
         LOG.info("Usage Arguments: \n" + usageStr);
         System.exit(0);
     }

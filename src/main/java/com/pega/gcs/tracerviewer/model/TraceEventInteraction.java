@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -22,51 +22,52 @@ public class TraceEventInteraction extends TraceEventNonActivity {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getRule()
+     * @see com.fringe.tracerviewer.TraceEvent#getRuleFromElement()
      */
     @Override
-    protected void setRuleNo(Element traceEventElement) {
-        setRuleNo((Integer) null);
+    protected void setRuleNoFromElement(Element traceEventElement) {
+        setRuleNo(null);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getStepMethod()
+     * @see com.fringe.tracerviewer.TraceEvent#getStepMethodFromElement()
      */
     @Override
-    protected void setStepMethod(Element traceEventElement) {
-        setStepMethod("");
+    protected void setStepMethodFromElement(Element traceEventElement) {
+        setStepMethod(null);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getStepPage()
+     * @see com.fringe.tracerviewer.TraceEvent#getStepPageFromElement()
      */
     @Override
-    protected void setStepPage(Element traceEventElement) {
-        setStepPage("");
+    protected void setStepPageFromElement(Element traceEventElement) {
+        setStepPage(null);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getStep()
+     * @see com.fringe.tracerviewer.TraceEvent#getStepFromElement()
      */
     @Override
-    protected void setStep(Element traceEventElement) {
-        setStep("");
+    protected void setStepFromElement(Element traceEventElement) {
+        setStep(null);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getStatus()
+     * @see com.fringe.tracerviewer.TraceEvent#getStatusFromElement()
      */
     @Override
-    protected void setStatus(Element traceEventElement) {
-        String status = "";
+    protected void setStatusFromElement(Element traceEventElement) {
+
+        String status = null;
 
         Element element = traceEventElement.element("InteractionBytes");
 
@@ -81,11 +82,12 @@ public class TraceEventInteraction extends TraceEventNonActivity {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getEventType()
+     * @see com.fringe.tracerviewer.TraceEvent#getEventTypeFromElement()
      */
     @Override
-    protected void setEventName(Element traceEventElement) {
-        String eventName = "";
+    protected void setEventNameFromElement(Element traceEventElement) {
+
+        String eventName = null;
 
         Element element = traceEventElement.element("EventName");
 
@@ -99,11 +101,12 @@ public class TraceEventInteraction extends TraceEventNonActivity {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getName()
+     * @see com.fringe.tracerviewer.TraceEvent#getNameFromElement()
      */
     @Override
-    protected void setName(Element traceEventElement) {
-        String name = "";
+    protected void setNameFromElement(Element traceEventElement) {
+
+        String name = null;
 
         Element element = traceEventElement.element("InteractionQueryParam");
 
@@ -117,82 +120,11 @@ public class TraceEventInteraction extends TraceEventNonActivity {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getRuleSet()
+     * @see com.fringe.tracerviewer.TraceEvent#getRuleSetFromElement()
      */
     @Override
-    protected void setRuleSet(Element traceEventElement) {
-        setRuleSet("");
-    }
-
-    @Override
-    public Element getTraceEventPropertyElement() {
-
-        Element traceEventPropertyElement = null;
-
-        Element rootElement = getTraceEventRootElement();
-
-        if (rootElement != null) {
-
-            traceEventPropertyElement = getDefaultTraceEventPropertyElement(rootElement);
-
-            // Interaction
-            Element element = rootElement.element("InteractionBytes");
-
-            if (element != null) {
-                traceEventPropertyElement.add(createElement("Bytes", element));
-            }
-
-            // InteractionQueryParam
-            element = rootElement.element("InteractionQueryParam");
-
-            if (element != null) {
-                traceEventPropertyElement.add(createElement("Query Param", element));
-            }
-
-            // InteractionQueryData
-            element = rootElement.element("InteractionQueryData");
-
-            if (element != null) {
-
-                String queryData = element.getText();
-
-                Element queryDataElem = createElement("Query Data", null, "QueryData");
-
-                element = rootElement.element("JSONDataFlag");
-
-                if (element != null) {
-                    String jsonValue = element.getText();
-
-                    // TODO: implement JSON parsing
-                    if ("true".equals(jsonValue)) {
-                        queryDataElem.setText(queryData);
-                    } else {
-                        queryDataElem = buildTokenTable(queryDataElem, queryData, "&");
-                    }
-                } else {
-                    queryDataElem = buildTokenTable(queryDataElem, queryData, "&");
-                }
-
-                traceEventPropertyElement.add(queryDataElem);
-
-            }
-
-            // InteractionPAL
-            element = rootElement.element("InteractionPAL");
-
-            if (element != null) {
-
-                String palData = element.getText();
-
-                Element palDataElem = createElement("PAL", null, "PAL");
-
-                palDataElem = buildTokenTable(palDataElem, palData, ";");
-
-                traceEventPropertyElement.add(palDataElem);
-            }
-        }
-
-        return traceEventPropertyElement;
+    protected void setRuleSetFromElement(Element traceEventElement) {
+        setRuleSet(null);
     }
 
     @Override

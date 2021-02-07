@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -10,7 +10,11 @@ package com.pega.gcs.tracerviewer.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -21,9 +25,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.table.TableColumnModel;
 
 import com.pega.gcs.fringecommon.guiutilities.CustomJTable;
+import com.pega.gcs.fringecommon.guiutilities.CustomJTableModel;
+import com.pega.gcs.fringecommon.guiutilities.GUIUtilities;
 import com.pega.gcs.fringecommon.guiutilities.Message;
+import com.pega.gcs.fringecommon.guiutilities.MyColor;
 import com.pega.gcs.fringecommon.guiutilities.search.SearchPanel;
 import com.pega.gcs.tracerviewer.TraceNavigationTableController;
 import com.pega.gcs.tracerviewer.TraceTableModel;
@@ -41,6 +49,8 @@ public abstract class TracerDataSingleView extends TracerDataView {
     protected abstract CustomJTable getTracerDataTable();
 
     protected abstract JPanel getAdditionalUtilityPanel();
+
+    protected abstract void updateTreeTableColumnModel();
 
     public TracerDataSingleView(TraceTableModel traceTableModel, JPanel supplementUtilityJPanel,
             TraceNavigationTableController traceNavigationTableController) {
@@ -78,39 +88,78 @@ public abstract class TracerDataSingleView extends TracerDataView {
                     JTextField statusBar = getStatusBar();
                     Message message = (Message) evt.getNewValue();
                     setMessage(statusBar, message);
-                }
+                } else if ("traceTableModel".equals(propertyName)) {
+                    // 'traceTableModel' fired by TraceTableModel as the type
+                    // of tracer file (dxApi or not) is known after parsing the file
 
+                    // in case of treetable , update the tree model first then table column model
+                    updateTreeTableColumnModel();
+
+                    CustomJTableModel tableModel = (CustomJTableModel) traceTable.getModel();
+                    traceTable.setColumnModel(tableModel.getTableColumnModel());
+                }
             }
         });
 
     }
 
     @Override
-    protected void updateSupplementUtilityJPanel() {
+    protected void updateSupplementUtilityPanel() {
 
-        JPanel supplementUtilityJPanel = getSupplementUtilityJPanel();
+        JPanel supplementUtilityPanel = getSupplementUtilityPanel();
 
-        supplementUtilityJPanel.removeAll();
-        LayoutManager layout = new BoxLayout(supplementUtilityJPanel, BoxLayout.LINE_AXIS);
-        supplementUtilityJPanel.setLayout(layout);
-        supplementUtilityJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        supplementUtilityPanel.removeAll();
 
-        supplementUtilityJPanel.revalidate();
-        supplementUtilityJPanel.repaint();
+        Dimension spacer = new Dimension(15, 40);
+
+        supplementUtilityPanel.add(Box.createHorizontalGlue());
+        supplementUtilityPanel.add(Box.createRigidArea(spacer));
+        supplementUtilityPanel.add(Box.createHorizontalGlue());
+
+        supplementUtilityPanel.setBorder(BorderFactory.createLineBorder(MyColor.LIGHT_GRAY, 1));
+
+        supplementUtilityPanel.revalidate();
+        supplementUtilityPanel.repaint();
+    }
+
+    @Override
+    protected void performComponentResized(Rectangle oldBounds, Rectangle newBounds) {
+
+        CustomJTable customJTable = getTracerDataTable();
+
+        TableColumnModel tableColumnModel = customJTable.getColumnModel();
+
+        GUIUtilities.applyTableColumnResize(tableColumnModel, oldBounds, newBounds);
     }
 
     private JPanel getUtilityJPanel() {
 
         JPanel utilityJPanel = new JPanel();
 
-        LayoutManager layout = new BoxLayout(utilityJPanel, BoxLayout.LINE_AXIS);
-        utilityJPanel.setLayout(layout);
+        utilityJPanel.setLayout(new GridBagLayout());
 
-        // SearchPanel<TraceEventKey> searchPanel = getSearchPanel();
+        GridBagConstraints gbc1 = new GridBagConstraints();
+        gbc1.gridx = 0;
+        gbc1.gridy = 0;
+        gbc1.weightx = 0.0D;
+        gbc1.weighty = 1.0D;
+        gbc1.fill = GridBagConstraints.BOTH;
+        gbc1.anchor = GridBagConstraints.NORTHWEST;
+        gbc1.insets = new Insets(0, 0, 0, 0);
+
+        GridBagConstraints gbc2 = new GridBagConstraints();
+        gbc2.gridx = 1;
+        gbc2.gridy = 0;
+        gbc2.weightx = 1.0D;
+        gbc2.weighty = 1.0D;
+        gbc2.fill = GridBagConstraints.BOTH;
+        gbc2.anchor = GridBagConstraints.NORTHWEST;
+        gbc2.insets = new Insets(0, 0, 0, 0);
+
         JPanel tracerUtilsJPanel = getTracerUtilsJPanel();
 
-        utilityJPanel.add(searchPanel);
-        utilityJPanel.add(tracerUtilsJPanel);
+        utilityJPanel.add(searchPanel, gbc1);
+        utilityJPanel.add(tracerUtilsJPanel, gbc2);
 
         return utilityJPanel;
     }
@@ -169,7 +218,7 @@ public abstract class TracerDataSingleView extends TracerDataView {
 
         JPanel additionalUtilityPanel = getAdditionalUtilityPanel();
 
-        Dimension dim = new Dimension(5, 30);
+        Dimension dim = new Dimension(5, 40);
 
         tracerReportJPanel.add(Box.createHorizontalGlue());
         tracerReportJPanel.add(Box.createRigidArea(dim));

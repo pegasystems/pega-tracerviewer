@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -17,6 +17,7 @@ public class TraceTable extends FilterTable<TraceEventKey> {
     private static final long serialVersionUID = -3752172566327398734L;
 
     public TraceTable(TraceTableModel traceTableModel) {
+
         this(traceTableModel, true);
     }
 
@@ -37,7 +38,7 @@ public class TraceTable extends FilterTable<TraceEventKey> {
         //
         // int[] selectedRows = getSelectedRows();
         //
-        // StringBuffer dataSB = new StringBuffer();
+        // StringBuilder dataSB = new StringBuilder();
         //
         // if (selectedRows != null) {
         //

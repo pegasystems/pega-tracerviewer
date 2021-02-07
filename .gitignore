@@ -1,8 +1,14 @@
-/target/
-/.settings/
-/logs/
+.classpath
+.project
 *.log
+*.zip
+*.xml
+*.txt
+/.settings/
 /.DS_Store
 /.gradle/
 /.idea/
 /build/
+/bin/
+/logs/
+/target/

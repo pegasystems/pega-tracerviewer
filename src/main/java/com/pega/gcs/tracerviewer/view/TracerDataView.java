@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -10,6 +10,9 @@ package com.pega.gcs.tracerviewer.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -30,13 +33,17 @@ public abstract class TracerDataView extends JPanel implements TableModelListene
 
     private static final long serialVersionUID = 3180116914194377351L;
 
-    protected abstract void updateSupplementUtilityJPanel();
+    protected abstract void updateSupplementUtilityPanel();
+
+    protected abstract void performComponentResized(Rectangle oldBounds, Rectangle newBounds);
 
     private TraceNavigationTableController traceNavigationTableController;
 
     private TraceTableModel traceTableModel;
 
-    private JPanel supplementUtilityJPanel;
+    private JPanel supplementUtilityPanel;
+
+    private Rectangle oldBounds;
 
     public TracerDataView(TraceTableModel traceTableModel,
             TraceNavigationTableController traceNavigationTableController, JPanel supplementUtilityJPanel) {
@@ -47,14 +54,32 @@ public abstract class TracerDataView extends JPanel implements TableModelListene
         this.traceTableModel.addTableModelListener(this);
 
         this.traceNavigationTableController = traceNavigationTableController;
-        this.supplementUtilityJPanel = supplementUtilityJPanel;
+        this.supplementUtilityPanel = supplementUtilityJPanel;
 
+        oldBounds = new Rectangle(1915, 941);
+
+        addComponentListener(new ComponentAdapter() {
+
+            @Override
+            public void componentResized(ComponentEvent componentEvent) {
+
+                Rectangle newBounds = componentEvent.getComponent().getBounds();
+
+                if (!oldBounds.equals(newBounds)) {
+                    try {
+                        performComponentResized(oldBounds, newBounds);
+                    } finally {
+                        oldBounds = newBounds;
+                    }
+                }
+            }
+        });
     }
 
     @Override
-    public void tableChanged(TableModelEvent event) {
+    public void tableChanged(TableModelEvent tableModelEvent) {
 
-        if (event.getType() == TableModelEvent.UPDATE) {
+        if (tableModelEvent.getType() == TableModelEvent.UPDATE) {
             revalidate();
             repaint();
         }
@@ -68,12 +93,12 @@ public abstract class TracerDataView extends JPanel implements TableModelListene
         return traceNavigationTableController;
     }
 
-    protected JPanel getSupplementUtilityJPanel() {
-        return supplementUtilityJPanel;
+    protected JPanel getSupplementUtilityPanel() {
+        return supplementUtilityPanel;
     }
 
     public void switchToFront() {
-        updateSupplementUtilityJPanel();
+        updateSupplementUtilityPanel();
     }
 
     protected void setMessage(JTextField statusBar, Message message) {

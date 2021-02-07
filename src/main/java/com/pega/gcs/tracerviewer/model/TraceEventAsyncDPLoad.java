@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -16,6 +16,7 @@ import com.pega.gcs.fringecommon.guiutilities.MyColor;
 public class TraceEventAsyncDPLoad extends TraceEvent {
 
     public TraceEventAsyncDPLoad(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+
         super(traceEventKey, bytes, traceEventElement);
 
         traceEventType = TraceEventType.ASYNC_DP_LOAD;
@@ -24,21 +25,22 @@ public class TraceEventAsyncDPLoad extends TraceEvent {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getRule()
+     * @see com.fringe.tracerviewer.TraceEvent#getRuleFromElement()
      */
     @Override
-    protected void setRuleNo(Element traceEventElement) {
-        setRuleNo((Integer) null);
+    protected void setRuleNoFromElement(Element traceEventElement) {
+        setRuleNo(null);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getStepMethod()
+     * @see com.fringe.tracerviewer.TraceEvent#getStepMethodFromElement()
      */
     @Override
-    protected void setStepMethod(Element traceEventElement) {
-        String stepMethod = "";
+    protected void setStepMethodFromElement(Element traceEventElement) {
+
+        String stepMethod = null;
 
         if (!isEndOfAsyncTraceEventSent()) {
 
@@ -55,11 +57,12 @@ public class TraceEventAsyncDPLoad extends TraceEvent {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getStepPage()
+     * @see com.fringe.tracerviewer.TraceEvent#setStepPageFromElement()
      */
     @Override
-    protected void setStepPage(Element traceEventElement) {
-        String stepPage = "";
+    protected void setStepPageFromElement(Element traceEventElement) {
+
+        String stepPage = null;
 
         if (!isEndOfAsyncTraceEventSent()) {
 
@@ -87,24 +90,24 @@ public class TraceEventAsyncDPLoad extends TraceEvent {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getStep()
+     * @see com.fringe.tracerviewer.TraceEvent#getStepFromElement()
      */
     @Override
-    protected void setStep(Element traceEventElement) {
-        setStep("");
+    protected void setStepFromElement(Element traceEventElement) {
+        setStep(null);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getStatus()
+     * @see com.fringe.tracerviewer.TraceEvent#getStatusFromElement()
      */
     @Override
-    protected void setStatus(Element traceEventElement) {
-        String status = "";
+    protected void setStatusFromElement(Element traceEventElement) {
+        String status = null;
 
         if (!isEndOfAsyncTraceEventSent()) {
-            super.setStatus(traceEventElement);
+            super.setStatusFromElement(traceEventElement);
         } else {
             setStatus(status);
         }
@@ -113,10 +116,11 @@ public class TraceEventAsyncDPLoad extends TraceEvent {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getEventType()
+     * @see com.fringe.tracerviewer.TraceEvent#getEventTypeFromElement()
      */
     @Override
-    protected void setEventName(Element traceEventElement) {
+    protected void setEventNameFromElement(Element traceEventElement) {
+
         String eventName = "End of trace";
 
         if (!isEndOfAsyncTraceEventSent()) {
@@ -134,21 +138,22 @@ public class TraceEventAsyncDPLoad extends TraceEvent {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getElapsed()
+     * @see com.fringe.tracerviewer.TraceEvent#getElapsedFromElement()
      */
     @Override
-    protected void setElapsed(Element traceEventElement) {
+    protected void setElapsedFromElement(Element traceEventElement) {
         setElapsed(-1);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getName()
+     * @see com.fringe.tracerviewer.TraceEvent#getNameFromElement()
      */
     @Override
-    protected void setName(Element traceEventElement) {
-        String name = "";
+    protected void setNameFromElement(Element traceEventElement) {
+
+        String name = null;
 
         if (!isEndOfAsyncTraceEventSent()) {
 
@@ -175,8 +180,7 @@ public class TraceEventAsyncDPLoad extends TraceEvent {
     }
 
     @Override
-    protected void setDefaultBackground() {
-        Color color = MyColor.LIGHTEST_LIME;
-        fillColumnBackground(color);
+    public Color getBaseColumnBackground() {
+        return MyColor.LIGHTEST_LIME;
     }
 }

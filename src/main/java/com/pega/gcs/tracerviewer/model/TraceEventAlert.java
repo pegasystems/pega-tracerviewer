@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -16,6 +16,7 @@ import com.pega.gcs.fringecommon.guiutilities.MyColor;
 public class TraceEventAlert extends TraceEvent {
 
     public TraceEventAlert(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
+
         super(traceEventKey, bytes, traceEventElement);
 
         traceEventType = TraceEventType.ALERT;
@@ -27,18 +28,18 @@ public class TraceEventAlert extends TraceEvent {
      * @see com.fringe.tracerviewer.TraceEvent#setRuleNo(org.dom4j.Element)
      */
     @Override
-    protected void setRuleNo(Element traceEventElement) {
-        setRuleNo((Integer) null);
+    protected void setRuleNoFromElement(Element traceEventElement) {
+        setRuleNo(null);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#setStepMethod(org.dom4j.Element)
+     * @see com.fringe.tracerviewer.TraceEvent#setStepMethodFromElement(org.dom4j.Element)
      */
     @Override
-    protected void setStepMethod(Element traceEventElement) {
-        setStepMethod("");
+    protected void setStepMethodFromElement(Element traceEventElement) {
+        setStepMethod(null);
     }
 
     /*
@@ -47,28 +48,29 @@ public class TraceEventAlert extends TraceEvent {
      * @see com.fringe.tracerviewer.TraceEvent#getStepPage()
      */
     @Override
-    protected void setStepPage(Element traceEventElement) {
-        setStepPage("");
+    protected void setStepPageFromElement(Element traceEventElement) {
+        setStepPage(null);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getStep()
+     * @see com.fringe.tracerviewer.TraceEvent#getStepFromElement()
      */
     @Override
-    protected void setStep(Element traceEventElement) {
-        setStep("");
+    protected void setStepFromElement(Element traceEventElement) {
+        setStep(null);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getStatus()
+     * @see com.fringe.tracerviewer.TraceEvent#getStatusFromElement()
      */
     @Override
-    protected void setStatus(Element traceEventElement) {
-        String status = "";
+    protected void setStatusFromElement(Element traceEventElement) {
+
+        String status = null;
 
         Element element = traceEventElement.element("EventType");
 
@@ -82,11 +84,11 @@ public class TraceEventAlert extends TraceEvent {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getEventName()
+     * @see com.fringe.tracerviewer.TraceEvent#getEventNameFromElement()
      */
     @Override
-    protected void setEventName(Element traceEventElement) {
-        String eventName = "";
+    protected void setEventNameFromElement(Element traceEventElement) {
+        String eventName = null;
 
         Element element = traceEventElement.element("EventName");
 
@@ -100,21 +102,21 @@ public class TraceEventAlert extends TraceEvent {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getElapsed()
+     * @see com.fringe.tracerviewer.TraceEvent#getElapsedFromElement()
      */
     @Override
-    protected void setElapsed(Element traceEventElement) {
+    protected void setElapsedFromElement(Element traceEventElement) {
         setElapsed(-1);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getName()
+     * @see com.fringe.tracerviewer.TraceEvent#getNameFromElement()
      */
     @Override
-    protected void setName(Element traceEventElement) {
-        String name = "";
+    protected void setNameFromElement(Element traceEventElement) {
+        String name = null;
 
         Element element = traceEventElement.element("AlertLabel");
 
@@ -128,87 +130,15 @@ public class TraceEventAlert extends TraceEvent {
     /*
      * (non-Javadoc)
      * 
-     * @see com.fringe.tracerviewer.TraceEvent#getRuleSet()
+     * @see com.fringe.tracerviewer.TraceEvent#getRuleSetFromElement()
      */
     @Override
-    protected void setRuleSet(Element traceEventElement) {
-        setRuleSet("");
+    protected void setRuleSetFromElement(Element traceEventElement) {
+        setRuleSet(null);
     }
 
     @Override
-    protected void setDefaultBackground() {
-        Color color = MyColor.LIGHT_PINK;
-        fillColumnBackground(color);
-    }
-
-    @Override
-    public Element getTraceEventPropertyElement() {
-
-        Element traceEventPropertyElement = null;
-
-        Element rootElement = getTraceEventRootElement();
-
-        if (rootElement != null) {
-
-            traceEventPropertyElement = getDefaultTraceEventPropertyElement(rootElement);
-
-            // EventName
-            Element element = rootElement.element("EventName");
-
-            if (element != null) {
-                traceEventPropertyElement.add(createElement("Message ID", element));
-            }
-
-            // AlertLabel
-            element = rootElement.element("AlertLabel");
-
-            if (element != null) {
-                traceEventPropertyElement.add(createElement("Label", element));
-            }
-
-            // AlertType
-            element = rootElement.element("AlertType");
-
-            if (element != null) {
-                traceEventPropertyElement.add(createElement("Type", element));
-            }
-
-            // AlertTimestamp
-            element = rootElement.element("AlertTimestamp");
-
-            if (element != null) {
-                traceEventPropertyElement.add(createElement("Timestamp", element));
-            }
-
-            // AlertKPIThreshold
-            element = rootElement.element("AlertKPIThreshold");
-
-            if (element != null) {
-                traceEventPropertyElement.add(createElement("KPI Threshold", element));
-            }
-
-            // AlertKPIValue
-            element = rootElement.element("AlertKPIValue");
-
-            if (element != null) {
-                traceEventPropertyElement.add(createElement("KPI Value", element));
-            }
-
-            // AlertUniqueInt
-            element = rootElement.element("AlertUniqueInt");
-
-            if (element != null) {
-                traceEventPropertyElement.add(createElement("Unique Integer", element));
-            }
-
-            // InteractionQueryParam
-            element = rootElement.element("AlertLine");
-
-            if (element != null) {
-                traceEventPropertyElement.add(createElement("Data", element));
-            }
-        }
-
-        return traceEventPropertyElement;
+    public Color getBaseColumnBackground() {
+        return MyColor.LIGHT_PINK;
     }
 }

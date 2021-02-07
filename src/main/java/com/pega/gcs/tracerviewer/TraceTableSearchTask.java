@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -27,14 +27,14 @@ public class TraceTableSearchTask extends SwingWorker<List<TraceEventKey>, Progr
 
     private TraceTableModel traceTableModel;
 
-    private ModalProgressMonitor progressMonitor;
+    private ModalProgressMonitor modalProgressMonitor;
 
     private Object searchStrObj;
 
-    public TraceTableSearchTask(ModalProgressMonitor progressMonitor, TraceTableModel traceTableModel,
-                                Object searchStrObj) {
+    public TraceTableSearchTask(ModalProgressMonitor modalProgressMonitor, TraceTableModel traceTableModel,
+            Object searchStrObj) {
         super();
-        this.progressMonitor = progressMonitor;
+        this.modalProgressMonitor = modalProgressMonitor;
         this.traceTableModel = traceTableModel;
         this.searchStrObj = searchStrObj;
     }
@@ -85,15 +85,15 @@ public class TraceTableSearchTask extends SwingWorker<List<TraceEventKey>, Progr
 
             int totalSize = filteredList.size();
 
-            Iterator<TraceEventKey> flistiterator = filteredList.iterator();
+            Iterator<TraceEventKey> filteredListIterator = filteredList.iterator();
 
-            while ((!isCancelled()) && (flistiterator.hasNext())) {
+            while ((!isCancelled()) && (filteredListIterator.hasNext())) {
 
-                if (progressMonitor.isCanceled()) {
+                if (modalProgressMonitor.isCanceled()) {
                     cancel(true);
                 }
 
-                TraceEventKey key = flistiterator.next();
+                TraceEventKey key = filteredListIterator.next();
 
                 boolean found = traceTableModel.search(key, searchStrObj);
 
@@ -134,15 +134,15 @@ public class TraceTableSearchTask extends SwingWorker<List<TraceEventKey>, Progr
 
             int totalSize = filteredList.size();
 
-            Iterator<TraceEventKey> flistiterator = filteredList.iterator();
+            Iterator<TraceEventKey> filteredListIterator = filteredList.iterator();
 
-            while ((!isCancelled()) && (flistiterator.hasNext())) {
+            while ((!isCancelled()) && (filteredListIterator.hasNext())) {
 
-                if (progressMonitor.isCanceled()) {
+                if (modalProgressMonitor.isCanceled()) {
                     cancel(true);
                 }
 
-                TraceEventKey key = flistiterator.next();
+                TraceEventKey key = filteredListIterator.next();
 
                 int index = Collections.binarySearch(searchResultList, key);
 
@@ -265,10 +265,10 @@ public class TraceTableSearchTask extends SwingWorker<List<TraceEventKey>, Progr
 
         int progress = (int) ((count * 100) / total);
 
-        progressMonitor.setProgress(progress);
+        modalProgressMonitor.setProgress(progress);
 
         String message = String.format("Searching %d trace events (%d%%)", count, progress);
 
-        progressMonitor.setNote(message);
+        modalProgressMonitor.setNote(message);
     }
 }

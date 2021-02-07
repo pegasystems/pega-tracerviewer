@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -8,7 +8,6 @@
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -19,6 +18,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,14 +28,19 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.TreePath;
 
 import org.dom4j.Element;
 
 import com.pega.gcs.fringecommon.guiutilities.BaseFrame;
+import com.pega.gcs.fringecommon.guiutilities.ModalProgressMonitor;
 import com.pega.gcs.fringecommon.guiutilities.RightClickMenuItem;
 import com.pega.gcs.fringecommon.guiutilities.bookmark.BookmarkAddDialog;
 import com.pega.gcs.fringecommon.guiutilities.bookmark.BookmarkDeleteDialog;
@@ -43,47 +50,41 @@ import com.pega.gcs.fringecommon.guiutilities.markerbar.Marker;
 import com.pega.gcs.fringecommon.guiutilities.search.SearchModel;
 import com.pega.gcs.fringecommon.guiutilities.treetable.AbstractTreeTableNode;
 import com.pega.gcs.fringecommon.guiutilities.treetable.TreeTableColumn;
-import com.pega.gcs.fringecommon.guiutilities.treetable.TreeTableModelAdapter;
-import com.pega.gcs.fringecommon.xmltreetable.XMLNode;
-import com.pega.gcs.fringecommon.xmltreetable.XMLTreeTableDetailJDialog;
+import com.pega.gcs.fringecommon.log4j2.Log4j2Helper;
+import com.pega.gcs.fringecommon.utilities.FileUtilities;
+import com.pega.gcs.fringecommon.utilities.GeneralUtilities;
 import com.pega.gcs.tracerviewer.model.TraceEvent;
 import com.pega.gcs.tracerviewer.model.TraceEventKey;
 
 public class TraceTreeTableMouseListener extends MouseAdapter {
 
+    private static final Log4j2Helper LOG = new Log4j2Helper(TraceTreeTableMouseListener.class);
+
     private Component mainWindow;
 
-    private List<TraceTreeTable> traceTreeTableList;
+    private TraceTreeTable traceTreeTable;
 
-    private Map<String, XMLTreeTableDetailJDialog> xmlTreeTableDetailJDialogMap;
+    private Map<String, TraceXMLTreeTableFrame> traceXMLTreeTableFrameMap;
 
-    public TraceTreeTableMouseListener(Component mainWindow) {
+    public TraceTreeTableMouseListener(TraceTreeTable traceTreeTable, Component mainWindow) {
 
         this.mainWindow = mainWindow;
+        this.traceTreeTable = traceTreeTable;
 
-        traceTreeTableList = new ArrayList<TraceTreeTable>();
-        xmlTreeTableDetailJDialogMap = new HashMap<String, XMLTreeTableDetailJDialog>();
+        traceXMLTreeTableFrameMap = new HashMap<String, TraceXMLTreeTableFrame>();
     }
 
-    protected List<TraceTreeTable> getTraceTreeTableList() {
-        return traceTreeTableList;
-    }
-
-    protected Component getMainWindow() {
+    private Component getMainWindow() {
         return mainWindow;
     }
 
-    protected Map<String, XMLTreeTableDetailJDialog> getXmlTreeTableDetailJDialogMap() {
-        return xmlTreeTableDetailJDialogMap;
-    }
-
-    public void addTraceTreeTable(TraceTreeTable traceTreeTable) {
-        traceTreeTableList.add(traceTreeTable);
+    private Map<String, TraceXMLTreeTableFrame> getTraceXMLTreeTableFrameMap() {
+        return traceXMLTreeTableFrameMap;
     }
 
     private boolean isIntendedSource(TraceTreeTable traceTable) {
 
-        boolean intendedSource = traceTreeTableList.contains(traceTable);
+        boolean intendedSource = traceTreeTable.equals(traceTable);
 
         return intendedSource;
 
@@ -96,11 +97,11 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
             final List<Integer> selectedRowList = new ArrayList<Integer>();
 
-            final TraceTreeTable source = (TraceTreeTable) mouseEvent.getSource();
+            TraceTreeTable traceTreeTable = (TraceTreeTable) mouseEvent.getSource();
 
-            if (isIntendedSource(source)) {
+            if (isIntendedSource(traceTreeTable)) {
 
-                int[] selectedRows = source.getSelectedRows();
+                int[] selectedRows = traceTreeTable.getSelectedRows();
 
                 // in case the row was not selected when right clicking then
                 // based on the point, select the row.
@@ -108,11 +109,11 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
                 if ((selectedRows != null) && (selectedRows.length <= 1)) {
 
-                    int selectedRow = source.rowAtPoint(point);
+                    int selectedRow = traceTreeTable.rowAtPoint(point);
 
                     if (selectedRow != -1) {
                         // select the row first
-                        source.setRowSelectionInterval(selectedRow, selectedRow);
+                        traceTreeTable.setRowSelectionInterval(selectedRow, selectedRow);
                         selectedRows = new int[] { selectedRow };
                     }
                 }
@@ -125,207 +126,164 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
                 if (size > 0) {
 
-                    TraceTreeTableModelAdapter traceTreeTableModelAdapter = (TraceTreeTableModelAdapter) source
+                    TraceTreeTableModelAdapter traceTreeTableModelAdapter = (TraceTreeTableModelAdapter) traceTreeTable
                             .getModel();
 
                     final JPopupMenu popupMenu = new JPopupMenu();
 
-                    RightClickMenuItem copyAsXML = getCopyAsXMLRightClickMenuItem(popupMenu, selectedRowList);
+                    // expected menus - so that they can be added as per order in the last
+                    RightClickMenuItem copyEventXMLMenuItem = null;
+                    RightClickMenuItem exportTreeXMLMenuItem = null;
+                    RightClickMenuItem copyNodeHierarchyMenuItem = null;
+                    RightClickMenuItem compareEventsMenuItem = null;
+                    RightClickMenuItem addBookmarkMenuItem = null;
+                    RightClickMenuItem openBookmarkMenuItem = null;
+                    RightClickMenuItem deleteBookmarkMenuItem = null;
+                    RightClickMenuItem beginEventMenuItem = null;
+                    RightClickMenuItem endEventMenuItem = null;
+                    RightClickMenuItem parentEventMenuItem = null;
+                    RightClickMenuItem expandNodeMenuItem = null;
+                    RightClickMenuItem expandAllChildrenMenuItem = null;
+                    RightClickMenuItem collapseNodeMenuItem = null;
+                    RightClickMenuItem collapseAllChildrenMenuItem = null;
 
-                    popupMenu.add(copyAsXML);
+                    copyEventXMLMenuItem = getCopyEventXMLRightClickMenuItem(popupMenu, traceTreeTable,
+                            selectedRowList);
+
+                    exportTreeXMLMenuItem = getExportTreeXMLRightClickMenuItem(popupMenu, traceTreeTable,
+                            selectedRowList);
+
+                    addBookmarkMenuItem = getAddBookmarkRightClickMenuItem(popupMenu, selectedRowList,
+                            traceTreeTableModelAdapter);
 
                     // setup compare between 2 rows
                     if (size == 2) {
-
-                        RightClickMenuItem compareMenuItem = getCompareRightClickMenuItem(selectedRowList,
+                        compareEventsMenuItem = getCompareRightClickMenuItem(selectedRowList,
                                 traceTreeTableModelAdapter);
-
-                        popupMenu.add(compareMenuItem);
                     }
-
-                    RightClickMenuItem addBookmarkMenuItem = getAddBookmarkRightClickMenuItem(popupMenu,
-                            selectedRowList, traceTreeTableModelAdapter);
-
-                    popupMenu.add(addBookmarkMenuItem);
 
                     if (size == 1) {
 
-                        getOpenDeleteBookmarkRightClickMenuItem(popupMenu, selectedRowList, traceTreeTableModelAdapter);
+                        Integer selectedRow = selectedRowList.get(0);
 
-                        final JTree tree = source.getTree();
+                        // get node stack hierarchy
+                        copyNodeHierarchyMenuItem = getNodeHierarchyRightClickMenuItem(popupMenu, selectedRow,
+                                traceTreeTableModelAdapter);
 
-                        final TreePath treePath = tree.getPathForRow(selectedRows[0]);
+                        AbstractTraceEventTreeNode abstractTraceEventTreeNode = (AbstractTraceEventTreeNode) traceTreeTableModelAdapter
+                                .getValueAt(selectedRow, 0);
 
-                        AbstractTreeTableNode treeNode = (AbstractTreeTableNode) treePath.getLastPathComponent();
+                        List<TraceEvent> traceEvents = abstractTraceEventTreeNode.getTraceEvents();
 
-                        if (treeNode instanceof TraceEventTreeNode) {
+                        // taking the start event as key
+                        TraceEvent traceEvent = (traceEvents.size() > 0) ? traceEvents.get(0) : null;
 
-                            final TraceEventTreeNode traceEventTreeNode = (TraceEventTreeNode) treeNode;
+                        if (traceEvent != null) {
 
-                            TraceEvent traceEvent = (TraceEvent) traceEventTreeNode.getUserObject();
+                            TraceEventKey key = traceEvent.getKey();
 
-                            if (traceEvent != null) {
+                            BookmarkModel<TraceEventKey> bookmarkModel = traceTreeTableModelAdapter.getBookmarkModel();
 
-                                Boolean isEndEvent = traceEvent.isEndEvent();
+                            List<Marker<TraceEventKey>> bookmarkList = bookmarkModel.getMarkers(key);
 
-                                //actionEventnd event is true
-                                if ((isEndEvent != null) && isEndEvent) {
+                            if ((bookmarkList != null) && (bookmarkList.size() > 0)) {
 
-                                    RightClickMenuItem beginEvent = new RightClickMenuItem("Select Begin Event");
+                                openBookmarkMenuItem = getOpenBookmarkRightClickMenuItem(popupMenu, key, bookmarkModel);
 
-                                    beginEvent.addActionListener(new ActionListener() {
-
-                                        @Override
-                                        public void actionPerformed(ActionEvent actionEvent) {
-
-                                            TraceEventTreeNode parentTraceEventTreeNode = (TraceEventTreeNode) traceEventTreeNode
-                                                    .getParent();
-
-                                            int currentNodeIndex = parentTraceEventTreeNode
-                                                    .getIndex(traceEventTreeNode);
-
-                                            if (currentNodeIndex > 0) {
-
-                                                TraceEventTreeNode beginNode = (TraceEventTreeNode) parentTraceEventTreeNode
-                                                        .getChildAt(currentNodeIndex - 1);
-
-                                                source.scrollNodeToVisible(beginNode);
-                                            }
-
-                                            popupMenu.setVisible(false);
-
-                                        }
-                                    });
-
-                                    popupMenu.add(beginEvent);
-
-                                } else if (isEndEvent != null) {
-
-                                    RightClickMenuItem endEvent = new RightClickMenuItem("Select End Event");
-
-                                    endEvent.addActionListener(new ActionListener() {
-
-                                        @Override
-                                        public void actionPerformed(ActionEvent actionEvent) {
-
-                                            TraceEventTreeNode parentTraceEventTreeNode = (TraceEventTreeNode) traceEventTreeNode
-                                                    .getParent();
-
-                                            int currentNodeIndex = parentTraceEventTreeNode
-                                                    .getIndex(traceEventTreeNode);
-
-                                            int childCount = parentTraceEventTreeNode.getChildCount();
-
-                                            if ((currentNodeIndex != -1) && (currentNodeIndex < (childCount - 1))) {
-
-                                                TraceEventTreeNode endNode = (TraceEventTreeNode) parentTraceEventTreeNode
-                                                        .getChildAt(currentNodeIndex + 1);
-
-                                                source.scrollNodeToVisible(endNode);
-                                            }
-
-                                            popupMenu.setVisible(false);
-
-                                        }
-                                    });
-
-                                    popupMenu.add(endEvent);
-                                }
+                                deleteBookmarkMenuItem = getDeleteBookmarkRightClickMenuItem(popupMenu, key,
+                                        bookmarkModel);
                             }
                         }
 
-                        // Select Parent node
-                        AbstractTreeTableNode parentTreeNode = (AbstractTreeTableNode) treeNode.getParent();
+                        final JTree tree = traceTreeTable.getTree();
 
-                        Object parentUserobject = parentTreeNode.getUserObject();
+                        final TreePath treePath = tree.getPathForRow(selectedRows[0]);
 
-                        if (parentUserobject != null) {
+                        // menus only for tree mode (not merged mode)
+                        if (abstractTraceEventTreeNode instanceof TraceEventTreeNode) {
 
-                            RightClickMenuItem parentEvent = new RightClickMenuItem("Select Parent Event");
+                            TraceEventTreeNode traceEventTreeNode = (TraceEventTreeNode) abstractTraceEventTreeNode;
 
-                            parentEvent.addActionListener(new ActionListener() {
-
-                                @Override
-                                public void actionPerformed(ActionEvent actionEvent) {
-
-                                    source.scrollNodeToVisible(parentTreeNode);
-
-                                    popupMenu.setVisible(false);
-                                }
-                            });
-
-                            popupMenu.add(parentEvent);
-
+                            beginEventMenuItem = getBeginEventRightClickMenuItem(popupMenu, traceTreeTable,
+                                    traceEventTreeNode);
+                            endEventMenuItem = getEndEventRightClickMenuItem(popupMenu, traceTreeTable,
+                                    traceEventTreeNode);
                         }
+
+                        parentEventMenuItem = getParentEventRightClickMenuItem(popupMenu, traceTreeTable,
+                                abstractTraceEventTreeNode);
 
                         boolean expanded = tree.isExpanded(treePath);
 
-                        if (!treeNode.isLeaf() && !expanded) {
-
-                            RightClickMenuItem expand = new RightClickMenuItem("Expand");
-
-                            expand.addActionListener(new ActionListener() {
-
-                                @Override
-                                public void actionPerformed(ActionEvent actionEvent) {
-
-                                    tree.expandPath(treePath);
-
-                                    popupMenu.setVisible(false);
-
-                                    tree.setSelectionRow(selectedRowList.get(0));
-
-                                }
-                            });
-
-                            RightClickMenuItem expandAllChildren = new RightClickMenuItem("Expand All Children");
-
-                            expandAllChildren.addActionListener(new ActionListener() {
-
-                                @Override
-                                public void actionPerformed(ActionEvent actionEvent) {
-
-                                    source.expandAll(treePath, true, 1);
-                                    popupMenu.setVisible(false);
-
-                                }
-                            });
-
-                            popupMenu.add(expand);
-                            popupMenu.add(expandAllChildren);
-
-                        } else if (!treeNode.isLeaf() && expanded) {
-                            RightClickMenuItem collapse = new RightClickMenuItem("Collapse");
-
-                            collapse.addActionListener(new ActionListener() {
-
-                                @Override
-                                public void actionPerformed(ActionEvent actionEvent) {
-
-                                    tree.collapsePath(treePath);
-
-                                    popupMenu.setVisible(false);
-
-                                }
-                            });
-
-                            RightClickMenuItem collapseAllChildren = new RightClickMenuItem("Collapse All Children");
-
-                            collapseAllChildren.addActionListener(new ActionListener() {
-
-                                @Override
-                                public void actionPerformed(ActionEvent actionEvent) {
-
-                                    // collapse only children
-                                    source.expandAll(treePath, false, 0);
-                                    popupMenu.setVisible(false);
-
-                                }
-                            });
-
-                            popupMenu.add(collapse);
-                            popupMenu.add(collapseAllChildren);
+                        if (!abstractTraceEventTreeNode.isLeaf() && !expanded) {
+                            expandNodeMenuItem = getExpandNodeRightClickMenuItem(popupMenu, selectedRow, tree,
+                                    treePath);
+                        } else if (!abstractTraceEventTreeNode.isLeaf() && expanded) {
+                            collapseNodeMenuItem = getCollapseNodeRightClickMenuItem(popupMenu, tree, treePath);
                         }
+
+                        // adding menu option for child nodes
+                        expandAllChildrenMenuItem = getExpandAllChildrenRightClickMenuItem(popupMenu, traceTreeTable,
+                                treePath);
+                        collapseAllChildrenMenuItem = getCollapseAllChildrenRightClickMenuItem(popupMenu,
+                                traceTreeTable, treePath);
+                    }
+
+                    // expected order
+                    if (copyEventXMLMenuItem != null) {
+                        addPopupMenu(popupMenu, copyEventXMLMenuItem);
+                    }
+
+                    if (exportTreeXMLMenuItem != null) {
+                        addPopupMenu(popupMenu, exportTreeXMLMenuItem);
+                    }
+
+                    if (copyNodeHierarchyMenuItem != null) {
+                        addPopupMenu(popupMenu, copyNodeHierarchyMenuItem);
+                    }
+
+                    if (compareEventsMenuItem != null) {
+                        addPopupMenu(popupMenu, compareEventsMenuItem);
+                    }
+
+                    if (addBookmarkMenuItem != null) {
+                        addPopupMenu(popupMenu, addBookmarkMenuItem);
+                    }
+
+                    if (openBookmarkMenuItem != null) {
+                        addPopupMenu(popupMenu, openBookmarkMenuItem);
+                    }
+
+                    if (deleteBookmarkMenuItem != null) {
+                        addPopupMenu(popupMenu, deleteBookmarkMenuItem);
+                    }
+
+                    if (beginEventMenuItem != null) {
+                        addPopupMenu(popupMenu, beginEventMenuItem);
+                    }
+
+                    if (endEventMenuItem != null) {
+                        addPopupMenu(popupMenu, endEventMenuItem);
+                    }
+
+                    if (parentEventMenuItem != null) {
+                        addPopupMenu(popupMenu, parentEventMenuItem);
+                    }
+
+                    if (expandNodeMenuItem != null) {
+                        addPopupMenu(popupMenu, expandNodeMenuItem);
+                    }
+
+                    if (expandAllChildrenMenuItem != null) {
+                        addPopupMenu(popupMenu, expandAllChildrenMenuItem);
+                    }
+
+                    if (collapseNodeMenuItem != null) {
+                        addPopupMenu(popupMenu, collapseNodeMenuItem);
+                    }
+
+                    if (collapseAllChildrenMenuItem != null) {
+                        addPopupMenu(popupMenu, collapseAllChildrenMenuItem);
                     }
 
                     popupMenu.show(mouseEvent.getComponent(), mouseEvent.getX(), mouseEvent.getY());
@@ -333,90 +291,282 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
             }
         } else if (mouseEvent.getClickCount() == 2) {
 
-            TraceTreeTable source = (TraceTreeTable) mouseEvent.getSource();
+            TraceTreeTable traceTreeTable = (TraceTreeTable) mouseEvent.getSource();
 
-            performDoubleClick(source);
+            performDoubleClick(traceTreeTable);
 
         } else {
             super.mouseClicked(mouseEvent);
         }
     }
 
-    protected RightClickMenuItem getCopyAsXMLRightClickMenuItem(JPopupMenu popupMenu, List<Integer> selectedRowList) {
+    private void addPopupMenu(JPopupMenu popupMenu, RightClickMenuItem rightClickMenuItem) {
 
-        RightClickMenuItem copyAsXML = new RightClickMenuItem("Copy as XML");
+        if (rightClickMenuItem != null) {
+            popupMenu.add(rightClickMenuItem);
+        }
+    }
 
-        copyAsXML.addActionListener(new ActionListener() {
+    private RightClickMenuItem getCopyEventXMLRightClickMenuItem(JPopupMenu popupMenu, TraceTreeTable traceTreeTable,
+            List<Integer> selectedRowList) {
+
+        RightClickMenuItem copyEventXML = new RightClickMenuItem("Copy Event XML");
+
+        copyEventXML.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
 
-                List<TraceTreeTable> traceTreeTableList = getTraceTreeTableList();
+                try {
 
-                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
-                String data = "";
-                boolean compareMode = traceTreeTableList.size() > 1;
-                int counter = 1;
+                    TraceTreeTableModelAdapter traceTreeTableModelAdapter = (TraceTreeTableModelAdapter) traceTreeTable
+                            .getModel();
 
-                for (TraceTreeTable traceTreeTable : traceTreeTableList) {
-
-                    TreeTableModelAdapter treeTableModelAdapter = (TreeTableModelAdapter) traceTreeTable.getModel();
+                    Charset charset = traceTreeTableModelAdapter.getCharset();
 
                     List<Element> elementList = new ArrayList<Element>();
 
                     for (int selectedRow : selectedRowList) {
 
-                        AbstractTraceEventTreeNode traceEventTreeNode = (AbstractTraceEventTreeNode) treeTableModelAdapter
+                        AbstractTraceEventTreeNode traceEventTreeNode = (AbstractTraceEventTreeNode) traceTreeTableModelAdapter
                                 .getValueAt(selectedRow, 0);
 
                         List<TraceEvent> traceEventList = traceEventTreeNode.getTraceEvents();
 
                         for (TraceEvent traceEvent : traceEventList) {
-                            elementList.add(traceEvent.getTraceEventRootElement());
+                            elementList.add(traceEvent.getTraceEventRootElement(charset));
                         }
                     }
 
-                    String elementXML = XMLNode.getElementsAsXML(elementList);
+                    String elementXML = GeneralUtilities.getElementsAsXML(elementList);
 
-                    if (compareMode) {
-                        data = data + "<!--- Table " + counter + "--->";
-                    }
+                    clipboard.setContents(new StringSelection(elementXML), copyEventXML);
 
-                    data = data + elementXML;
-
-                    if (compareMode) {
-                        data = data + "<!--- Table " + counter + "--->";
-                    }
-
-                    counter++;
+                } catch (Exception ex) {
+                    LOG.error("Error in Copy Event XML", ex);
+                } finally {
+                    popupMenu.setVisible(false);
                 }
+            }
+        });
 
-                clipboard.setContents(new StringSelection(data), copyAsXML);
+        return copyEventXML;
+    }
 
-                popupMenu.setVisible(false);
+    private RightClickMenuItem getExportTreeXMLRightClickMenuItem(JPopupMenu popupMenu, TraceTreeTable traceTreeTable,
+            List<Integer> selectedRowList) {
+
+        RightClickMenuItem exportTreeXML = new RightClickMenuItem("Export Tree XML");
+
+        exportTreeXML.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                try {
+
+                    TraceTreeTableModelAdapter traceTreeTableModelAdapter = (TraceTreeTableModelAdapter) traceTreeTable
+                            .getModel();
+
+                    AbstractTraceEventTreeNode abstractTraceEventTreeNode = (AbstractTraceEventTreeNode) traceTreeTableModelAdapter
+                            .getValueAt(selectedRowList.get(0), 0);
+
+                    List<TraceEvent> traceEventList = abstractTraceEventTreeNode.getTraceEvents();
+
+                    TraceEvent traceEvent = traceEventList.get(0);
+                    String postfix = traceEvent.getLine();
+
+                    String filePath = traceTreeTableModelAdapter.getFilePath();
+                    File tracerFile = new File(filePath);
+
+                    String fileName = FileUtilities.getNameWithoutExtension(tracerFile);
+                    fileName = fileName + "-" + postfix + ".xml";
+                    File currentDirectory = tracerFile.getParentFile();
+
+                    File proposedFile = new File(currentDirectory, fileName);
+
+                    JFileChooser fileChooser = new JFileChooser(currentDirectory);
+
+                    fileChooser.setDialogTitle("Save XML(.xml) File");
+                    fileChooser.setSelectedFile(proposedFile);
+                    fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+                    FileNameExtensionFilter filter = new FileNameExtensionFilter("XML Format", "xml");
+
+                    fileChooser.setFileFilter(filter);
+
+                    Component mainWindow = getMainWindow();
+
+                    int returnValue = fileChooser.showSaveDialog(mainWindow);
+
+                    if (returnValue == JFileChooser.APPROVE_OPTION) {
+
+                        File exportFile = fileChooser.getSelectedFile();
+
+                        returnValue = JOptionPane.YES_OPTION;
+
+                        if (exportFile.exists()) {
+
+                            returnValue = JOptionPane.showConfirmDialog(mainWindow,
+                                    "Replace existing file '" + exportFile.getAbsolutePath() + "' ?", "File Exists",
+                                    JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                        }
+
+                        if (returnValue == JOptionPane.YES_OPTION) {
+
+                            UIManager.put("ModalProgressMonitor.progressText", "Exporting tree node xml");
+
+                            ModalProgressMonitor modalProgressMonitor = new ModalProgressMonitor(mainWindow, "",
+                                    "Exporting tree node xml (0%)                                          ", 0, 100);
+                            modalProgressMonitor.setMillisToDecideToPopup(0);
+                            modalProgressMonitor.setMillisToPopup(0);
+                            modalProgressMonitor.setIndeterminate(true);
+
+                            TraceEventTreeNodeXMLExportTask traceEventTreeNodeXMLExportTask;
+
+                            traceEventTreeNodeXMLExportTask = new TraceEventTreeNodeXMLExportTask(traceTreeTable,
+                                    selectedRowList, exportFile, modalProgressMonitor) {
+
+                                @Override
+                                protected void done() {
+
+                                    Boolean success = Boolean.FALSE;
+                                    try {
+
+                                        success = get();
+
+                                    } catch (Exception e) {
+                                        LOG.error("TraceEventTreeNodeXMLExportTask erorr: ", e);
+                                    } finally {
+
+                                        modalProgressMonitor.close();
+                                        System.gc();
+
+                                        if ((success != null) && (success)) {
+
+                                            String message = "Exported tree xml to '" + exportFile.getAbsolutePath()
+                                                    + "'.\nOpen in new tab?";
+
+                                            int nextAction = JOptionPane.showConfirmDialog(mainWindow, message,
+                                                    "Open Exported xml?", JOptionPane.YES_NO_OPTION,
+                                                    JOptionPane.INFORMATION_MESSAGE);
+
+                                            if (nextAction == JOptionPane.YES_OPTION) {
+                                                TracerViewer tracerViewer = TracerViewer.getInstance();
+                                                tracerViewer.loadFile(exportFile);
+                                            }
+
+                                        }
+                                    }
+                                }
+
+                            };
+
+                            traceEventTreeNodeXMLExportTask.execute();
+
+                            modalProgressMonitor.show();
+                        }
+                    }
+                } catch (Exception ex) {
+                    LOG.error("Error in Export Tree XML", ex);
+                } finally {
+                    popupMenu.setVisible(false);
+                }
 
             }
         });
 
-        return copyAsXML;
+        return exportTreeXML;
+    }
+
+    private RightClickMenuItem getNodeHierarchyRightClickMenuItem(JPopupMenu popupMenu, Integer selectedRow,
+            TraceTreeTableModelAdapter traceTreeTableModelAdapter) {
+
+        RightClickMenuItem copyNodeHierarchy = new RightClickMenuItem("Copy Node Hierarchy");
+
+        copyNodeHierarchy.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                try {
+
+                    StringBuilder dataSB = new StringBuilder();
+                    ArrayDeque<AbstractTraceEventTreeNode> nodeStack = new ArrayDeque<>();
+
+                    AbstractTraceEventTreeNode abstractTraceEventTreeNode = (AbstractTraceEventTreeNode) traceTreeTableModelAdapter
+                            .getValueAt(selectedRow, 0);
+
+                    while (abstractTraceEventTreeNode != null) {
+
+                        nodeStack.push(abstractTraceEventTreeNode);
+
+                        abstractTraceEventTreeNode = (AbstractTraceEventTreeNode) abstractTraceEventTreeNode
+                                .getParent();
+                    }
+
+                    for (AbstractTraceEventTreeNode node : nodeStack) {
+
+                        Object userObject = node.getUserObject();
+
+                        if ((userObject != null) && (userObject instanceof TraceEvent)) {
+
+                            TraceEvent te = (TraceEvent) userObject;
+
+                            if (dataSB.length() != 0) {
+                                dataSB.append(" --> ");
+                            }
+
+                            if (te != null) {
+                                String name = te.getName();
+                                String step = te.getStep();
+
+                                dataSB.append(name);
+
+                                if ((step != null) && (!"".equals(step))) {
+                                    dataSB.append("[Step-");
+                                    dataSB.append(step);
+                                    dataSB.append("]");
+                                }
+                            }
+                        }
+                    }
+
+                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+
+                    clipboard.setContents(new StringSelection(dataSB.toString()), copyNodeHierarchy);
+
+                } catch (Exception ex) {
+                    LOG.error("Error in Copy Node Hierarchy", ex);
+                } finally {
+                    popupMenu.setVisible(false);
+                }
+
+            }
+        });
+
+        return copyNodeHierarchy;
     }
 
     private RightClickMenuItem getCompareRightClickMenuItem(List<Integer> selectedRowList,
             TraceTreeTableModelAdapter traceTreeTableModelAdapter) {
 
-        RightClickMenuItem compareMenuItem = new RightClickMenuItem("Compare");
+        RightClickMenuItem compareMenuItem = new RightClickMenuItem("Compare Events");
 
         compareMenuItem.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
 
-                StringBuffer rowStrSB = new StringBuffer();
+                Charset charset = traceTreeTableModelAdapter.getCharset();
+
+                StringBuilder rowStrSB = new StringBuilder();
                 int size = 2; // comparing 2 rows only
 
-                Map<String, XMLTreeTableDetailJDialog> xmlTreeTableDetailJDialogMap;
-                xmlTreeTableDetailJDialogMap = getXmlTreeTableDetailJDialogMap();
+                Map<String, TraceXMLTreeTableFrame> traceXMLTreeTableFrameMap;
+                traceXMLTreeTableFrameMap = getTraceXMLTreeTableFrameMap();
 
                 for (int i = 0; i < size; i++) {
 
@@ -427,11 +577,11 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
                 final String rowStr = rowStrSB.toString();
 
-                XMLTreeTableDetailJDialog xmlTreeTableDetailJDialog = xmlTreeTableDetailJDialogMap.get(rowStr);
+                TraceXMLTreeTableFrame traceXMLTreeTableFrame = traceXMLTreeTableFrameMap.get(rowStr);
 
-                if (xmlTreeTableDetailJDialog == null) {
+                if (traceXMLTreeTableFrame == null) {
 
-                    StringBuffer seqSB = new StringBuffer();
+                    StringBuilder seqSB = new StringBuilder();
 
                     List<Element> traceEventPropertyElementList = new ArrayList<>();
 
@@ -484,7 +634,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                                     }
                                 }
 
-                                traceEventPropertyElement = traceEvent.getTraceEventRootElement();
+                                traceEventPropertyElement = traceEvent.getTraceEventRootElement(charset);
 
                             }
 
@@ -496,7 +646,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
                     String modelName = traceTreeTableModelAdapter.getModelName();
 
-                    StringBuffer titleSB = new StringBuffer();
+                    StringBuilder titleSB = new StringBuilder();
 
                     titleSB.append(modelName);
                     titleSB.append(" - Properties on Page - Trace Event [");
@@ -507,34 +657,33 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
                     Element[] traceEventPropertyElementArray = traceEventPropertyElementList
                             .toArray(new Element[traceEventPropertyElementList.size()]);
+
                     String[] searchStrArray = searchStrList.toArray(new String[searchStrList.size()]);
+
                     TreeTableColumn[] treeTableColumnArray = treeTableColumnList
                             .toArray(new TreeTableColumn[treeTableColumnList.size()]);
 
-                    Dimension dimension = new Dimension(1000, 800);
-
-                    ImageIcon appIcon = BaseFrame.getAppIcon();
                     Component mainWindow = getMainWindow();
 
-                    xmlTreeTableDetailJDialog = new XMLTreeTableDetailJDialog(title, traceEventPropertyElementArray,
-                            searchStrArray, treeTableColumnArray, dimension, TraceEventFactory.xmlElementTableTypeMap,
-                            appIcon, mainWindow);
+                    traceXMLTreeTableFrame = new TraceXMLTreeTableFrame(title, traceEventPropertyElementArray,
+                            searchStrArray, treeTableColumnArray, TraceEventFactory.xmlElementTableTypeMap, charset,
+                            mainWindow);
 
-                    xmlTreeTableDetailJDialog.addWindowListener(new WindowAdapter() {
+                    traceXMLTreeTableFrame.addWindowListener(new WindowAdapter() {
 
                         @Override
                         public void windowClosing(WindowEvent windowEvent) {
                             super.windowClosing(windowEvent);
 
-                            xmlTreeTableDetailJDialogMap.remove(rowStr);
+                            traceXMLTreeTableFrameMap.remove(rowStr);
                         }
 
                     });
 
-                    xmlTreeTableDetailJDialogMap.put(rowStr, xmlTreeTableDetailJDialog);
+                    traceXMLTreeTableFrameMap.put(rowStr, traceXMLTreeTableFrame);
 
                 } else {
-                    xmlTreeTableDetailJDialog.toFront();
+                    traceXMLTreeTableFrame.toFront();
                 }
             }
         });
@@ -576,8 +725,8 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                 Component mainWindow = getMainWindow();
 
                 BookmarkAddDialog<TraceEventKey> bookmarkAddDialog;
-                bookmarkAddDialog = new BookmarkAddDialog<TraceEventKey>(appIcon, mainWindow, bookmarkModel,
-                        new ArrayList<TraceEventKey>(teKeyMap.keySet())) {
+                bookmarkAddDialog = new BookmarkAddDialog<TraceEventKey>(null, bookmarkModel,
+                        new ArrayList<TraceEventKey>(teKeyMap.keySet()), appIcon, mainWindow) {
 
                     private static final long serialVersionUID = -2139967893143937083L;
 
@@ -613,146 +762,308 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
         return addBookmarkMenuItem;
     }
 
-    private void getOpenDeleteBookmarkRightClickMenuItem(JPopupMenu popupMenu, List<Integer> selectedRowList,
-            TraceTreeTableModelAdapter traceTreeTableModelAdapter) {
+    private RightClickMenuItem getOpenBookmarkRightClickMenuItem(JPopupMenu popupMenu, TraceEventKey key,
+            BookmarkModel<TraceEventKey> bookmarkModel) {
 
-        Map<TraceEventKey, List<Marker<TraceEventKey>>> bookmarkListMap = new HashMap<>();
+        RightClickMenuItem openBookmark = new RightClickMenuItem("Open Bookmark");
 
-        BookmarkModel<TraceEventKey> bookmarkModel = traceTreeTableModelAdapter.getBookmarkModel();
+        openBookmark.addActionListener(new ActionListener() {
 
-        AbstractTraceEventTreeNode traceEventTreeNode = (AbstractTraceEventTreeNode) traceTreeTableModelAdapter
-                .getValueAt(selectedRowList.get(0), 0);
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
 
-        List<TraceEvent> traceEvents = traceEventTreeNode.getTraceEvents();
+                ImageIcon appIcon = BaseFrame.getAppIcon();
+                Component mainWindow = getMainWindow();
 
-        if (traceEvents != null) {
+                BookmarkOpenDialog<TraceEventKey> bookmarkOpenDialog;
+                bookmarkOpenDialog = new BookmarkOpenDialog<>(bookmarkModel, key, appIcon, mainWindow);
 
-            for (TraceEvent traceEvent : traceEvents) {
+                bookmarkOpenDialog.setVisible(true);
 
-                TraceEventKey traceEventKey = traceEvent.getKey();
-                List<Marker<TraceEventKey>> bookmarkList = bookmarkModel.getMarkers(traceEventKey);
+                popupMenu.setVisible(false);
 
-                if ((bookmarkList != null) && (bookmarkList.size() > 0)) {
-                    bookmarkListMap.put(traceEventKey, bookmarkList);
-                }
+            }
+        });
+
+        return openBookmark;
+    }
+
+    private RightClickMenuItem getDeleteBookmarkRightClickMenuItem(JPopupMenu popupMenu, TraceEventKey key,
+            BookmarkModel<TraceEventKey> bookmarkModel) {
+
+        RightClickMenuItem deleteBookmark = new RightClickMenuItem("Delete Bookmark");
+
+        deleteBookmark.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                ImageIcon appIcon = BaseFrame.getAppIcon();
+                Component mainWindow = getMainWindow();
+
+                BookmarkDeleteDialog<TraceEventKey> bookmarkDeleteDialog;
+
+                bookmarkDeleteDialog = new BookmarkDeleteDialog<>(bookmarkModel, key, appIcon, mainWindow);
+
+                bookmarkDeleteDialog.setVisible(true);
+
+                popupMenu.setVisible(false);
+
+            }
+        });
+
+        return deleteBookmark;
+    }
+
+    private RightClickMenuItem getBeginEventRightClickMenuItem(JPopupMenu popupMenu, TraceTreeTable source,
+            TraceEventTreeNode traceEventTreeNode) {
+
+        RightClickMenuItem beginEvent = null;
+
+        TraceEvent traceEvent = (TraceEvent) traceEventTreeNode.getUserObject();
+
+        if (traceEvent != null) {
+
+            Boolean isEndEvent = traceEvent.isEndEvent();
+
+            // end event is true
+            if ((isEndEvent != null) && isEndEvent) {
+
+                beginEvent = new RightClickMenuItem("Select Begin Event");
+
+                beginEvent.addActionListener(new ActionListener() {
+
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent) {
+
+                        TraceEventTreeNode beginTraceEventTreeNode = TracerViewerUtil
+                                .getBeginTraceEventTreeNode(traceEventTreeNode);
+
+                        if (beginTraceEventTreeNode != null) {
+                            source.scrollNodeToVisible(beginTraceEventTreeNode);
+                        }
+
+                        popupMenu.setVisible(false);
+                    }
+                });
             }
         }
 
-        if (bookmarkListMap.size() > 0) {
+        return beginEvent;
+    }
 
-            RightClickMenuItem openBookmarkMenuItem = new RightClickMenuItem("Open Bookmark");
+    private RightClickMenuItem getEndEventRightClickMenuItem(JPopupMenu popupMenu, TraceTreeTable source,
+            TraceEventTreeNode traceEventTreeNode) {
 
-            openBookmarkMenuItem.addActionListener(new ActionListener() {
+        RightClickMenuItem endEvent = null;
 
-                @Override
-                public void actionPerformed(ActionEvent actionEvent) {
+        TraceEvent traceEvent = (TraceEvent) traceEventTreeNode.getUserObject();
 
-                    ImageIcon appIcon = BaseFrame.getAppIcon();
-                    Component mainWindow = getMainWindow();
+        if (traceEvent != null) {
 
-                    BookmarkOpenDialog<TraceEventKey> bookmarkOpenDialog;
-                    bookmarkOpenDialog = new BookmarkOpenDialog<TraceEventKey>(appIcon, mainWindow, bookmarkListMap);
+            Boolean isEndEvent = traceEvent.isEndEvent();
 
-                    bookmarkOpenDialog.setVisible(true);
+            if ((isEndEvent != null) && (!isEndEvent)) {
 
-                    popupMenu.setVisible(false);
+                endEvent = new RightClickMenuItem("Select End Event");
+                endEvent.addActionListener(new ActionListener() {
 
-                }
-            });
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent) {
 
-            RightClickMenuItem deleteBookmarkMenuItem = new RightClickMenuItem("Delete Bookmark");
+                        TraceEventTreeNode endTraceEventTreeNode = TracerViewerUtil
+                                .getEndTraceEventTreeNode(traceEventTreeNode);
 
-            deleteBookmarkMenuItem.addActionListener(new ActionListener() {
+                        if (endTraceEventTreeNode != null) {
+                            source.scrollNodeToVisible(endTraceEventTreeNode);
+                        }
 
-                @Override
-                public void actionPerformed(ActionEvent actionEvent) {
-
-                    ImageIcon appIcon = BaseFrame.getAppIcon();
-                    Component mainWindow = getMainWindow();
-
-                    List<TraceEventKey> keyList = new ArrayList<>(bookmarkListMap.keySet());
-
-                    BookmarkDeleteDialog<TraceEventKey> bookmarkDeleteDialog;
-
-                    bookmarkDeleteDialog = new BookmarkDeleteDialog<TraceEventKey>(appIcon, mainWindow, bookmarkModel,
-                            keyList);
-
-                    bookmarkDeleteDialog.setVisible(true);
-
-                    popupMenu.setVisible(false);
-
-                }
-            });
-
-            popupMenu.add(openBookmarkMenuItem);
-            popupMenu.add(deleteBookmarkMenuItem);
-
+                        popupMenu.setVisible(false);
+                    }
+                });
+            }
         }
+
+        return endEvent;
 
     }
 
-    protected void performDoubleClick(TraceTreeTable source) {
+    private RightClickMenuItem getParentEventRightClickMenuItem(JPopupMenu popupMenu, TraceTreeTable source,
+            AbstractTreeTableNode abstractTreeTableNode) {
 
-        if (isIntendedSource(source)) {
+        RightClickMenuItem parentEvent = null;
 
-            int row = source.getSelectedRow();
+        // Select Parent node
+        AbstractTreeTableNode parentTreeNode = (AbstractTreeTableNode) abstractTreeTableNode.getParent();
+
+        Object parentUserobject = parentTreeNode.getUserObject();
+
+        if (parentUserobject != null) {
+
+            parentEvent = new RightClickMenuItem("Select Parent Event");
+
+            parentEvent.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+
+                    source.scrollNodeToVisible(parentTreeNode);
+
+                    popupMenu.setVisible(false);
+                }
+            });
+
+            popupMenu.add(parentEvent);
+
+        }
+
+        return parentEvent;
+
+    }
+
+    private RightClickMenuItem getExpandNodeRightClickMenuItem(JPopupMenu popupMenu, Integer selectedRow, JTree tree,
+            TreePath treePath) {
+
+        RightClickMenuItem expandNode = null;
+
+        expandNode = new RightClickMenuItem("Expand Node");
+
+        expandNode.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                tree.expandPath(treePath);
+
+                popupMenu.setVisible(false);
+
+                tree.setSelectionRow(selectedRow);
+
+            }
+        });
+
+        return expandNode;
+
+    }
+
+    private RightClickMenuItem getExpandAllChildrenRightClickMenuItem(JPopupMenu popupMenu, TraceTreeTable source,
+            TreePath treePath) {
+
+        RightClickMenuItem expandAllChildren = new RightClickMenuItem("Expand All Children");
+
+        expandAllChildren.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                source.expandAll(treePath, true, 1);
+                popupMenu.setVisible(false);
+
+            }
+        });
+
+        return expandAllChildren;
+
+    }
+
+    private RightClickMenuItem getCollapseNodeRightClickMenuItem(JPopupMenu popupMenu, JTree tree, TreePath treePath) {
+
+        RightClickMenuItem collapseNode = new RightClickMenuItem("Collapse Node");
+
+        collapseNode.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                tree.collapsePath(treePath);
+
+                popupMenu.setVisible(false);
+
+            }
+        });
+
+        return collapseNode;
+    }
+
+    private RightClickMenuItem getCollapseAllChildrenRightClickMenuItem(JPopupMenu popupMenu, TraceTreeTable source,
+            TreePath treePath) {
+
+        RightClickMenuItem collapseAllChildren = new RightClickMenuItem("Collapse All Children");
+
+        collapseAllChildren.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                // collapse only children
+                source.expandAll(treePath, false, 0);
+                popupMenu.setVisible(false);
+
+            }
+        });
+
+        return collapseAllChildren;
+    }
+
+    private void performDoubleClick(TraceTreeTable traceTreeTable) {
+
+        if (isIntendedSource(traceTreeTable)) {
+
+            int row = traceTreeTable.getSelectedRow();
             final String rowStr = String.valueOf(row);
 
-            Map<String, XMLTreeTableDetailJDialog> xmlTreeTableDetailJDialogMap = getXmlTreeTableDetailJDialogMap();
+            Charset charset = ((TraceTreeTableModelAdapter) traceTreeTable.getModel()).getCharset();
 
-            XMLTreeTableDetailJDialog xmlTreeTableDetailJDialog = xmlTreeTableDetailJDialogMap.get(rowStr);
+            Map<String, TraceXMLTreeTableFrame> traceXMLTreeTableFrameMap = getTraceXMLTreeTableFrameMap();
 
-            if (xmlTreeTableDetailJDialog == null) {
+            TraceXMLTreeTableFrame traceXMLTreeTableFrame = traceXMLTreeTableFrameMap.get(rowStr);
+
+            if (traceXMLTreeTableFrame == null) {
 
                 List<TraceEvent> traceEventList = new ArrayList<TraceEvent>();
                 List<String> searchStrList = new ArrayList<String>();
-                StringBuffer seqSB = new StringBuffer();
-                StringBuffer modelNameSB = new StringBuffer();
+                StringBuilder seqSB = new StringBuilder();
+                StringBuilder modelNameSB = new StringBuilder();
 
-                List<TraceTreeTable> traceTreeTableList = getTraceTreeTableList();
+                TraceTreeTableModelAdapter traceTreeTableModelAdapter;
 
-                for (TraceTreeTable traceTreeTable : traceTreeTableList) {
+                traceTreeTableModelAdapter = (TraceTreeTableModelAdapter) traceTreeTable.getModel();
 
-                    TraceTreeTableModelAdapter traceTreeTableModelAdapter;
+                String modelName = traceTreeTableModelAdapter.getModelName();
 
-                    traceTreeTableModelAdapter = (TraceTreeTableModelAdapter) traceTreeTable.getModel();
+                if (modelNameSB.length() > 0) {
+                    modelNameSB.append(", ");
+                }
 
-                    String modelName = traceTreeTableModelAdapter.getModelName();
+                modelNameSB.append(modelName);
 
-                    if (modelNameSB.length() > 0) {
-                        modelNameSB.append(", ");
+                SearchModel<TraceEventKey> searchModel = traceTreeTableModelAdapter.getSearchModel();
+                Object searchStrObj = searchModel.getSearchStrObj();
+
+                String searchStr = null;
+
+                if (searchStrObj != null) {
+                    if (!(searchStrObj instanceof SearchEventType)) {
+                        searchStr = searchStrObj.toString();
                     }
+                }
 
-                    modelNameSB.append(modelName);
+                AbstractTraceEventTreeNode traceEventTreeNode = (AbstractTraceEventTreeNode) traceTreeTableModelAdapter
+                        .getValueAt(row, 0);
 
-                    SearchModel<TraceEventKey> searchModel = traceTreeTableModelAdapter.getSearchModel();
-                    Object searchStrObj = searchModel.getSearchStrObj();
+                List<TraceEvent> traceEvents = traceEventTreeNode.getTraceEvents();
 
-                    String searchStr = null;
-
-                    if (searchStrObj != null) {
-                        if (!(searchStrObj instanceof SearchEventType)) {
-                            searchStr = searchStrObj.toString();
-                        }
-                    }
-
-                    AbstractTraceEventTreeNode traceEventTreeNode = (AbstractTraceEventTreeNode) traceTreeTableModelAdapter
-                            .getValueAt(row, 0);
-
-                    List<TraceEvent> traceEvents = traceEventTreeNode.getTraceEvents();
-
-                    for (TraceEvent traceEvent : traceEvents) {
-                        traceEventList.add(traceEvent);
-                        searchStrList.add(searchStr);
-                    }
+                for (TraceEvent traceEvent : traceEvents) {
+                    traceEventList.add(traceEvent);
+                    searchStrList.add(searchStr);
                 }
 
                 int size = traceEventList.size();
                 Element[] traceEventPropertyElementArray = new Element[size];
                 String[] searchStrArray = new String[size];
 
-                TreeTableColumn[] treeTableColumns = new TreeTableColumn[size + 1];
-                treeTableColumns[0] = TreeTableColumn.NAME_COLUMN;
+                TreeTableColumn[] treeTableColumnArray = new TreeTableColumn[size + 1];
+                treeTableColumnArray[0] = TreeTableColumn.NAME_COLUMN;
 
                 for (int i = 0; i < size; i++) {
 
@@ -769,18 +1080,18 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
                     seqSB.append(traceLine);
 
-                    treeTableColumns[i + 1] = new TreeTableColumn(columnName, String.class);
+                    treeTableColumnArray[i + 1] = new TreeTableColumn(columnName, String.class);
 
-                    String searchStr = searchStrList.get(i);
+                    searchStr = searchStrList.get(i);
 
                     Element traceEventPropertyElement;
-                    traceEventPropertyElement = traceEvent.getTraceEventRootElement();
+                    traceEventPropertyElement = traceEvent.getTraceEventRootElement(charset);
 
                     traceEventPropertyElementArray[i] = traceEventPropertyElement;
                     searchStrArray[i] = searchStr;
                 }
 
-                StringBuffer titleSB = new StringBuffer();
+                StringBuilder titleSB = new StringBuilder();
 
                 titleSB.append(modelNameSB);
                 titleSB.append(" - Properties on Page - Trace Event [");
@@ -789,43 +1100,43 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
                 String title = titleSB.toString();
 
-                Dimension dimension = new Dimension(1000, 800);
+                Component mainWindow = getMainWindow();
 
-                xmlTreeTableDetailJDialog = new XMLTreeTableDetailJDialog(title, traceEventPropertyElementArray,
-                        searchStrArray, treeTableColumns, dimension, TraceEventFactory.xmlElementTableTypeMap,
-                        BaseFrame.getAppIcon(), mainWindow);
+                traceXMLTreeTableFrame = new TraceXMLTreeTableFrame(title, traceEventPropertyElementArray,
+                        searchStrArray, treeTableColumnArray, TraceEventFactory.xmlElementTableTypeMap, charset,
+                        mainWindow);
 
-                xmlTreeTableDetailJDialog.addWindowListener(new WindowAdapter() {
+                traceXMLTreeTableFrame.addWindowListener(new WindowAdapter() {
 
                     @Override
                     public void windowClosing(WindowEvent windowEvent) {
                         super.windowClosing(windowEvent);
 
-                        Map<String, XMLTreeTableDetailJDialog> xmlTreeTableDetailJDialogMap;
-                        xmlTreeTableDetailJDialogMap = getXmlTreeTableDetailJDialogMap();
+                        Map<String, TraceXMLTreeTableFrame> traceXMLTreeTableFrameMap;
+                        traceXMLTreeTableFrameMap = getTraceXMLTreeTableFrameMap();
 
-                        xmlTreeTableDetailJDialogMap.remove(rowStr);
+                        traceXMLTreeTableFrameMap.remove(rowStr);
                     }
 
                 });
 
-                xmlTreeTableDetailJDialogMap.put(rowStr, xmlTreeTableDetailJDialog);
+                traceXMLTreeTableFrameMap.put(rowStr, traceXMLTreeTableFrame);
             } else {
                 // bring back to focus
-                xmlTreeTableDetailJDialog.toFront();
+                traceXMLTreeTableFrame.toFront();
             }
         }
     }
 
-    public void clearXMLTreeTableDetailJDialogList() {
+    public void clearTraceXMLTreeTableFrameList() {
 
-        Collection<XMLTreeTableDetailJDialog> xmlTreeTableDetailJDialogList = xmlTreeTableDetailJDialogMap.values();
+        Collection<TraceXMLTreeTableFrame> traceXMLTreeTableFrameList = traceXMLTreeTableFrameMap.values();
 
-        for (XMLTreeTableDetailJDialog xmlTreeTableDetailJDialog : xmlTreeTableDetailJDialogList) {
-            xmlTreeTableDetailJDialog.dispose();
+        for (TraceXMLTreeTableFrame traceXMLTreeTableFrame : traceXMLTreeTableFrameList) {
+            traceXMLTreeTableFrame.dispose();
         }
 
-        xmlTreeTableDetailJDialogList.clear();
+        traceXMLTreeTableFrameList.clear();
 
     }
 

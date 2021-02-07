@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -15,7 +15,6 @@ import com.pega.gcs.fringecommon.guiutilities.treetable.TreeTableColumn;
 import com.pega.gcs.tracerviewer.TraceEventCombinedTreeNode;
 import com.pega.gcs.tracerviewer.TraceNavigationTableController;
 import com.pega.gcs.tracerviewer.TraceTableModel;
-import com.pega.gcs.tracerviewer.TraceTableModelColumn;
 import com.pega.gcs.tracerviewer.TraceTreeCombinedTable;
 import com.pega.gcs.tracerviewer.TraceTreeTableMouseListener;
 
@@ -39,23 +38,18 @@ public class TracerDataTreeMergedTableView extends TracerDataTreeTableView {
 
             TraceEventCombinedTreeNode root = traceTableModel.getRootTraceEventCombinedTreeNode();
 
-            TraceTableModelColumn[] traceTreeCombinedTableModelColumnArray;
-            traceTreeCombinedTableModelColumnArray = TraceTableModelColumn.getTraceTreeCombinedTableModelColumnArray();
-
-            TreeTableColumn[] columns = getTreeTableColumnArray(traceTreeCombinedTableModelColumnArray);
+            TreeTableColumn[] columns = getTreeTableColumnArray(true);
 
             DefaultTreeTableTreeModel dtttm = new DefaultTreeTableTreeModel(root, columns);
 
             traceTreeCombinedTable = new TraceTreeCombinedTable(dtttm, traceTableModel);
 
-            TraceTreeTableMouseListener traceTreeTableMouseListener = new TraceTreeTableMouseListener(this);
-
-            traceTreeTableMouseListener.addTraceTreeTable(traceTreeCombinedTable);
+            TraceTreeTableMouseListener traceTreeTableMouseListener;
+            traceTreeTableMouseListener = new TraceTreeTableMouseListener(traceTreeCombinedTable, this);
 
             traceTreeCombinedTable.addMouseListener(traceTreeTableMouseListener);
         }
 
         return traceTreeCombinedTable;
     }
-
 }

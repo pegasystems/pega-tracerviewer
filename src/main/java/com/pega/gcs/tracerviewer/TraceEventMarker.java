@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -18,7 +18,7 @@ public class TraceEventMarker extends Marker<TraceEventKey> {
 
     @SuppressWarnings("unused")
     private TraceEventMarker() {
-        //for kryo
+        // for kryo
         super();
     }
 

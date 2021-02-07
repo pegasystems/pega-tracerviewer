@@ -2,39 +2,7 @@
  * Allows for publishing artifacts either to Bintray or to Artifactory. Bintray is
  * the default choice but this can be configured within <root-project>/gradle.properties.
  */
-
-buildscript {
-    repositories {
-        mavenLocal()
-        jcenter()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-        maven { 
-            url artifactoryURL
-            credentials {
-                username = artifactoryUser
-                password = artifactoryPassword
-            }
-        }
-    }
-    dependencies {
-        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.5.0'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
-        classpath 'org.ajoberstar:gradle-git-publish:0.3.2'
-    }
-}
-
-// properties MUST be applied PRIOR to applying publish plugin or they won't take effect.
-System.setProperty('org.ajoberstar.grgit.auth.username', resolveProperty('releaseUsername'))
-System.setProperty('org.ajoberstar.grgit.auth.password', resolveProperty('releasePassword'))
-System.setProperty('org.ajoberstar.grgit.auth.interactive.allow', 'false')
-    
-apply plugin: 'maven'
 apply plugin: 'maven-publish'
-apply plugin: org.jfrog.gradle.plugin.artifactory.ArtifactoryPlugin
-apply plugin: com.jfrog.bintray.gradle.BintrayPlugin
-apply plugin: org.ajoberstar.gradle.git.publish.GitPublishPlugin
 
 publishing {
     publications {
@@ -42,32 +10,33 @@ publishing {
             from components.java             
             artifact sourcesJar
             artifact docsJar
-            artifact testsJar
+            
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name', 'Pega pega-tracerviewer')
+                root.appendNode('description', 'Common library used in LogViewer and TracerViewer tools.')
+                root.appendNode('url', 'https://github.com/pegasystems/pega-tracerviewer')
+
+                def scm = root.appendNode('scm')
+                scm.appendNode('url', 'https://github.com/pegasystems/pega-tracerviewer')
+                scm.appendNode('connection', 'scm:https://developer@github.com/pegasystems/pega-tracerviewer.git')
+                scm.appendNode('developerConnection', 'scm:git://github.com/pegasystems/pega-tracerviewer.git')
+
+                def license = root.appendNode('licenses').appendNode('license')
+                license.appendNode('name', 'The Apache Software License, Version 2.0')
+                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                license.appendNode('distribution', 'repo')
+
+                def developers = root.appendNode('developers')
+                def dev1 = developers.appendNode('developer')
+                dev1.appendNode('id', 'vargm')
+                dev1.appendNode('name', 'Manu Varghese')
+            }
         }
     }
-}
-
-artifactory {
-    contextUrl = artifactoryURL
-    publish {
-        repository {
-            repoKey = rootProject.findProperty('release.stage') == 'final' ? releaseRepository : snapshotRepository
-            username = artifactoryUser
-            password = artifactoryPassword
-            mavenCompatible = true
-        }
-        defaults {
-            publications ('mavenJava')
-        }
-    }
-}
-
-ext {
-    githubSite = 'https://github.com'
 }
 
 bintray {
-
     user = resolveProperty('bintrayUsername')
     key = resolveProperty('bintrayKey')
     publications = ['mavenJava']
@@ -79,35 +48,16 @@ bintray {
         userOrg = orgName
         repo = rootProject.findProperty('release.stage') == 'final' ? releaseRepository : snapshotRepository
         name = project.name
-        websiteUrl = "${githubSite}/${orgName}/${project.name}"
-        issueTrackerUrl = "${githubSite}/${orgName}/${project.name}/issues"
-        vcsUrl = "${githubSite}/${orgName}/${project.name}.git"
+        websiteUrl = 'https://github.com/pegasystems/pega-tracerviewer'
+        issueTrackerUrl = 'https://github.com/pegasystems/pega-tracerviewer/issues'
+        vcsUrl = 'https://github.com/pegasystems/pega-tracerviewer.git'
         licenses = ['Apache-2.0']
+        labels = ['java', 'pega', 'pega trace xml']
         publicDownloadNumbers = true
-        githubRepo = "${orgName}/${project.name}"
-        githubReleaseNotesFile = 'RELEASE_NOTES.md'
-
-        version {
-            released  = new Date()
-            vcsTag = "v${project.version}"
-
-            gpg {
-                sign = true
-                passphrase = resolveProperty('gpgPassphrase')
-            }
-        }
+        githubRepo = 'pegasystems/pega-tracerviewer'
+        githubReleaseNotesFile = 'README.md'
     }
 }
-
-gitPublish {
-    repoUri = "${githubSite}/${rootProject.findProperty('organization')}/${project.rootProject.name}.git"
-    branch = "${project.name}-gh-pages"
-    contents {
-        from zipTree(docsJar.archivePath)
-        into 'docs'
-    }
-}
-gitPublishPush.dependsOn docsJar
 
 /*
  * Check environment for property and if that fails 

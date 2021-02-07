@@ -1,0 +1,9 @@
+apply plugin: 'com.github.spotbugs'
+
+spotbugs {
+    ignoreFailures = true
+    effort = 'max'
+    showProgress = false
+    reportLevel = 'low'
+}
+

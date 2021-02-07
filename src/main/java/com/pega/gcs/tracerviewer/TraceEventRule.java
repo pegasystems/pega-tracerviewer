@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -11,6 +11,7 @@
 package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
+import java.util.Objects;
 
 import com.pega.gcs.tracerviewer.model.TraceEventType;
 
@@ -70,44 +71,54 @@ public class TraceEventRule implements Comparable<TraceEventRule> {
         return totalOwnElapsed;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((insKey == null) ? 0 : insKey.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        TraceEventRule other = (TraceEventRule) obj;
-        if (insKey == null) {
-            if (other.insKey != null) {
-                return false;
-            }
-        } else if (!insKey.equals(other.insKey)) {
-            return false;
-        }
-        return true;
-    }
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
         return insKey;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
     @Override
-    public int compareTo(TraceEventRule eventRule) {
-        return getInsKey().compareTo(eventRule.getInsKey());
+    public int hashCode() {
+        return Objects.hash(insKey);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (!(obj instanceof TraceEventRule)) {
+            return false;
+        }
+
+        TraceEventRule other = (TraceEventRule) obj;
+
+        return Objects.equals(insKey, other.insKey);
+    }
+
+    @Override
+    public int compareTo(TraceEventRule other) {
+        return getInsKey().compareTo(other.getInsKey());
     }
 
     public void incrementExecutionCount() {

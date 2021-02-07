@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -24,7 +24,6 @@ import com.pega.gcs.fringecommon.guiutilities.RecentFile;
 import com.pega.gcs.fringecommon.guiutilities.search.SearchData;
 import com.pega.gcs.fringecommon.log4j2.Log4j2Helper;
 import com.pega.gcs.fringecommon.utilities.diff.EditCommand;
-import com.pega.gcs.fringecommon.utilities.diff.Matcher;
 import com.pega.gcs.fringecommon.utilities.diff.MyersDifferenceAlgorithm;
 import com.pega.gcs.tracerviewer.model.TraceEvent;
 import com.pega.gcs.tracerviewer.model.TraceEventEmpty;
@@ -105,8 +104,11 @@ public class TraceTableCompareTask extends SwingWorker<Void, String> {
                 // built the left side compare model afresh for every compare
                 RecentFile recentFile = traceTableModel.getRecentFile();
                 SearchData<TraceEventKey> searchData = traceTableModel.getSearchData();
+                TracerType tracerType = traceTableModel.getTracerType();
+
                 TraceTableCompareModel traceTableCompareModelLeft;
                 traceTableCompareModelLeft = new TraceTableCompareModel(recentFile, searchData);
+                traceTableCompareModelLeft.setTracerType(tracerType);
 
                 TreeMap<TraceEventKey, List<TraceEventKey>> compareNavIndexMap;
                 compareNavIndexMap = new TreeMap<TraceEventKey, List<TraceEventKey>>();
@@ -114,8 +116,8 @@ public class TraceTableCompareTask extends SwingWorker<Void, String> {
                 List<TraceEventKey> thisMarkerTraceEventKeyList = new ArrayList<TraceEventKey>();
                 List<TraceEventKey> otherMarkerTraceEventKeyList = new ArrayList<TraceEventKey>();
 
-                Map<TraceEventKey, TraceEvent> thisTEM = traceTableModel.getTraceEventMap();
-                Map<TraceEventKey, TraceEvent> otherTEM = traceTableCompareModelRight.getTraceEventMap();
+                TreeMap<TraceEventKey, TraceEvent> thisTEM = traceTableModel.getTraceEventMap();
+                TreeMap<TraceEventKey, TraceEvent> otherTEM = traceTableCompareModelRight.getTraceEventMap();
 
                 // THIS
                 List<TraceEventKey> thisTraceEventKeyList = new ArrayList<TraceEventKey>();
@@ -125,21 +127,21 @@ public class TraceTableCompareTask extends SwingWorker<Void, String> {
                 List<TraceEventKey> otherTraceEventKeyList = new ArrayList<TraceEventKey>();
                 List<TraceEvent> otherTraceEventList = new ArrayList<TraceEvent>();
 
+                // supplied map is a TreeMap as keys needs to be sorted for below method
                 getKeyAndTraceEventList(thisTEM, thisTraceEventKeyList, thisTraceEventList);
                 getKeyAndTraceEventList(otherTEM, otherTraceEventKeyList, otherTraceEventList);
 
-                Matcher<TraceEvent> matcher = new Matcher<TraceEvent>() {
+                Map<String, String[]> stepPageHierarchyLookupMapThis = traceTableModel.getStepPageHierarchyMap();
+                Map<String, String[]> stepPageHierarchyLookupMapOther = traceTableCompareModelRight
+                        .getStepPageHierarchyMap();
 
-                    @Override
-                    public boolean match(TraceEvent o1, TraceEvent o2) {
-                        return o1.equals(o2);
-                    }
-                };
+                TraceEventMatcher traceEventMatcher = new TraceEventMatcher(stepPageHierarchyLookupMapThis,
+                        stepPageHierarchyLookupMapOther);
 
                 long before = System.currentTimeMillis();
 
                 List<EditCommand> editScript = MyersDifferenceAlgorithm.diffGreedyLCS(progressMonitor,
-                        thisTraceEventList, otherTraceEventList, matcher);
+                        thisTraceEventList, otherTraceEventList, traceEventMatcher);
 
                 long diff = System.currentTimeMillis() - before;
                 DecimalFormat df = new DecimalFormat("#0.000");
@@ -156,6 +158,8 @@ public class TraceTableCompareTask extends SwingWorker<Void, String> {
                     int index = 0;
                     int indexThis = 0;
                     int indexOther = 0;
+
+                    boolean isCompare = true;
 
                     TraceEventKey compareNavIndexKey = null;
                     EditCommand prevEC = EditCommand.SNAKE;
@@ -181,7 +185,7 @@ public class TraceTableCompareTask extends SwingWorker<Void, String> {
                             teKeyCompare = new TraceEventKey(index, -1, false);
                             teCompare = new TraceEventEmpty(teKeyCompare, deleteColor);
                             // newOtherTEM.put(teKeyCompare, teCompare);
-                            traceTableCompareModelRight.addTraceEventToMap(teCompare);
+                            traceTableCompareModelRight.addTraceEventToMap(teCompare, isCompare);
 
                             // THIS
                             teKeyThis = thisTraceEventKeyList.get(indexThis);
@@ -190,7 +194,7 @@ public class TraceTableCompareTask extends SwingWorker<Void, String> {
                             teKey = new TraceEventKey(index, teKeyThis.getTraceEventIndex(), teKeyThis.isCorrupt());
                             te.setTraceEventKey(teKey);
                             // newThisTEM.put(teKey, te);
-                            traceTableCompareModelLeft.addTraceEventToMap(te);
+                            traceTableCompareModelLeft.addTraceEventToMap(te, isCompare);
                             indexThis++;
 
                             otherMarkerTraceEventKeyList.add(teKeyCompare);
@@ -205,14 +209,14 @@ public class TraceTableCompareTask extends SwingWorker<Void, String> {
                             teKey = new TraceEventKey(index, teKeyOther.getTraceEventIndex(), teKeyOther.isCorrupt());
                             te.setTraceEventKey(teKey);
                             // newOtherTEM.put(teKey, te);
-                            traceTableCompareModelRight.addTraceEventToMap(te);
+                            traceTableCompareModelRight.addTraceEventToMap(te, isCompare);
                             indexOther++;
 
                             // THIS
                             teKeyCompare = new TraceEventKey(index, -1, false);
                             teCompare = new TraceEventEmpty(teKeyCompare, insertColor);
                             // newThisTEM.put(teKeyCompare, teCompare);
-                            traceTableCompareModelLeft.addTraceEventToMap(teCompare);
+                            traceTableCompareModelLeft.addTraceEventToMap(teCompare, isCompare);
 
                             thisMarkerTraceEventKeyList.add(teKeyCompare);
 
@@ -225,7 +229,7 @@ public class TraceTableCompareTask extends SwingWorker<Void, String> {
                             teKey = new TraceEventKey(index, teKeyOther.getTraceEventIndex(), teKeyOther.isCorrupt());
                             te.setTraceEventKey(teKey);
                             // newOtherTEM.put(teKey, te);
-                            traceTableCompareModelRight.addTraceEventToMap(te);
+                            traceTableCompareModelRight.addTraceEventToMap(te, isCompare);
                             indexOther++;
 
                             // THIS
@@ -235,7 +239,7 @@ public class TraceTableCompareTask extends SwingWorker<Void, String> {
                             teKey = new TraceEventKey(index, teKeyThis.getTraceEventIndex(), teKeyThis.isCorrupt());
                             te.setTraceEventKey(teKey);
                             // newThisTEM.put(teKey, te);
-                            traceTableCompareModelLeft.addTraceEventToMap(te);
+                            traceTableCompareModelLeft.addTraceEventToMap(te, isCompare);
                             indexThis++;
 
                             break;
@@ -322,7 +326,7 @@ public class TraceTableCompareTask extends SwingWorker<Void, String> {
         }
     }
 
-    private void getKeyAndTraceEventList(Map<TraceEventKey, TraceEvent> traceEventMap,
+    private void getKeyAndTraceEventList(TreeMap<TraceEventKey, TraceEvent> traceEventMap,
             List<TraceEventKey> traceEventKeyList, List<TraceEvent> traceEventList) {
 
         traceEventKeyList.clear();

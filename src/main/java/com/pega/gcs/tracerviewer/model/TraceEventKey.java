@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -8,9 +8,11 @@
 package com.pega.gcs.tracerviewer.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
- * id and index will same on initial load. id will be regenerated for compare mode.
+ * The 'id' and 'index' will same on initial load. id will be regenerated for compare mode.
+ * 
  * @author vargm
  */
 public class TraceEventKey implements Comparable<TraceEventKey>, Serializable {
@@ -49,32 +51,58 @@ public class TraceEventKey implements Comparable<TraceEventKey>, Serializable {
         return corrupt;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + traceEventIndex;
-        return result;
+    public String toString() {
+        return "TraceEventKey id [" + id + "] traceEventIndex [" + traceEventIndex + "]";
+        // toString is used in the bookmark dialog to show keys
+        // return String.valueOf(traceEventIndex);
+
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object obj) {
+
         if (this == obj) {
             return true;
         }
+
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+
+        if (!(obj instanceof TraceEventKey)) {
             return false;
         }
+
         TraceEventKey other = (TraceEventKey) obj;
 
-        if (traceEventIndex != -1) {
-            if (traceEventIndex != other.traceEventIndex) {
+        // return id == other.id && traceEventIndex == other.traceEventIndex;
+        // handle compare event keys
+        if (this.traceEventIndex != -1) {
+            if (this.traceEventIndex != other.traceEventIndex) {
                 return false;
             }
-        } else if (id != other.id) {
+        } else if (this.id != other.id) {
             return false;
         }
 
@@ -84,28 +112,18 @@ public class TraceEventKey implements Comparable<TraceEventKey>, Serializable {
     /*
      * (non-Javadoc)
      * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return "TraceEventKey id [" + id + "] traceEventIndex [" + traceEventIndex + "]";
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override
-    public int compareTo(TraceEventKey eventKey) {
+    public int compareTo(TraceEventKey other) {
 
         Integer thisTraceEventIndex = getTraceEventIndex();
-        Integer otherTraceEventIndex = eventKey.getTraceEventIndex();
+        Integer otherTraceEventIndex = other.getTraceEventIndex();
 
         if ((thisTraceEventIndex != -1) && (otherTraceEventIndex != -1)) {
             return thisTraceEventIndex.compareTo(otherTraceEventIndex);
         } else {
-            return Integer.valueOf(getId()).compareTo(Integer.valueOf(eventKey.getId()));
+            return Integer.valueOf(getId()).compareTo(Integer.valueOf(other.getId()));
         }
 
     }

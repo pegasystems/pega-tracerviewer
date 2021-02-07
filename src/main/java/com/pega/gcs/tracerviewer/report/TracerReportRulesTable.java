@@ -1,12 +1,9 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
  *******************************************************************************/
-/**
- * 
- */
 
 package com.pega.gcs.tracerviewer.report;
 
@@ -26,7 +23,6 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import com.pega.gcs.fringecommon.guiutilities.FilterTable;
-import com.pega.gcs.tracerviewer.report.TracerReportRulesTableModel.RulesetRule;
 
 public class TracerReportRulesTable extends FilterTable<Integer> {
 
@@ -68,9 +64,11 @@ public class TracerReportRulesTable extends FilterTable<Integer> {
             private static final long serialVersionUID = 2523481693501568166L;
 
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                    boolean hasFocus, int row, int column) {
 
-                JLabel origComponent = (JLabel) origTableCellRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                JLabel origComponent = (JLabel) origTableCellRenderer.getTableCellRendererComponent(table, value,
+                        isSelected, hasFocus, row, column);
 
                 origComponent.setHorizontalAlignment(CENTER);
 
@@ -95,18 +93,20 @@ public class TracerReportRulesTable extends FilterTable<Integer> {
 
                 int[] selectedRows = getSelectedRows();
 
-                StringBuffer dataSB = new StringBuffer();
+                StringBuilder dataSB = new StringBuilder();
 
                 if (selectedRows != null) {
 
                     for (int selectedRow : selectedRows) {
 
-                        RulesetRule rulesetRule = (RulesetRule) getValueAt(selectedRow, 0);
+                        TracerReportRulesetRule tracerReportRulesetRule = (TracerReportRulesetRule) getValueAt(
+                                selectedRow, 0);
 
                         int columnCount = tracerReportRulesTableModel.getColumnCount();
 
                         for (int column = 0; column < columnCount; column++) {
-                            String columnValue = tracerReportRulesTableModel.getColumnValue(rulesetRule, column);
+                            String columnValue = tracerReportRulesTableModel.getColumnValue(tracerReportRulesetRule,
+                                    column);
 
                             dataSB.append(columnValue);
                             dataSB.append("\t");

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -20,30 +20,32 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import com.pega.gcs.fringecommon.guiutilities.BaseFrame;
+import com.pega.gcs.fringecommon.guiutilities.GUIUtilities;
 import com.pega.gcs.fringecommon.guiutilities.GoToLineDialog;
 import com.pega.gcs.fringecommon.guiutilities.Message;
 import com.pega.gcs.fringecommon.guiutilities.Message.MessageType;
 import com.pega.gcs.fringecommon.guiutilities.ModalProgressMonitor;
 import com.pega.gcs.fringecommon.guiutilities.RecentFile;
 import com.pega.gcs.fringecommon.guiutilities.RecentFileContainer;
-import com.pega.gcs.fringecommon.guiutilities.bookmark.BookmarkContainer;
-import com.pega.gcs.fringecommon.guiutilities.bookmark.BookmarkModel;
 import com.pega.gcs.fringecommon.guiutilities.search.SearchData;
 import com.pega.gcs.fringecommon.log4j2.Log4j2Helper;
 import com.pega.gcs.fringecommon.utilities.GeneralUtilities;
@@ -66,35 +68,33 @@ public class TracerDataMainPanel extends JPanel {
 
     private TraceTableModel traceTableModel;
 
-    private RecentFile recentFile;
-
+    // required for supplementUtilityPanel to display as required by the View
     private HashMap<String, TracerDataView> tracerDataViewMap;
 
-    private JComboBox<TracerDataViewMode> tracerDataViewModeJComboBox;
+    private JComboBox<TracerDataViewMode> tracerDataViewModeComboBox;
 
-    private JLabel incompleteTracerJLabel;
+    private JTextField incompleteTracerLabel;
 
     private TracerViewerSetting tracerViewerSetting;
 
-    private JLabel charsetJLabel;
+    private JTextField charsetLabel;
 
-    private JLabel sizeJLabel;
+    private JTextField fileSizeLabel;
 
-    private JPanel tracerDataViewCardJPanel;
+    private JPanel tracerDataViewCardPanel;
 
-    private JPanel supplementUtilityJPanel;
+    private JPanel supplementUtilityPanel;
 
-    private JButton gotoLineJButton;
+    private JButton gotoLineButton;
 
-    private JButton reloadJButton;
+    private JButton reloadButton;
 
-    private JButton overviewJButton;
+    private JButton overviewButton;
 
     private TracerSimpleReportFrame tracerSimpleReportFrame;
 
     private TraceNavigationTableController traceNavigationTableController;
 
-    @SuppressWarnings("unchecked")
     public TracerDataMainPanel(File selectedFile, RecentFileContainer recentFileContainer,
             TracerViewerSetting tracerViewerSetting) {
 
@@ -105,28 +105,30 @@ public class TracerDataMainPanel extends JPanel {
 
         String charset = tracerViewerSetting.getCharset();
 
-        this.recentFile = recentFileContainer.getRecentFile(selectedFile, charset);
+        RecentFile recentFile = recentFileContainer.getRecentFile(selectedFile, charset);
 
         SearchData<TraceEventKey> searchData = new SearchData<>(SearchEventType.values());
 
         this.traceTableModel = new TraceTableModel(recentFile, searchData);
 
-        BookmarkContainer<TraceEventKey> bookmarkContainer;
-        bookmarkContainer = (BookmarkContainer<TraceEventKey>) recentFile.getAttribute(RecentFile.KEY_BOOKMARK);
+        // moving bookmark loading to end of file load, so that bookmarked key are avilable in model.
 
-        if (bookmarkContainer == null) {
-
-            bookmarkContainer = new BookmarkContainer<TraceEventKey>();
-
-            recentFile.setAttribute(RecentFile.KEY_BOOKMARK, bookmarkContainer);
-        }
-
-        bookmarkContainer = (BookmarkContainer<TraceEventKey>) recentFile.getAttribute(RecentFile.KEY_BOOKMARK);
-
-        BookmarkModel<TraceEventKey> bookmarkModel = new BookmarkModel<TraceEventKey>(bookmarkContainer,
-                traceTableModel);
-
-        traceTableModel.setBookmarkModel(bookmarkModel);
+        // BookmarkContainer<TraceEventKey> bookmarkContainer;
+        // bookmarkContainer = (BookmarkContainer<TraceEventKey>) recentFile.getAttribute(RecentFile.KEY_BOOKMARK);
+        //
+        // if (bookmarkContainer == null) {
+        //
+        // bookmarkContainer = new BookmarkContainer<TraceEventKey>();
+        //
+        // recentFile.setAttribute(RecentFile.KEY_BOOKMARK, bookmarkContainer);
+        // }
+        //
+        // bookmarkContainer = (BookmarkContainer<TraceEventKey>) recentFile.getAttribute(RecentFile.KEY_BOOKMARK);
+        //
+        // BookmarkModel<TraceEventKey> bookmarkModel = new BookmarkModel<TraceEventKey>(bookmarkContainer,
+        // traceTableModel);
+        //
+        // traceTableModel.setBookmarkModel(bookmarkModel);
 
         traceNavigationTableController = new TraceNavigationTableController(traceTableModel);
 
@@ -136,7 +138,8 @@ public class TracerDataMainPanel extends JPanel {
 
             @Override
             public void tableChanged(TableModelEvent tableModelEvent) {
-                updateDisplayJPanel();
+                updateDisplayPanel();
+                updateTracerDataViewModeComboBox();
             }
         });
 
@@ -160,14 +163,14 @@ public class TracerDataMainPanel extends JPanel {
         gbc2.anchor = GridBagConstraints.NORTHWEST;
         gbc2.insets = new Insets(0, 0, 0, 0);
 
-        JPanel utilityCompositeJPanel = getUtilityCompositeJPanel();
-        JPanel tracerDataViewCardJPanel = getTracerDataViewCardJPanel();
+        JPanel utilityCompositePanel = getUtilityCompositePanel();
+        JPanel tracerDataViewCardJPanel = getTracerDataViewCardPanel();
 
-        add(utilityCompositeJPanel, gbc1);
+        add(utilityCompositePanel, gbc1);
         add(tracerDataViewCardJPanel, gbc2);
 
         // set default view
-        JComboBox<TracerDataViewMode> tracerDataViewModeJComboBox = getTracerDataViewModeJComboBox();
+        JComboBox<TracerDataViewMode> tracerDataViewModeJComboBox = getTracerDataViewModeComboBox();
 
         // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4699927
         // tree need to be built once the root node has some child nodes. hence
@@ -198,11 +201,11 @@ public class TracerDataMainPanel extends JPanel {
         return traceNavigationTableController;
     }
 
-    private JPanel getUtilityCompositeJPanel() {
+    private JPanel getUtilityCompositePanel() {
 
-        JPanel utilityCompositeJPanel = new JPanel();
+        JPanel utilityCompositePanel = new JPanel();
 
-        utilityCompositeJPanel.setLayout(new GridBagLayout());
+        utilityCompositePanel.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc1 = new GridBagConstraints();
         gbc1.gridx = 0;
@@ -225,156 +228,141 @@ public class TracerDataMainPanel extends JPanel {
         GridBagConstraints gbc3 = new GridBagConstraints();
         gbc3.gridx = 2;
         gbc3.gridy = 0;
-        gbc3.weightx = 0.0D;
+        gbc3.weightx = 0.5D;
         gbc3.weighty = 1.0D;
         gbc3.fill = GridBagConstraints.BOTH;
         gbc3.anchor = GridBagConstraints.NORTHWEST;
         gbc3.insets = new Insets(0, 0, 0, 0);
 
-        JPanel utilityJPanel = getUtilityJPanel();
-        JPanel supplementUtilityJPanel = getSupplementUtilityJPanel();
-        JPanel infoJPanel = getTracerInfoJPanel();
+        JPanel utilityPanel = getUtilityPanel();
+        JPanel supplementUtilityPanel = getSupplementUtilityPanel();
+        JPanel infoPanel = getInfoPanel();
 
-        utilityCompositeJPanel.add(utilityJPanel, gbc1);
-        utilityCompositeJPanel.add(supplementUtilityJPanel, gbc2);
-        utilityCompositeJPanel.add(infoJPanel, gbc3);
+        utilityCompositePanel.add(utilityPanel, gbc1);
+        utilityCompositePanel.add(supplementUtilityPanel, gbc2);
+        utilityCompositePanel.add(infoPanel, gbc3);
 
-        return utilityCompositeJPanel;
+        return utilityCompositePanel;
     }
 
-    private JPanel getUtilityJPanel() {
+    private JPanel getUtilityPanel() {
 
-        JPanel utilityJPanel = new JPanel();
+        JPanel utilityPanel = new JPanel();
 
-        LayoutManager layout = new BoxLayout(utilityJPanel, BoxLayout.LINE_AXIS);
-        utilityJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(utilityPanel, BoxLayout.LINE_AXIS);
+        utilityPanel.setLayout(layout);
 
-        Dimension spacer = new Dimension(15, 30);
-        Dimension endSpacer = new Dimension(10, 30);
+        Dimension spacer = new Dimension(10, 40);
 
-        JLabel tracerDataViewModeJLabel = new JLabel("Select view: ");
+        JLabel tracerDataViewModeLabel = new JLabel("Select view: ");
 
-        JComboBox<TracerDataViewMode> tracerDataViewModeJComboBox = getTracerDataViewModeJComboBox();
-        JButton gotoLineJButton = getGotoLineJButton();
-        JButton overviewJButton = getOverviewJButton();
-        JButton reloadJButton = getReloadJButton();
+        JComboBox<TracerDataViewMode> tracerDataViewModeComboBox = getTracerDataViewModeComboBox();
+        JButton gotoLineButton = getGotoLineButton();
+        JButton overviewButton = getOverviewButton();
+        JButton reloadButton = getReloadButton();
 
-        utilityJPanel.add(Box.createRigidArea(endSpacer));
-        utilityJPanel.add(tracerDataViewModeJLabel);
-        utilityJPanel.add(Box.createRigidArea(spacer));
-        utilityJPanel.add(tracerDataViewModeJComboBox);
-        utilityJPanel.add(Box.createRigidArea(spacer));
-        utilityJPanel.add(gotoLineJButton);
-        utilityJPanel.add(Box.createRigidArea(spacer));
-        utilityJPanel.add(overviewJButton);
-        utilityJPanel.add(Box.createRigidArea(spacer));
-        utilityJPanel.add(reloadJButton);
-        utilityJPanel.add(Box.createRigidArea(spacer));
+        utilityPanel.add(Box.createRigidArea(spacer));
+        utilityPanel.add(tracerDataViewModeLabel);
+        utilityPanel.add(Box.createRigidArea(spacer));
+        utilityPanel.add(tracerDataViewModeComboBox);
+        utilityPanel.add(Box.createRigidArea(spacer));
+        utilityPanel.add(gotoLineButton);
+        utilityPanel.add(Box.createRigidArea(spacer));
+        utilityPanel.add(overviewButton);
+        utilityPanel.add(Box.createRigidArea(spacer));
+        utilityPanel.add(reloadButton);
+        utilityPanel.add(Box.createRigidArea(spacer));
 
-        utilityJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        utilityPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-        return utilityJPanel;
+        return utilityPanel;
     }
 
-    private JPanel getTracerInfoJPanel() {
+    private JPanel getInfoPanel() {
 
-        JPanel infoJPanel = new JPanel();
+        JPanel infoPanel = new JPanel();
 
-        LayoutManager layout = new BoxLayout(infoJPanel, BoxLayout.X_AXIS);
-        infoJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(infoPanel, BoxLayout.X_AXIS);
+        infoPanel.setLayout(layout);
 
-        // Dimension preferredSize = new Dimension(300, 30);
-        // infoJPanel.setPreferredSize(preferredSize);
+        JPanel incompleteTracerPanel = getIncompleteTracerPanel();
+        JPanel charsetPanel = getCharsetPanel();
+        JPanel sizePanel = getFileSizePanel();
 
-        JPanel incompleteTracerJPanel = getIncompleteTracerJPanel();
-        JPanel charsetJPanel = getCharsetJPanel();
-        JPanel sizeJPanel = getSizeJPanel();
+        infoPanel.add(incompleteTracerPanel);
+        infoPanel.add(charsetPanel);
+        infoPanel.add(sizePanel);
 
-        infoJPanel.add(incompleteTracerJPanel);
-        infoJPanel.add(charsetJPanel);
-        infoJPanel.add(sizeJPanel);
-
-        return infoJPanel;
+        return infoPanel;
     }
 
-    private JPanel getIncompleteTracerJPanel() {
+    private JPanel getIncompleteTracerPanel() {
 
-        JLabel incompleteTracerJLabel = getIncompleteTracerJLabel();
-
-        JPanel incompleteTracerJPanel = getInfoJPanel(incompleteTracerJLabel);
-
-        Dimension preferredSize = new Dimension(150, 30);
-        incompleteTracerJPanel.setPreferredSize(preferredSize);
+        JTextField incompleteTracerLabel = getIncompleteTracerLabel();
+        JPanel incompleteTracerJPanel = getMetadataPanel(incompleteTracerLabel);
 
         return incompleteTracerJPanel;
     }
 
-    private JPanel getCharsetJPanel() {
+    private JPanel getCharsetPanel() {
 
-        JLabel charsetJLabel = getCharsetJLabel();
+        JTextField charsetLabel = getCharsetLabel();
+        JPanel charsetPanel = getMetadataPanel(charsetLabel);
 
-        JPanel charsetJPanel = getInfoJPanel(charsetJLabel);
-
-        Dimension preferredSize = new Dimension(100, 30);
-        charsetJPanel.setPreferredSize(preferredSize);
-
-        return charsetJPanel;
+        return charsetPanel;
     }
 
-    private JPanel getSizeJPanel() {
+    private JPanel getFileSizePanel() {
 
-        JLabel sizeJLabel = getSizeJLabel();
+        JTextField fileSizeLabel = getFileSizeLabel();
+        JPanel fileSizePanel = getMetadataPanel(fileSizeLabel);
 
-        JPanel sizeJPanel = getInfoJPanel(sizeJLabel);
-
-        Dimension preferredSize = new Dimension(100, 30);
-        sizeJPanel.setPreferredSize(preferredSize);
-
-        return sizeJPanel;
+        return fileSizePanel;
     }
 
-    private JPanel getInfoJPanel(JLabel label) {
+    private JPanel getMetadataPanel(Component metadataLabel) {
 
-        JPanel infoJPanel = new JPanel();
+        JPanel metadataPanel = new JPanel();
 
-        LayoutManager layout = new BoxLayout(infoJPanel, BoxLayout.X_AXIS);
-        infoJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(metadataPanel, BoxLayout.X_AXIS);
+        metadataPanel.setLayout(layout);
 
-        Dimension dim = new Dimension(1, 30);
+        Dimension dim = new Dimension(10, 40);
 
-        infoJPanel.add(Box.createHorizontalGlue());
-        infoJPanel.add(Box.createRigidArea(dim));
-        infoJPanel.add(label);
-        infoJPanel.add(Box.createHorizontalGlue());
+        metadataPanel.add(Box.createHorizontalGlue());
+        metadataPanel.add(Box.createRigidArea(dim));
+        metadataPanel.add(metadataLabel);
+        metadataPanel.add(Box.createRigidArea(dim));
+        metadataPanel.add(Box.createHorizontalGlue());
 
-        infoJPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        metadataPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 
-        return infoJPanel;
+        return metadataPanel;
     }
 
-    protected JPanel getSupplementUtilityJPanel() {
+    protected JPanel getSupplementUtilityPanel() {
 
-        if (supplementUtilityJPanel == null) {
+        if (supplementUtilityPanel == null) {
 
-            supplementUtilityJPanel = new JPanel();
-            LayoutManager layout = new BoxLayout(supplementUtilityJPanel, BoxLayout.LINE_AXIS);
-            supplementUtilityJPanel.setLayout(layout);
+            supplementUtilityPanel = new JPanel();
+            LayoutManager layout = new BoxLayout(supplementUtilityPanel, BoxLayout.LINE_AXIS);
+            supplementUtilityPanel.setLayout(layout);
         }
 
-        return supplementUtilityJPanel;
+        return supplementUtilityPanel;
     }
 
-    private JPanel getTracerDataViewCardJPanel() {
+    private JPanel getTracerDataViewCardPanel() {
 
-        if (tracerDataViewCardJPanel == null) {
+        if (tracerDataViewCardPanel == null) {
 
             TraceTableModel traceTableModel = getTraceTableModel();
 
             TraceNavigationTableController traceNavigationTableController = getTraceNavigationTableController();
 
-            JPanel supplementUtilityJPanel = getSupplementUtilityJPanel();
+            JPanel supplementUtilityPanel = getSupplementUtilityPanel();
 
-            tracerDataViewCardJPanel = new JPanel(new CardLayout());
+            tracerDataViewCardPanel = new JPanel(new CardLayout());
 
             for (TracerDataViewMode tracerDataViewMode : TracerDataViewMode.values()) {
 
@@ -383,27 +371,27 @@ public class TracerDataMainPanel extends JPanel {
                 switch (tracerDataViewMode) {
 
                 case SINGLE_TABLE:
-                    tracerDataView = new TracerDataSingleTableView(traceTableModel, supplementUtilityJPanel,
+                    tracerDataView = new TracerDataSingleTableView(traceTableModel, supplementUtilityPanel,
                             traceNavigationTableController);
                     break;
 
                 case SINGLE_TREE:
-                    tracerDataView = new TracerDataTreeTableView(traceTableModel, supplementUtilityJPanel,
+                    tracerDataView = new TracerDataTreeTableView(traceTableModel, supplementUtilityPanel,
                             traceNavigationTableController);
                     break;
 
                 case SINGLE_TREE_MERGED:
-                    tracerDataView = new TracerDataTreeMergedTableView(traceTableModel, supplementUtilityJPanel,
+                    tracerDataView = new TracerDataTreeMergedTableView(traceTableModel, supplementUtilityPanel,
                             traceNavigationTableController);
                     break;
 
                 case COMPARE_TABLE:
-                    tracerDataView = new TracerDataCompareTableView(traceTableModel, supplementUtilityJPanel,
+                    tracerDataView = new TracerDataCompareTableView(traceTableModel, supplementUtilityPanel,
                             traceNavigationTableController, recentFileContainer, tracerViewerSetting);
                     break;
 
                 default:
-                    tracerDataView = new TracerDataSingleTableView(traceTableModel, supplementUtilityJPanel,
+                    tracerDataView = new TracerDataSingleTableView(traceTableModel, supplementUtilityPanel,
                             traceNavigationTableController);
                     break;
                 }
@@ -412,25 +400,26 @@ public class TracerDataMainPanel extends JPanel {
 
                 tracerDataViewMap.put(tracerDataViewModeName, tracerDataView);
 
-                tracerDataViewCardJPanel.add(tracerDataView, tracerDataViewModeName);
+                tracerDataViewCardPanel.add(tracerDataView, tracerDataViewModeName);
             }
         }
 
-        return tracerDataViewCardJPanel;
+        return tracerDataViewCardPanel;
     }
 
-    private JComboBox<TracerDataViewMode> getTracerDataViewModeJComboBox() {
+    private JComboBox<TracerDataViewMode> getTracerDataViewModeComboBox() {
 
-        if (tracerDataViewModeJComboBox == null) {
+        if (tracerDataViewModeComboBox == null) {
 
-            tracerDataViewModeJComboBox = new JComboBox<TracerDataViewMode>(TracerDataViewMode.values());
+            tracerDataViewModeComboBox = new JComboBox<>();
 
-            Dimension size = new Dimension(150, 20);
-            tracerDataViewModeJComboBox.setPreferredSize(size);
-            // tracerDataViewModeJComboBox.setMinimumSize(size);
-            tracerDataViewModeJComboBox.setMaximumSize(size);
+            Dimension size = new Dimension(170, 26);
 
-            tracerDataViewModeJComboBox.addActionListener(new ActionListener() {
+            tracerDataViewModeComboBox.setPreferredSize(size);
+            tracerDataViewModeComboBox.setMinimumSize(size);
+            tracerDataViewModeComboBox.setMaximumSize(size);
+
+            tracerDataViewModeComboBox.addActionListener(new ActionListener() {
 
                 @SuppressWarnings("unchecked")
                 @Override
@@ -447,85 +436,122 @@ public class TracerDataMainPanel extends JPanel {
             });
         }
 
-        return tracerDataViewModeJComboBox;
+        return tracerDataViewModeComboBox;
     }
 
-    private JLabel getIncompleteTracerJLabel() {
+    private JTextField getIncompleteTracerLabel() {
 
-        if (incompleteTracerJLabel == null) {
-            incompleteTracerJLabel = new JLabel();
-            incompleteTracerJLabel.setForeground(Color.RED);
+        if (incompleteTracerLabel == null) {
+            incompleteTracerLabel = GUIUtilities.getNonEditableTextField();
+
+            Dimension size = new Dimension(170, 26);
+
+            incompleteTracerLabel.setPreferredSize(size);
+            incompleteTracerLabel.setMinimumSize(size);
+            incompleteTracerLabel.setMaximumSize(size);
+
+            incompleteTracerLabel.setForeground(Color.RED);
         }
 
-        return incompleteTracerJLabel;
+        return incompleteTracerLabel;
     }
 
-    private JLabel getCharsetJLabel() {
+    private JTextField getCharsetLabel() {
 
-        if (charsetJLabel == null) {
-            charsetJLabel = new JLabel();
+        if (charsetLabel == null) {
+            charsetLabel = GUIUtilities.getNonEditableTextField();
         }
 
-        return charsetJLabel;
+        return charsetLabel;
     }
 
-    private JLabel getSizeJLabel() {
+    private JTextField getFileSizeLabel() {
 
-        if (sizeJLabel == null) {
-            sizeJLabel = new JLabel();
+        if (fileSizeLabel == null) {
+            fileSizeLabel = GUIUtilities.getNonEditableTextField();
         }
 
-        return sizeJLabel;
+        return fileSizeLabel;
     }
 
     protected void switchTracerDataViewMode(TracerDataViewMode tracerDataViewMode) {
 
-        String tracerDataViewModeName = tracerDataViewMode.name();
+        if (tracerDataViewMode != null) {
 
-        TracerDataView tracerDataView = tracerDataViewMap.get(tracerDataViewModeName);
+            String tracerDataViewModeName = tracerDataViewMode.name();
 
-        if (tracerDataView != null) {
+            TracerDataView tracerDataView = tracerDataViewMap.get(tracerDataViewModeName);
 
-            tracerDataView.switchToFront();
+            if (tracerDataView != null) {
 
-            JPanel tracerDataViewCardJPanel = getTracerDataViewCardJPanel();
-            CardLayout cardLayout = (CardLayout) (tracerDataViewCardJPanel.getLayout());
+                tracerDataView.switchToFront();
 
-            cardLayout.show(tracerDataViewCardJPanel, tracerDataViewModeName);
+                JPanel tracerDataViewCardJPanel = getTracerDataViewCardPanel();
+                CardLayout cardLayout = (CardLayout) (tracerDataViewCardJPanel.getLayout());
 
+                cardLayout.show(tracerDataViewCardJPanel, tracerDataViewModeName);
+
+            }
         }
     }
 
-    protected void updateDisplayJPanel() {
+    protected void updateDisplayPanel() {
 
-        LOG.info("updateDisplayJPanel");
-        populateDisplayJPanel();
+        LOG.info("updateDisplayPanel");
+        populateDisplayPanel();
     }
 
-    protected void populateDisplayJPanel() {
+    protected void populateDisplayPanel() {
 
-        JLabel incompleteTracerJLabel = getIncompleteTracerJLabel();
-        JLabel charsetJLabel = getCharsetJLabel();
-        JLabel sizeJLabel = getSizeJLabel();
+        TraceTableModel traceTableModel = getTraceTableModel();
+
+        JTextField incompleteTracerJLabel = getIncompleteTracerLabel();
+        JTextField charsetLabel = getCharsetLabel();
+        JTextField sizeLabel = getFileSizeLabel();
 
         boolean incompleteTracerXML = traceTableModel.isIncompletedTracerXML();
         String incompleteTracerStr = (incompleteTracerXML ? "Incomplete Tracer XML" : "");
-        String charset = traceTableModel.getCharset();
+        Charset charset = traceTableModel.getCharset();
+        Long fileSize = traceTableModel.getFileSize();
 
-        Long size = (Long) recentFile.getAttribute(RecentFile.KEY_SIZE);
-        String sizeStr = GeneralUtilities.humanReadableSize(size.longValue(), false);
+        String fileSizeStr = null;
+
+        if (fileSize != null) {
+            fileSizeStr = GeneralUtilities.humanReadableSize(fileSize.longValue(), false);
+        }
 
         incompleteTracerJLabel.setText(incompleteTracerStr);
-        charsetJLabel.setText(charset);
-        sizeJLabel.setText(sizeStr);
+        charsetLabel.setText(charset.name());
+        sizeLabel.setText(fileSizeStr);
+    }
+
+    private void updateTracerDataViewModeComboBox() {
+
+        TraceTableModel traceTableModel = getTraceTableModel();
+
+        JComboBox<TracerDataViewMode> tracerDataViewModeComboBox = getTracerDataViewModeComboBox();
+
+        DefaultComboBoxModel<TracerDataViewMode> defaultComboBoxModel;
+        defaultComboBoxModel = (DefaultComboBoxModel<TracerDataViewMode>) tracerDataViewModeComboBox.getModel();
+
+        defaultComboBoxModel.removeAllElements();
+
+        boolean isMultipleDxApi = traceTableModel.isMultipleDxApi();
+
+        TracerDataViewMode[] tracerDataViewModes = TracerDataViewMode.getTracerDataViewModeList(isMultipleDxApi);
+
+        for (TracerDataViewMode tracerDataViewMode : tracerDataViewModes) {
+            defaultComboBoxModel.addElement(tracerDataViewMode);
+        }
+
     }
 
     public static void loadFile(TraceTableModel traceTableModel, Component parent, final boolean wait) {
 
         UIManager.put("ModalProgressMonitor.progressText", "Loading Tracer XML file");
 
-        final ModalProgressMonitor progressMonitor = new ModalProgressMonitor(parent, "", "Loaded 0 trace events (0%)",
-                0, 100);
+        final ModalProgressMonitor progressMonitor = new ModalProgressMonitor(parent, "",
+                "Loaded 0 trace events (0%)                                                      ", 0, 100);
 
         progressMonitor.setMillisToDecideToPopup(0);
         progressMonitor.setMillisToPopup(0);
@@ -550,15 +576,16 @@ public class TracerDataMainPanel extends JPanel {
         }
     }
 
-    private JButton getGotoLineJButton() {
+    private JButton getGotoLineButton() {
 
-        if (gotoLineJButton == null) {
-            gotoLineJButton = new JButton("Go to line");
+        if (gotoLineButton == null) {
+
+            gotoLineButton = new JButton("Go to line");
+
             Dimension size = new Dimension(90, 20);
-            gotoLineJButton.setPreferredSize(size);
-            gotoLineJButton.setMaximumSize(size);
+            gotoLineButton.setPreferredSize(size);
 
-            gotoLineJButton.addActionListener(new ActionListener() {
+            gotoLineButton.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
@@ -601,39 +628,66 @@ public class TracerDataMainPanel extends JPanel {
 
         }
 
-        return gotoLineJButton;
+        return gotoLineButton;
     }
 
-    private JButton getReloadJButton() {
+    private JButton getOverviewButton() {
 
-        if (reloadJButton == null) {
-            reloadJButton = new JButton("Reload file");
+        if (overviewButton == null) {
 
-            Dimension size = new Dimension(90, 20);
-            reloadJButton.setPreferredSize(size);
-            reloadJButton.setMaximumSize(size);
-            reloadJButton.addActionListener(new ActionListener() {
+            overviewButton = new JButton("Overview");
+            Dimension size = new Dimension(90, 26);
+            overviewButton.setPreferredSize(size);
+
+            overviewButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent actionEvent) {
+
+                    JFrame tracerSimpleReportFrame = getTracerOverviewFrame();
+
+                    tracerSimpleReportFrame.toFront();
+                }
+            });
+        }
+
+        return overviewButton;
+
+    }
+
+    private JButton getReloadButton() {
+
+        if (reloadButton == null) {
+
+            reloadButton = new JButton("Reload file");
+
+            Dimension size = new Dimension(100, 26);
+            reloadButton.setPreferredSize(size);
+
+            reloadButton.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
 
                     TraceTableModel traceTableModel = getTraceTableModel();
 
-                    String origCharset = traceTableModel.getCharset();
+                    String origCharsetName = traceTableModel.getCharset().name();
                     TraceTablePanelSettingDialog traceTablePanelSettingDialog;
 
-                    traceTablePanelSettingDialog = new TraceTablePanelSettingDialog(origCharset, BaseFrame.getAppIcon(),
-                            TracerDataMainPanel.this);
+                    traceTablePanelSettingDialog = new TraceTablePanelSettingDialog(origCharsetName,
+                            BaseFrame.getAppIcon(), TracerDataMainPanel.this);
 
                     boolean settingUpdated = traceTablePanelSettingDialog.isSettingUpdated();
 
                     if (settingUpdated) {
 
-                        String charset = traceTablePanelSettingDialog.getSelectedCharset();
-                        traceTableModel.updateRecentFile(charset);
+                        String selectedCharsetName = traceTablePanelSettingDialog.getSelectedCharsetName();
 
-                        if (origCharset.equals(charset)) {
-                            populateDisplayJPanel();
+                        traceTableModel.updateRecentFile(selectedCharsetName);
+
+                        if (origCharsetName.equals(selectedCharsetName)) {
+
+                            populateDisplayPanel();
 
                         } else {
                             // charset changed, read/parse the file again
@@ -649,32 +703,7 @@ public class TracerDataMainPanel extends JPanel {
             });
         }
 
-        return reloadJButton;
-    }
-
-    private JButton getOverviewJButton() {
-
-        if (overviewJButton == null) {
-
-            overviewJButton = new JButton("Overview");
-            Dimension size = new Dimension(90, 20);
-            overviewJButton.setPreferredSize(size);
-            overviewJButton.setMaximumSize(size);
-
-            overviewJButton.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent actionEvent) {
-
-                    JFrame tracerSimpleReportFrame = getTracerOverviewFrame();
-
-                    tracerSimpleReportFrame.toFront();
-                }
-            });
-        }
-
-        return overviewJButton;
-
+        return reloadButton;
     }
 
     protected TracerSimpleReportFrame getTracerOverviewFrame() {

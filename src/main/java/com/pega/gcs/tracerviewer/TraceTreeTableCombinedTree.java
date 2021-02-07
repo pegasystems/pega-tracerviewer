@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Pegasystems Inc. All rights reserved.
+ * Copyright (c) 2017, 2018 Pegasystems Inc. All rights reserved.
  *
  * Contributors:
  *     Manu Varghese
@@ -28,7 +28,8 @@ public class TraceTreeTableCombinedTree extends TraceTreeTableTree {
     }
 
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+            int row, int column) {
 
         TraceEventCombinedTreeNode traceEventTreeNode = null;
         TraceEvent te = null;
@@ -54,7 +55,10 @@ public class TraceTreeTableCombinedTree extends TraceTreeTableTree {
                 } else if (searchFound) {
                     setBackground(MyColor.LIGHTEST_YELLOW);
                 } else {
-                    setBackground(te.getColumnBackground(column));
+                    TraceTreeTableModelAdapter model = (TraceTreeTableModelAdapter) table.getModel();
+
+                    TraceEventColumn traceEventColumn = model.getTraceTableModelColumn(column);
+                    setBackground(te.getColumnBackground(traceEventColumn));
                 }
             }
 
