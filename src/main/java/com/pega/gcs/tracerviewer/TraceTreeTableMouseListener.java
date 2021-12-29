@@ -26,6 +26,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -437,8 +439,23 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
 
                                         success = get();
 
+                                    } catch (CancellationException ce) {
+
+                                        LOG.error("Trace event export task cancelled.");
+
+                                    } catch (ExecutionException ee) {
+
+                                        String message = ee.getCause().getMessage() + " has occured while exporting.";
+
+                                        LOG.error(message, ee);
+
+                                        JOptionPane.showMessageDialog(mainWindow, message, "Error",
+                                                JOptionPane.ERROR_MESSAGE);
+
                                     } catch (Exception e) {
-                                        LOG.error("TraceEventTreeNodeXMLExportTask erorr: ", e);
+
+                                        LOG.error("TraceEventTreeNodeXMLExportTask error", e);
+
                                     } finally {
 
                                         modalProgressMonitor.close();

@@ -9,6 +9,7 @@ package com.pega.gcs.tracerviewer.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -242,6 +243,7 @@ public abstract class TracerDataSingleView extends TracerDataView {
             statusBar.setEditable(false);
             statusBar.setBackground(null);
             statusBar.setBorder(null);
+            statusBar.setCursor(new Cursor(Cursor.TEXT_CURSOR));
         }
 
         return statusBar;

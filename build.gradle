@@ -3,9 +3,8 @@ import net.ltgt.gradle.errorprone.CheckSeverity
 plugins {
     id 'java'
     id 'application'
-    id 'net.ltgt.errorprone'        version '0.8.1'
-    id 'com.github.spotbugs'        version '2.0.0'
-    id "com.jfrog.bintray"          version '1.8.5'
+    id 'net.ltgt.errorprone'        version '2.0.2'
+    id 'com.github.spotbugs'        version '4.8.0'
     id 'nebula.release'             version '15.3.1'
 }
 
@@ -21,10 +20,8 @@ apply from: "$rootDir/gradle/publishing.gradle"
 
 repositories {
     mavenLocal()
-    maven {
-        url "https://dl.bintray.com/pegasystems/fringeutils" 
-    }
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -33,15 +30,27 @@ dependencies {
     errorproneJavac("com.google.errorprone:javac:latest.release")
 
     implementation 'gnu.getopt:java-getopt:1.0.13'
+    //implementation 'com.pega.gcs:fringeutils-common:3.4.0-SNAPSHOT'
+    implementation 'com.github.pegasystems:fringeutils-common:v3.4.0'
 
-    implementation 'com.pega.gcs:fringeutils-common:3.3.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+}
 
-    testImplementation 'junit:junit:4.12'
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 application {
     mainClassName = "com.pega.gcs.tracerviewer.TracerViewer"
-    applicationDefaultJvmArgs = ['XXX_SET_USER_DIR_XXX', '-Dfile.encoding=UTF-8', '-Xms512M', '-Xmx1G', '-XX:+UseParNewGC', '-XX:+UseConcMarkSweepGC']
+    applicationDefaultJvmArgs = [
+                                    'XXX_SET_USER_DIR_XXX',
+                                    '-Dfile.encoding=UTF-8',
+                                    '-Xms1G',
+                                    '-Xmx2G',
+                                    '-XX:+UseG1GC',
+                                    '-XX:+UseStringDeduplication'
+                                ]
 }
 
 tasks.withType(JavaCompile) {

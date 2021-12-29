@@ -12,6 +12,7 @@ package com.pega.gcs.tracerviewer;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -182,6 +183,7 @@ public class TraceXMLLoadSnippetJDialog extends JDialog {
         if (xmlSnippetJTextArea == null) {
             xmlSnippetJTextArea = new JTextArea();
 
+            xmlSnippetJTextArea.setCursor(new Cursor(Cursor.TEXT_CURSOR));
             xmlSnippetJTextArea.getDocument().addDocumentListener(new DocumentListener() {
 
                 @Override
@@ -216,6 +218,7 @@ public class TraceXMLLoadSnippetJDialog extends JDialog {
 
             errorMessageJTextArea = new JTextArea();
             errorMessageJTextArea.setEditable(false);
+            errorMessageJTextArea.setCursor(new Cursor(Cursor.TEXT_CURSOR));
 
             DefaultCaret caret = (DefaultCaret) errorMessageJTextArea.getCaret();
             caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);

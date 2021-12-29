@@ -114,6 +114,10 @@ public class TraceEventFactory {
         // InteractionQueryData
         xmlElementType = new XMLElementType("InteractionQueryData", "&", true);
         xmlElementTableTypeMap.put(xmlElementType.getElementName(), xmlElementType);
+
+        // InteractionQueryParam
+        xmlElementType = new XMLElementType("InteractionQueryParam", "&", true);
+        xmlElementTableTypeMap.put(xmlElementType.getElementName(), xmlElementType);
     }
 
     public static DateFormat getDateFormat() {
