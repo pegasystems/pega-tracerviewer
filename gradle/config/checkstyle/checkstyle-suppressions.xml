@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+  "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+  "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+	<suppress checks=".*"
+		files="hotfixscan[\\/]hybrid[\\/]HybridHotfixList\.java" />
+	<suppress checks=".*"
+		files="hotfixscan[\\/]hybrid[\\/]ObjectFactory\.java" />
+	<suppress checks=".*"
+		files="model[\\/]alert[\\/]AlertMessageList\.java" />
+	<suppress checks=".*"
+		files="model[\\/]alert[\\/]ObjectFactory\.java" />
+	<suppress checks=".*"
+		files="model[\\/]alert[\\/]Severity\.java" />
+	<suppress checks=".*"
+		files="model[\\/]measure[\\/]Log4JMeasurePatternList\.java" />
+	<suppress checks=".*"
+		files="model[\\/]measure[\\/]ObjectFactory\.java" />
+</suppressions>

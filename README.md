@@ -35,7 +35,7 @@ To build the project use the following command:
 
 - **Note: Java is required and JAVA_HOME env variable needs to be set to run this applicaiton.**
 
-The tool can be downloaded from [Releases page](https://github.com/pegasystems/pega-tracerviewer/releases) under **Downloads** section.
+The tool can be downloaded from [Releases page](https://github.com/pegasystems/pega-tracerviewer/releases) under **Assets** section.
 
 1. Extract 'pega-tracerviewer-<*version*>.zip' to a folder.
 2. The tool is launched using the one of the scripts in the ‘bin’ folder.
