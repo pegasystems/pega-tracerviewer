@@ -14,9 +14,15 @@
 
 	<!-- Headers -->
 	<module name="Header">
-		<property name="headerFile" value="${checkstyle.header.file}" />
+		<property name="headerFile" value="${config_loc}/java.header" />
 		<property name="fileExtensions" value="java" />
 		<property name="id" value="header" />
+	</module>
+
+	<module name="SuppressionFilter">
+		<property name="file"
+			value="${config_loc}/checkstyle-suppressions.xml" />
+		<property name="optional" value="false" />
 	</module>
 
 	<!-- Regexp -->
