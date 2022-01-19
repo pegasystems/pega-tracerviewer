@@ -1,7 +1,7 @@
 Pega-TracerViewer
 ==============
 
-[![Java CI with Gradle](https://github.com/pegasystems/pega-tracerviewer/actions/workflows/gradle.yml/badge.svg?branch=master)](https://github.com/pegasystems/pega-tracerviewer/actions/workflows/gradle.yml)
+[![Java CI with Gradle](https://github.com/pegasystems/pega-tracerviewer/actions/workflows/gradle.yml/badge.svg)](https://github.com/pegasystems/pega-tracerviewer/actions/workflows/gradle.yml)
 [![GitHub tag](https://img.shields.io/github/release/pegasystems/pega-tracerviewer.svg)](https://github.com/pegasystems/pega-tracerviewer/releases)
 
 Pega-TracerViewer is a Java Swing based tool to view and analyse Pega Tracer xml files.
