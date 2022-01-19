@@ -43,3 +43,15 @@ The tool can be downloaded from [Releases page](https://github.com/pegasystems/p
 	For ubuntu and Mac  - ‘pega-tracerviewer’
 3. Default heap size is set to 2G.
 4. The heap size and other jvm parameter can be updated by modifying the launch script and updating the ‘DEFAULT_JVM_OPTS’ variable.
+
+**Known Issues :**
+
+1. In case you encounter below error, perform the following steps: 
+```
+UTF-8 has occured while loading <some file>
+```
+	- Reset Tool settings
+		- Edit -> Settings
+		- Click Reset then OK.
+	- Clear Recent files
+		- File -> Clear Recent
