@@ -26,8 +26,8 @@ repositories {
 
 dependencies {
 
-    errorprone("com.google.errorprone:error_prone_core:latest.release")
-    errorproneJavac("com.google.errorprone:javac:latest.release")
+    errorprone("com.google.errorprone:error_prone_core:2.10.0")
+    errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
 
     implementation 'gnu.getopt:java-getopt:1.0.13'
     //implementation 'com.pega.gcs:fringeutils-common:3.4.1'
