@@ -1,5 +1,5 @@
 import net.ltgt.gradle.errorprone.CheckSeverity
-
+// Trigger Mend
 plugins {
     id 'java'
     id 'application'
