@@ -294,44 +294,17 @@ public class TracerViewer extends BaseFrame {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.pega.fringe.common.gui.BaseFrame#getMenuJMenuBar()
-     */
     @Override
-    protected JMenuBar getMenuJMenuBar() {
+    protected JMenuBar getToolMenuBar() {
 
-        // ---- FILE ----
-        JMenu fileJMenu = new JMenu("   File   ");
+        JMenu fileJMenu = getFileMenu();
 
-        fileJMenu.setMnemonic(KeyEvent.VK_F);
+        JMenu editJMenu = getEditMenu();
 
-        JMenuItem fileOpenJMenuItem = getFileOpenJMenuItem();
-        JMenuItem loadSnippetJMenuItem = getLoadSnippetJMenuItem();
-        RecentFileJMenu recentFileJMenu = getRecentFileJMenu();
-        JMenuItem clearRecentJMenuItem = getClearRecentJMenuItem();
-        JMenuItem exitJMenuItem = getExitJMenuItem();
-
-        // fileJMenu.addSeparator();
-        fileJMenu.add(fileOpenJMenuItem);
-        fileJMenu.add(loadSnippetJMenuItem);
-        fileJMenu.add(recentFileJMenu);
-        fileJMenu.add(clearRecentJMenuItem);
-        fileJMenu.add(exitJMenuItem);
-
-        // ---- EDIT ----
-        JMenu editJMenu = new JMenu("   Edit   ");
-        editJMenu.setMnemonic(KeyEvent.VK_E);
-
-        JMenuItem settingsJMenuItem = getSettingJMenuItem();
-
-        editJMenu.add(settingsJMenuItem);
-
-        // ---- HELP ----
-        JMenu helpJMenu = getHelpAboutJMenu();
+        JMenu helpJMenu = getHelpMenu();
 
         JMenuBar menuBar = new JMenuBar();
+
         menuBar.add(fileJMenu);
         menuBar.add(editJMenu);
         menuBar.add(helpJMenu);
@@ -340,18 +313,49 @@ public class TracerViewer extends BaseFrame {
 
     }
 
-    private JMenuItem getFileOpenJMenuItem() {
+    protected JMenu getFileMenu() {
 
-        JMenuItem fileOpenJMenuItem = new JMenuItem("Load Pega Tracer File");
+        JMenu fileMenu = getToolMenu("File", KeyEvent.VK_F);
 
-        fileOpenJMenuItem.setMnemonic(KeyEvent.VK_L);
-        fileOpenJMenuItem.setToolTipText("Load Pega Tracer XML File");
+        JMenuItem fileOpenMenuItem = getFileOpenMenuItem();
+        JMenuItem loadSnippetMenuItem = getLoadSnippetMenuItem();
+        RecentFileJMenu recentFileMenu = getRecentFileJMenu();
+        JMenuItem clearRecentMenuItem = getClearRecentMenuItem();
+        JMenuItem exitMenuItem = getExitMenuItem();
+
+        // fileJMenu.addSeparator();
+        fileMenu.add(fileOpenMenuItem);
+        fileMenu.add(loadSnippetMenuItem);
+        fileMenu.add(recentFileMenu);
+        fileMenu.add(clearRecentMenuItem);
+        fileMenu.add(exitMenuItem);
+
+        return fileMenu;
+    }
+
+    protected JMenu getEditMenu() {
+
+        JMenu editMenu = getToolMenu("Edit", KeyEvent.VK_E);
+
+        JMenuItem settingsMenuItem = getSettingMenuItem();
+
+        editMenu.add(settingsMenuItem);
+
+        return editMenu;
+    }
+
+    private JMenuItem getFileOpenMenuItem() {
+
+        JMenuItem fileOpenMenuItem = new JMenuItem("Load Pega Tracer File");
+
+        fileOpenMenuItem.setMnemonic(KeyEvent.VK_L);
+        fileOpenMenuItem.setToolTipText("Load Pega Tracer XML File");
 
         ImageIcon ii = FileUtilities.getImageIcon(this.getClass(), "open.png");
 
-        fileOpenJMenuItem.setIcon(ii);
+        fileOpenMenuItem.setIcon(ii);
 
-        fileOpenJMenuItem.addActionListener(new ActionListener() {
+        fileOpenMenuItem.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent event) {
@@ -370,20 +374,20 @@ public class TracerViewer extends BaseFrame {
             }
         });
 
-        return fileOpenJMenuItem;
+        return fileOpenMenuItem;
     }
 
-    private JMenuItem getLoadSnippetJMenuItem() {
+    private JMenuItem getLoadSnippetMenuItem() {
 
-        JMenuItem loadSnippetJMenuItem = new JMenuItem("Load XML Snippet");
-        loadSnippetJMenuItem.setMnemonic(KeyEvent.VK_M);
-        loadSnippetJMenuItem.setToolTipText("Load XML Snippet");
+        JMenuItem loadSnippetMenuItem = new JMenuItem("Load XML Snippet");
+        loadSnippetMenuItem.setMnemonic(KeyEvent.VK_M);
+        loadSnippetMenuItem.setToolTipText("Load XML Snippet");
 
         ImageIcon ii = FileUtilities.getImageIcon(this.getClass(), "open.png");
 
-        loadSnippetJMenuItem.setIcon(ii);
+        loadSnippetMenuItem.setIcon(ii);
 
-        loadSnippetJMenuItem.addActionListener(new ActionListener() {
+        loadSnippetMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
 
@@ -391,12 +395,12 @@ public class TracerViewer extends BaseFrame {
 
                 String title = "Load XML Snippet";
 
-                TraceXMLLoadSnippetJDialog traceXMLLoadSnippetJDialog;
-                traceXMLLoadSnippetJDialog = new TraceXMLLoadSnippetJDialog(title, tracerViewerSetting, getAppIcon(),
+                TraceXMLLoadSnippetJDialog traceXMLLoadSnippetDialog;
+                traceXMLLoadSnippetDialog = new TraceXMLLoadSnippetJDialog(title, tracerViewerSetting, getAppIcon(),
                         TracerViewer.this);
 
-                Element xmlElement = traceXMLLoadSnippetJDialog.getXmlElement();
-                String filename = traceXMLLoadSnippetJDialog.getFilename();
+                Element xmlElement = traceXMLLoadSnippetDialog.getXmlElement();
+                String filename = traceXMLLoadSnippetDialog.getFilename();
 
                 if (xmlElement != null) {
                     TraceTabbedPane traceTabbedPane = getTraceTabbedPane();
@@ -405,7 +409,7 @@ public class TracerViewer extends BaseFrame {
             }
         });
 
-        return loadSnippetJMenuItem;
+        return loadSnippetMenuItem;
     }
 
     private RecentFileJMenu getRecentFileJMenu() {
@@ -440,13 +444,13 @@ public class TracerViewer extends BaseFrame {
         return recentFileJMenu;
     }
 
-    private JMenuItem getClearRecentJMenuItem() {
+    private JMenuItem getClearRecentMenuItem() {
 
-        JMenuItem clearRecentJMenuItem = new JMenuItem("Clear Recent");
-        clearRecentJMenuItem.setMnemonic(KeyEvent.VK_C);
-        clearRecentJMenuItem.setToolTipText("Clear Recent");
+        JMenuItem clearRecentMenuItem = new JMenuItem("Clear Recent");
+        clearRecentMenuItem.setMnemonic(KeyEvent.VK_C);
+        clearRecentMenuItem.setToolTipText("Clear Recent");
 
-        clearRecentJMenuItem.addActionListener(new ActionListener() {
+        clearRecentMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
                 clearRecentPreferences();
@@ -454,30 +458,30 @@ public class TracerViewer extends BaseFrame {
             }
         });
 
-        return clearRecentJMenuItem;
+        return clearRecentMenuItem;
     }
 
-    private JMenuItem getExitJMenuItem() {
+    private JMenuItem getExitMenuItem() {
 
-        JMenuItem exitJMenuItem = new JMenuItem("Exit");
-        exitJMenuItem.setMnemonic(KeyEvent.VK_X);
-        exitJMenuItem.setToolTipText("Exit application");
+        JMenuItem exitMenuItem = new JMenuItem("Exit");
+        exitMenuItem.setMnemonic(KeyEvent.VK_X);
+        exitMenuItem.setToolTipText("Exit application");
 
         ImageIcon ii = FileUtilities.getImageIcon(this.getClass(), "exit.png");
 
-        exitJMenuItem.setIcon(ii);
+        exitMenuItem.setIcon(ii);
 
-        exitJMenuItem.addActionListener(new ActionListener() {
+        exitMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
                 exit(0);
             }
         });
 
-        return exitJMenuItem;
+        return exitMenuItem;
     }
 
-    private JMenuItem getSettingJMenuItem() {
+    private JMenuItem getSettingMenuItem() {
 
         JMenuItem settingsJMenuItem = new JMenuItem("Settings");
         settingsJMenuItem.setToolTipText("Settings");

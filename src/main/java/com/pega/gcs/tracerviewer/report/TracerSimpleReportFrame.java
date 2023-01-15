@@ -58,7 +58,7 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
 
     private NavigationTableController<TraceEventKey> navigationTableController;
 
-    private JButton refreshJButton;
+    private JButton refreshButton;
 
     private JTabbedPane tracerReportTabbedPane;
 
@@ -86,7 +86,7 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        setContentPane(getMainJPanel());
+        setContentPane(getMainPanel());
 
         pack();
 
@@ -134,11 +134,11 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
         setVisible(false);
     }
 
-    private JButton getRefreshJButton() {
+    private JButton getRefreshButton() {
 
-        if (refreshJButton == null) {
-            refreshJButton = new JButton("Refresh Overview");
-            refreshJButton.addActionListener(new ActionListener() {
+        if (refreshButton == null) {
+            refreshButton = new JButton("Refresh Overview");
+            refreshButton.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent actionEvent) {
@@ -147,7 +147,7 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
             });
         }
 
-        return refreshJButton;
+        return refreshButton;
     }
 
     private JTabbedPane getTracerReportTabbedPane() {
@@ -176,40 +176,40 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
         return tracerReportTabbedPane;
     }
 
-    private JPanel getMainJPanel() {
+    private JPanel getMainPanel() {
 
-        JPanel mainJPanel = new JPanel();
-        mainJPanel.setLayout(new BorderLayout());
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
 
-        JPanel refreshButtonJPanel = getRefreshButtonJPanel();
+        JPanel refreshButtonPanel = getRefreshButtonPanel();
         JTabbedPane tracerReportTabbedPane = getTracerReportTabbedPane();
 
-        mainJPanel.add(refreshButtonJPanel, BorderLayout.NORTH);
-        mainJPanel.add(tracerReportTabbedPane, BorderLayout.CENTER);
+        mainPanel.add(refreshButtonPanel, BorderLayout.NORTH);
+        mainPanel.add(tracerReportTabbedPane, BorderLayout.CENTER);
 
         buildTabs();
 
-        return mainJPanel;
+        return mainPanel;
     }
 
-    private JPanel getRefreshButtonJPanel() {
+    private JPanel getRefreshButtonPanel() {
 
-        JPanel refreshButtonJPanel = new JPanel();
+        JPanel refreshButtonPanel = new JPanel();
 
-        LayoutManager layout = new BoxLayout(refreshButtonJPanel, BoxLayout.LINE_AXIS);
-        refreshButtonJPanel.setLayout(layout);
+        LayoutManager layout = new BoxLayout(refreshButtonPanel, BoxLayout.LINE_AXIS);
+        refreshButtonPanel.setLayout(layout);
 
         Dimension spacer = new Dimension(5, 35);
 
-        JButton refreshJButton = getRefreshJButton();
+        JButton refreshButton = getRefreshButton();
 
-        refreshButtonJPanel.add(Box.createHorizontalGlue());
-        refreshButtonJPanel.add(Box.createRigidArea(spacer));
-        refreshButtonJPanel.add(refreshJButton);
-        refreshButtonJPanel.add(Box.createRigidArea(spacer));
-        refreshButtonJPanel.add(Box.createHorizontalGlue());
+        refreshButtonPanel.add(Box.createHorizontalGlue());
+        refreshButtonPanel.add(Box.createRigidArea(spacer));
+        refreshButtonPanel.add(refreshButton);
+        refreshButtonPanel.add(Box.createRigidArea(spacer));
+        refreshButtonPanel.add(Box.createHorizontalGlue());
 
-        return refreshButtonJPanel;
+        return refreshButtonPanel;
 
     }
 
@@ -224,6 +224,7 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
         List<TraceEventKey> reportNoStartEventList = traceTableModel.getReportNoStartEventKeyList();
         List<TraceEventKey> reportNoEndEventList = traceTableModel.getReportNoEndEventKeyList();
         List<TraceEventKey> reportOwnElapsedEventList = traceTableModel.getReportOwnElapsedEventKeyList();
+        List<TraceEventKey> reportBytesLengthEventList = traceTableModel.getReportBytesLengthEventKeyList();
 
         Object searchStrObj = traceTableModel.getSearchModel().getSearchStrObj();
 
@@ -241,47 +242,56 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
 
         boolean containsOwnElapsed = (reportOwnElapsedEventList.size() > 0) ? true : false;
 
+        boolean containsBytesLength = (reportBytesLengthEventList.size() > 0) ? true : false;
+
         boolean containsSearch = (searchStrObj != null) ? true : false;
 
         if (containsFailure) {
-            JPanel failedEventJPanel = getFailedEventJPanel();
+            JPanel failedEventPanel = getFailedEventPanel();
             String tabText = "Failed Events";
-            addTab(tabText, failedEventJPanel, tabIndex);
+            addTab(tabText, failedEventPanel, tabIndex);
             tabIndex++;
         }
 
         if (containsException) {
-            JPanel exceptionEventJPanel = getExceptionEventJPanel();
+            JPanel exceptionEventPanel = getExceptionEventPanel();
             String tabText = "Exception Events";
-            addTab(tabText, exceptionEventJPanel, tabIndex);
+            addTab(tabText, exceptionEventPanel, tabIndex);
             tabIndex++;
         }
 
         if (containsAlerts) {
-            JPanel alertEventJPanel = getAlertEventJPanel();
+            JPanel alertEventPanel = getAlertEventPanel();
             String tabText = "Alert Events";
-            addTab(tabText, alertEventJPanel, tabIndex);
+            addTab(tabText, alertEventPanel, tabIndex);
             tabIndex++;
         }
 
         if (containsNoStartEvent) {
-            JPanel noStartEventJPanel = getNoStartEventJPanel();
+            JPanel noStartEventPanel = getNoStartEventPanel();
             String tabText = "No Start Events";
-            addTab(tabText, noStartEventJPanel, tabIndex);
+            addTab(tabText, noStartEventPanel, tabIndex);
             tabIndex++;
         }
 
         if (containsNoEndEvent) {
-            JPanel noEndEventJPanel = getNoEndEventJPanel();
+            JPanel noEndEventPanel = getNoEndEventPanel();
             String tabText = "No End Events";
-            addTab(tabText, noEndEventJPanel, tabIndex);
+            addTab(tabText, noEndEventPanel, tabIndex);
             tabIndex++;
         }
 
         if (containsOwnElapsed) {
-            JPanel ownElapsedEventJPanel = getOwnElapsedEventJPanel();
+            JPanel ownElapsedEventPanel = getOwnElapsedEventPanel();
             String tabText = "Own Elapsed Time";
-            addTab(tabText, ownElapsedEventJPanel, tabIndex);
+            addTab(tabText, ownElapsedEventPanel, tabIndex);
+            tabIndex++;
+        }
+
+        if (containsBytesLength) {
+            JPanel bytesLengthEventPanel = getBytesLengthEventPanel();
+            String tabText = "Trace Event Length";
+            addTab(tabText, bytesLengthEventPanel, tabIndex);
             tabIndex++;
         }
 
@@ -346,71 +356,82 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
         return bookmarkContainerPanel;
     }
 
-    private JPanel getFailedEventJPanel() {
+    private JPanel getFailedEventPanel() {
 
         String description = "List of innermost trace events that has failed status. Select an entry to select the record on the main table.";
 
         List<TraceEventKey> reportFailedEventList = traceTableModel.getReportFailedEventKeyList();
 
-        JPanel failedEventJPanel = getTraceReportJPanel(description, reportFailedEventList);
+        JPanel failedEventPanel = getTraceReportPanel(description, reportFailedEventList);
 
-        return failedEventJPanel;
+        return failedEventPanel;
     }
 
-    private JPanel getExceptionEventJPanel() {
+    private JPanel getExceptionEventPanel() {
 
         String description = "List of innermost trace events that has failed with an exception. Select an entry to "
                 + "select the record on the main table.";
 
         List<TraceEventKey> reportExceptionEventList = traceTableModel.getReportExceptionEventKeyList();
 
-        JPanel exceptionEventJPanel = getTraceReportJPanel(description, reportExceptionEventList);
+        JPanel exceptionEventPanel = getTraceReportPanel(description, reportExceptionEventList);
 
-        return exceptionEventJPanel;
+        return exceptionEventPanel;
     }
 
-    private JPanel getAlertEventJPanel() {
+    private JPanel getAlertEventPanel() {
 
         String description = "List of Alert trace events. Select an entry to select the record on the main table.";
 
         List<TraceEventKey> reportAlertEventList = traceTableModel.getReportAlertEventKeyList();
 
-        JPanel alertEventJPanel = getTraceReportJPanel(description, reportAlertEventList);
+        JPanel alertEventPanel = getTraceReportPanel(description, reportAlertEventList);
 
-        return alertEventJPanel;
+        return alertEventPanel;
     }
 
-    private JPanel getNoStartEventJPanel() {
+    private JPanel getNoStartEventPanel() {
 
         String description = "List of trace events which doesnt have corresponding 'Begin' event. Select an entry to "
                 + "select the record on the main table.";
         List<TraceEventKey> reportNoStartEventList = traceTableModel.getReportNoStartEventKeyList();
 
-        JPanel noStartEventJPanel = getTraceReportJPanel(description, reportNoStartEventList);
+        JPanel noStartEventPanel = getTraceReportPanel(description, reportNoStartEventList);
 
-        return noStartEventJPanel;
+        return noStartEventPanel;
     }
 
-    private JPanel getNoEndEventJPanel() {
+    private JPanel getNoEndEventPanel() {
 
         String description = "List of trace events which doesnt have corresponding 'End' event. Select an entry to "
                 + "select the record on the main table.";
         List<TraceEventKey> reportNoEndEventList = traceTableModel.getReportNoEndEventKeyList();
 
-        JPanel noEndEventJPanel = getTraceReportJPanel(description, reportNoEndEventList);
+        JPanel noEndEventPanel = getTraceReportPanel(description, reportNoEndEventList);
 
-        return noEndEventJPanel;
+        return noEndEventPanel;
     }
 
-    private JPanel getOwnElapsedEventJPanel() {
+    private JPanel getOwnElapsedEventPanel() {
 
         String description = "List of innermost trace events sorted by 'own elapsed time' in decending order. Select "
                 + "an entry to select the record on the main table.";
         List<TraceEventKey> reportOwnElapsedEventList = traceTableModel.getReportOwnElapsedEventKeyList();
 
-        JPanel ownElapsedEventJPanel = getTraceReportJPanel(description, reportOwnElapsedEventList);
+        JPanel ownElapsedEventPanel = getTraceReportPanel(description, reportOwnElapsedEventList);
 
-        return ownElapsedEventJPanel;
+        return ownElapsedEventPanel;
+    }
+
+    private JPanel getBytesLengthEventPanel() {
+
+        String description = "List of trace event lengths sorted by 'length' in decending order. Select an entry to select the record on th"
+                + "e main table.";
+        List<TraceEventKey> reportBytesLengthEventList = traceTableModel.getReportBytesLengthEventKeyList();
+
+        JPanel bytesLengthEventPanel = getTraceReportPanel(description, reportBytesLengthEventList);
+
+        return bytesLengthEventPanel;
     }
 
     private JPanel getSearchEventJPanel() {
@@ -421,7 +442,7 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
         Object searchStrObj = searchModel.getSearchStrObj();
         List<TraceEventKey> searchEventList = searchModel.getSearchResultList(searchStrObj);
 
-        JPanel searchEventJPanel = getTraceReportJPanel(description, searchEventList);
+        JPanel searchEventJPanel = getTraceReportPanel(description, searchEventList);
 
         return searchEventJPanel;
     }
@@ -458,7 +479,7 @@ public class TracerSimpleReportFrame extends JFrame implements TableModelListene
 
     }
 
-    private JPanel getTraceReportJPanel(String description, List<TraceEventKey> traceEventKeyList) {
+    private JPanel getTraceReportPanel(String description, List<TraceEventKey> traceEventKeyList) {
 
         JPanel traceReportJPanel = new JPanel(new BorderLayout());
 

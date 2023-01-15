@@ -149,6 +149,8 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
 
     private String insKey;
 
+    private int bytesLength;
+
     public TraceEvent(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
 
         this.traceEventKey = traceEventKey;
@@ -159,11 +161,16 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         this.ownElapsed = -1;
 
         if (bytes != null) {
+
+            bytesLength = bytes.length;
+
             try {
                 setTraceEventBytes(bytes);
             } catch (Exception e) {
                 LOG.error("Exception on compressing trace event bytes: " + traceEventKey, e);
             }
+        } else {
+            bytesLength = 0;
         }
 
         if (traceEventElement != null) {
@@ -964,6 +971,10 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
         case CHILDREN_ELAPSED:
             value = TraceEventFactory.getElapsedString(getChildrenElapsed());
             break;
+        case EVENT_SIZE:
+            Integer bytesLength = getBytesLength();
+            value = (bytesLength != null) ? bytesLength.toString() : null;
+            break;
         case NAME:// Name
             value = getName();
             break;
@@ -1260,6 +1271,10 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
 
     public void setOwnElapsed(double ownElapsed) {
         this.ownElapsed = ownElapsed;
+    }
+
+    public int getBytesLength() {
+        return bytesLength;
     }
 
     protected boolean isDataPageEventKey() {

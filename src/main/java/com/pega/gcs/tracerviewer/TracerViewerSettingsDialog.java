@@ -111,6 +111,7 @@ public class TracerViewerSettingsDialog extends JDialog {
     private JPanel getSettingsPanel() {
 
         JPanel settingsPanel = new JPanel();
+
         settingsPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc1 = new GridBagConstraints();
@@ -256,6 +257,7 @@ public class TracerViewerSettingsDialog extends JDialog {
         });
 
         Dimension dim = new Dimension(20, 40);
+
         buttonsPanel.add(Box.createHorizontalGlue());
         buttonsPanel.add(Box.createRigidArea(dim));
         buttonsPanel.add(okButton);
@@ -267,6 +269,7 @@ public class TracerViewerSettingsDialog extends JDialog {
         buttonsPanel.add(Box.createHorizontalGlue());
 
         buttonsPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+
         return buttonsPanel;
     }
 

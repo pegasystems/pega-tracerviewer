@@ -383,7 +383,7 @@ public class TraceTreeTableMouseListener extends MouseAdapter {
                     String filePath = traceTreeTableModelAdapter.getFilePath();
                     File tracerFile = new File(filePath);
 
-                    String fileName = FileUtilities.getNameWithoutExtension(tracerFile);
+                    String fileName = FileUtilities.getFileBaseName(tracerFile);
                     fileName = fileName + "-" + postfix + ".xml";
                     File currentDirectory = tracerFile.getParentFile();
 

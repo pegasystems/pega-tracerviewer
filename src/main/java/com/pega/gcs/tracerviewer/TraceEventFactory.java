@@ -70,10 +70,10 @@ import com.pega.gcs.tracerviewer.model.TraceEventPropositionFilter;
 import com.pega.gcs.tracerviewer.model.TraceEventPushNotifications;
 import com.pega.gcs.tracerviewer.model.TraceEventQueueProcessing;
 import com.pega.gcs.tracerviewer.model.TraceEventReferenceProperties;
-import com.pega.gcs.tracerviewer.model.TraceEventSoapMessages;
 import com.pega.gcs.tracerviewer.model.TraceEventScorecard;
 import com.pega.gcs.tracerviewer.model.TraceEventServiceMapping;
 import com.pega.gcs.tracerviewer.model.TraceEventServices;
+import com.pega.gcs.tracerviewer.model.TraceEventSoapMessages;
 import com.pega.gcs.tracerviewer.model.TraceEventStrategy;
 import com.pega.gcs.tracerviewer.model.TraceEventStreamRules;
 import com.pega.gcs.tracerviewer.model.TraceEventType;
@@ -147,7 +147,26 @@ public class TraceEventFactory {
 
         try {
 
-            Element traceEventElement = getDOMElement(bytes, saxReader);
+            Element traceEventElement = null;
+
+            try {
+                traceEventElement = getDOMElement(bytes, saxReader);
+            } catch (DocumentException de) {
+
+                LOG.error("Error parsing the trace Event, retrying...: " + id, de);
+
+                // most likely the xml have a &lt;, &gt;
+                String encoding = saxReader.getEncoding();
+
+                String newStr = new String(bytes, encoding);
+
+                newStr = newStr.replaceAll("&lt;", "--lt--");
+                newStr = newStr.replaceAll("&gt;", "--gt--");
+
+                bytes = newStr.getBytes(encoding);
+
+                traceEventElement = getDOMElement(bytes, saxReader);
+            }
 
             if (traceEventElement != null) {
 
@@ -343,7 +362,7 @@ public class TraceEventFactory {
             }
 
         } catch (Exception e) {
-            LOG.info("Unable to parse the trace Event: " + id, e);
+            LOG.error("Unable to parse the trace Event: " + id, e);
         }
 
         return traceEvent;

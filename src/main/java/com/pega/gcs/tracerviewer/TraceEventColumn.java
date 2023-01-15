@@ -36,6 +36,7 @@ public enum TraceEventColumn {
     TOTAL_ELAPSED    ("TOTAL ELAPSED"       , 70  , SwingConstants.CENTER , String.class                      , true  ),
     OWN_ELAPSED      ("OWN ELAPSED"         , 70  , SwingConstants.CENTER , String.class                      , false ),
     CHILDREN_ELAPSED ("CHILDREN ELAPSED"    , 70  , SwingConstants.CENTER , String.class                      , false ),
+    EVENT_SIZE       ("EVENT SIZE"          , 70  , SwingConstants.CENTER , String.class                      , false ),
     NAME             ("NAME"                , 350 , SwingConstants.LEFT   , String.class                      , true  ),
     RULESET          ("RULESET"             , 170 , SwingConstants.CENTER , String.class                      , true  );
     // CHECKSTYLE:ON
@@ -152,6 +153,7 @@ public enum TraceEventColumn {
         normalTraceEventColumnList.add(TOTAL_ELAPSED);
         normalTraceEventColumnList.add(OWN_ELAPSED);
         normalTraceEventColumnList.add(CHILDREN_ELAPSED);
+        normalTraceEventColumnList.add(EVENT_SIZE);
         normalTraceEventColumnList.add(NAME);
         normalTraceEventColumnList.add(RULESET);
 
@@ -182,6 +184,7 @@ public enum TraceEventColumn {
         dxApiTraceEventColumnList.add(TOTAL_ELAPSED);
         dxApiTraceEventColumnList.add(OWN_ELAPSED);
         dxApiTraceEventColumnList.add(CHILDREN_ELAPSED);
+        dxApiTraceEventColumnList.add(EVENT_SIZE);
         dxApiTraceEventColumnList.add(NAME);
         dxApiTraceEventColumnList.add(RULESET);
 
@@ -190,7 +193,7 @@ public enum TraceEventColumn {
 
     public static TraceEventColumn[] getReportTraceTableModelColumnArray() {
 
-        TraceEventColumn[] reportTraceTableModelColumnArray = new TraceEventColumn[12];
+        TraceEventColumn[] reportTraceTableModelColumnArray = new TraceEventColumn[13];
 
         reportTraceTableModelColumnArray[0] = LINE;
         reportTraceTableModelColumnArray[1] = TIMESTAMP;
@@ -202,8 +205,9 @@ public enum TraceEventColumn {
         reportTraceTableModelColumnArray[7] = TOTAL_ELAPSED;
         reportTraceTableModelColumnArray[8] = OWN_ELAPSED;
         reportTraceTableModelColumnArray[9] = CHILDREN_ELAPSED;
-        reportTraceTableModelColumnArray[10] = NAME;
-        reportTraceTableModelColumnArray[11] = RULESET;
+        reportTraceTableModelColumnArray[10] = EVENT_SIZE;
+        reportTraceTableModelColumnArray[11] = NAME;
+        reportTraceTableModelColumnArray[12] = RULESET;
 
         return reportTraceTableModelColumnArray;
     }

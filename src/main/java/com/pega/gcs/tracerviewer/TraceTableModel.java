@@ -90,6 +90,7 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
     private List<TraceEventKey> noEndEventKeyList;
     private TreeMap<Double, List<TraceEventKey>> ownElapsedEventKeyMap;
     private TreeMap<TraceEventRuleset, TreeSet<TraceEventRule>> rulesInvokedMap;
+    private TreeMap<Integer, List<TraceEventKey>> bytesLengthEventKeyMap;
 
     // lookup map for generated clipboard page name, for compare purpose
     private Map<String, String[]> stepPageHierarchyLookupMap;
@@ -246,8 +247,9 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
         List<TraceEventKey> noStartEventKeyList = getNoStartEventKeyList();
         List<TraceEventKey> noEndEventKeyList = getNoEndEventKeyList();
 
-        Map<Double, List<TraceEventKey>> ownElapsedEventKeyMap = getOwnElapsedEventKeyMap();
+        TreeMap<Double, List<TraceEventKey>> ownElapsedEventKeyMap = getOwnElapsedEventKeyMap();
         Map<TraceEventRuleset, TreeSet<TraceEventRule>> rulesInvokedMap = getRulesInvokedMap();
+        TreeMap<Integer, List<TraceEventKey>> bytesLengthEventKeyMap = getBytesLengthEventKeyMap();
 
         failedEventKeyList.clear();
         exceptionEventKeyList.clear();
@@ -257,6 +259,7 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
 
         ownElapsedEventKeyMap.clear();
         rulesInvokedMap.clear();
+        bytesLengthEventKeyMap.clear();
 
         Map<String, String[]> clipboardPageLookupMap = getStepPageHierarchyLookupMap();
         clipboardPageLookupMap.clear();
@@ -615,23 +618,23 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
                     columnFilterMap.put(filterColumn, columnFilterEntryList);
                 }
 
-                String traceEventKeyStr = traceEvent.getColumnValueForTraceTableModelColumn(traceTableModelColumn);
+                String columnValue = traceEvent.getColumnValueForTraceTableModelColumn(traceTableModelColumn);
 
-                if (traceEventKeyStr == null) {
-                    traceEventKeyStr = FilterTableModel.NULL_STR;
-                } else if ("".equals(traceEventKeyStr)) {
-                    traceEventKeyStr = FilterTableModel.EMPTY_STR;
+                if (columnValue == null) {
+                    columnValue = FilterTableModel.NULL_STR;
+                } else if ("".equals(columnValue)) {
+                    columnValue = FilterTableModel.EMPTY_STR;
                 }
 
                 CheckBoxMenuItemPopupEntry<TraceEventKey> columnFilterEntry;
 
                 CheckBoxMenuItemPopupEntry<TraceEventKey> searchKey;
-                searchKey = new CheckBoxMenuItemPopupEntry<TraceEventKey>(traceEventKeyStr);
+                searchKey = new CheckBoxMenuItemPopupEntry<>(columnValue);
 
                 int index = columnFilterEntryList.indexOf(searchKey);
 
                 if (index == -1) {
-                    columnFilterEntry = new CheckBoxMenuItemPopupEntry<TraceEventKey>(traceEventKeyStr);
+                    columnFilterEntry = new CheckBoxMenuItemPopupEntry<>(columnValue);
                     columnFilterEntryList.add(columnFilterEntry);
                 } else {
                     columnFilterEntry = columnFilterEntryList.get(index);
@@ -1004,6 +1007,15 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
         return rulesInvokedMap;
     }
 
+    private TreeMap<Integer, List<TraceEventKey>> getBytesLengthEventKeyMap() {
+
+        if (bytesLengthEventKeyMap == null) {
+            bytesLengthEventKeyMap = new TreeMap<Integer, List<TraceEventKey>>();
+        }
+
+        return bytesLengthEventKeyMap;
+    }
+
     private Map<String, String[]> getStepPageHierarchyLookupMap() {
 
         if (stepPageHierarchyLookupMap == null) {
@@ -1336,6 +1348,21 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
                     traceEventRule.processElapsed(traceEvent.getOwnElapsed());
                 }
             }
+
+            // add trace event sizes to map for reporting
+            TreeMap<Integer, List<TraceEventKey>> bytesLengthEventKeyMap = getBytesLengthEventKeyMap();
+
+            int bytesLength = traceEvent.getBytesLength();
+
+            List<TraceEventKey> traceEventKeyList = bytesLengthEventKeyMap.get(bytesLength);
+
+            if (traceEventKeyList == null) {
+                traceEventKeyList = new ArrayList<TraceEventKey>();
+                bytesLengthEventKeyMap.put(bytesLength, traceEventKeyList);
+            }
+
+            traceEventKeyList.add(traceEventKey);
+
         }
     }
 
@@ -1583,6 +1610,34 @@ public class TraceTableModel extends FilterTableModel<TraceEventKey> {
         }
 
         return Collections.unmodifiableList(reportElapsedTimeEventList);
+
+    }
+
+    public List<TraceEventKey> getReportBytesLengthEventKeyList() {
+
+        List<TraceEventKey> reportBytesLengthEventList = new ArrayList<TraceEventKey>();
+
+        TreeMap<Integer, List<TraceEventKey>> bytesLengthEventKeyMap = getBytesLengthEventKeyMap();
+
+        // select last 50 items
+        int mapSize = bytesLengthEventKeyMap.size();
+        int size = (mapSize > 50) ? 50 : mapSize;
+
+        Iterator<Integer> it = bytesLengthEventKeyMap.navigableKeySet().descendingIterator();
+
+        while (it.hasNext() && size > 0) {
+
+            Integer key = it.next();
+            List<TraceEventKey> traceEventKeyList = bytesLengthEventKeyMap.get(key);
+
+            for (TraceEventKey traceEventKey : traceEventKeyList) {
+                reportBytesLengthEventList.add(traceEventKey);
+            }
+
+            size--;
+        }
+
+        return Collections.unmodifiableList(reportBytesLengthEventList);
 
     }
 

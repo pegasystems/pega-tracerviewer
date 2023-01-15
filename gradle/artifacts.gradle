@@ -5,7 +5,7 @@ jar {
                    'Built-By': System.getProperty('user.name'),
                    'Built-Date': new Date(),
                    'Built-JDK': System.getProperty('java.version'),
-                   'Built-Gradle': "Gradle ${gradle.gradleVersion}"
+                   'Built-Gradle': gradle.gradleVersion
     }
 }
 
