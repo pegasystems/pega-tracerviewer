@@ -26,16 +26,9 @@ Can open bigger tracer xml files. In case of OOM, change the heap size in the cm
 	Point 1. & 2. only pick events that are innermost (leaf) in the event execution hierarchy.
   * Supports Cosmos React application trace , the output additionally includes DX API interaction IDs and DX API paths.
 
-**Build from source :**
-
-To build the project use the following command:
-  ```
-  $ ./gradlew build
-  ```
-
 **How it works :**
 
-- **Note: Java is required and JAVA_HOME env variable needs to be set to run this applicaiton.**
+- **Note: Java is required (Min version: Java 11) and JAVA_HOME env variable needs to be set to run this applicaiton.**
 
 The tool can be downloaded from [Releases page](https://github.com/pegasystems/pega-tracerviewer/releases) under **Assets** section.
 
@@ -46,6 +39,13 @@ The tool can be downloaded from [Releases page](https://github.com/pegasystems/p
 3. Default heap size is set to 2G.
 4. The heap size and other jvm parameter can be updated by modifying the launch script and updating the ‘DEFAULT_JVM_OPTS’ variable.
 
+**Build from source :**
+
+To build the project use the following command:
+  ```
+  $ ./gradlew build
+  ```
+ 
 **Known Issues :**
 
 1. In case you encounter below error, perform the following steps: 
