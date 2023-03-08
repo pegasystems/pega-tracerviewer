@@ -1,7 +1,7 @@
 apply plugin: 'checkstyle'
 
 checkstyle {
-    toolVersion = '8.14'
+    toolVersion = '8.38'
     configFile = rootProject.file("gradle/config/checkstyle/checkstyle.xml")
     configDirectory = rootProject.file("gradle/config/checkstyle")
 }
