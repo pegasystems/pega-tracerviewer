@@ -1,7 +1,7 @@
-name: Mend Unified Agent Release Scan
-
 # Reference: https://github.com/mend-toolkit/mend-examples/blob/main/Unified%20Agent/CI-CD/GitHub.yml
 
+name: Mend Unified Agent Release Scan
+on: workflow_dispatch
 jobs:
   mendscan:
     env:
