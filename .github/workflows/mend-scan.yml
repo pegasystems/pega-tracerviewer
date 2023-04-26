@@ -7,7 +7,7 @@ jobs:
     env:
       WS_APIKEY: ${{secrets.MEND_APIKEY}}
       WS_USERKEY: ${{secrets.MEND_USERKEY}}
-      WS_WSS_URL: https://saas.mend.io/agent
+      WS_WSS_URL: ${{secrets.MEND_WS_WSS_URL}}
     runs-on: ubuntu-latest
 
     steps:
