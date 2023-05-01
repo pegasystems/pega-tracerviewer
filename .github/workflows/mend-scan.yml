@@ -21,11 +21,8 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
-## Maven example - replace with your build steps
-#
-#    - name: Build with Maven
-#      run: mvn clean install -DskipTests=true
-##
+    - name: Build with Gradle
+      run: ./gradlew -Prelease.useLastTag=false clean build
 # The Unified Agent scan should be called AFTER a package manager build step such as "mvn clean install -DskipTests=true" or "npm install --only=prod"
     - name: Mend Unified Agent Scan
       env:
