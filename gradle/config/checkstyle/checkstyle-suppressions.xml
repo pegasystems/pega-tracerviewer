@@ -19,4 +19,9 @@
 		files="model[\\/]measure[\\/]Log4JMeasurePatternList\.java" />
 	<suppress checks=".*"
 		files="model[\\/]measure[\\/]ObjectFactory\.java" />
+	
+	<suppress checks="JavadocParagraph" 
+		files =".*\.java" 
+		lines="1-5" />
+ 
 </suppressions>

@@ -18,13 +18,13 @@ public enum TraceEventType {
     UNKNOWN("_UNKNOWN", true),
 
     // Events
-    ACCESS_DENY_RULES        ("Access Denied"            ,          "Access Deny rules"     , false ),
-    ACTIVITY                 ("Activity"                 , false  , "Activity Begin"        , "Activity End"),
-    ACTIVITY_STEP            ("Step"                     ,          "Activity Steps"        , false                    , "Step Begin"            , "Step End"),
-    DATA_TRANSFORMS          ("Data Transform"           , false  , "Data Transform Begin"  , "Data Transform End"),
-    DATA_TRANSFORM_ACTION    ("Action"                   , false  , "Action Begin"          , "Action End"),
+    ACCESS_DENY_RULES        ("Access Denied"            ,          "Access Deny rules"    , false ),
+    ACTIVITY                 ("Activity"                 , false  , "Activity Begin"       , "Activity End"),
+    ACTIVITY_STEP            ("Step"                     ,          "Activity Steps"       , false                , "Step Begin"    , "Step End"),
+    DATA_TRANSFORMS          ("Data Transform"           , false  , "Data Transform Begin" , "Data Transform End"),
+    DATA_TRANSFORM_ACTION    ("Action"                   , false  , "Action Begin"         , "Action End"),
     EXCEPTION                ("Exception"                , false ),
-    WHEN_RULES               ("When"                     ,          "When rules"            , false                    , "When Begin"            , "When End"),
+    WHEN_RULES               ("When"                     ,          "When rules"           , false                , "When Begin"    , "When End"),
 
     // Event Types
     //Data-TRACERSettings • TracerOptionsAvailable
@@ -35,9 +35,9 @@ public enum TraceEventType {
     ASYNCHRONOUS_ACTIVITY    ("Asynchronous Activity"    , true ),
     AUTOPOPULATE_PROPERTIES  ("AutoPopulate Properties"  , true ),
     CASE_TYPE                ("CaseType"                 , true ),
-    DATA_FLOW                ("Data Flow"                , true  , "Data Flow Start",          "Data Flow Begin"        , "Data Flow End",         "Data Flow Fail"),
+    DATA_FLOW                ("Data Flow"                , true  , "Data Flow Start"       , "Data Flow Begin", "Data Flow End" , "Data Flow Fail"),
     DATA_PAGES               ("Data Pages"               , true ),
-    DATA_SYNC                ("DataSync"                 ,         "Data Sync"              , true ),
+    DATA_SYNC                ("DataSync"                 ,         "Data Sync"             , true ),
     DB_CACHE                 ("DB Cache"                 , true ),
     DB_QUERY                 ("DB Query"                 , true ),
     DEBUG                    ("Debug"                    , true ),

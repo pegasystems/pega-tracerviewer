@@ -1025,16 +1025,17 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
 
             if (pagedataElement != null) {
 
-                Element pzStatusElement = pagedataElement.element("pzStatus");
-
-                if (pzStatusElement != null) {
-
-                    String statusText = pzStatusElement.getText();
-
-                    if ((statusText != null) && (!"".equals(statusText)) && ("false".equals(statusText))) {
-                        hasMessages = true;
-                    }
-                }
+                // recent tracers are not showing warning on pzstatus field
+                // Element pzStatusElement = pagedataElement.element("pzStatus");
+                //
+                // if (pzStatusElement != null) {
+                //
+                // String statusText = pzStatusElement.getText();
+                //
+                // if ((statusText != null) && (!"".equals(statusText)) && ("false".equals(statusText))) {
+                // hasMessages = true;
+                // }
+                // }
 
                 if (!hasMessages) {
 

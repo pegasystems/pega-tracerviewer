@@ -60,6 +60,12 @@
 		<property name="eachLine" value="false" />
 	</module>
 
+	<module name="LineLength">
+		<property name="max" value="150" />
+		<property name="ignorePattern"
+			value="^package.*|^import.*|a href|href|http://|https://|ftp://" />
+	</module>
+		
 	<module name="TreeWalker">
 
 		<!-- Annotations -->
@@ -141,11 +147,6 @@
 		<module name="FallThrough" />
 		<module name="NoFinalizer" />
 		<module name="OverloadMethodsDeclarationOrder" />
-		<module name="LineLength">
-			<property name="max" value="150" />
-			<property name="ignorePattern"
-				value="^package.*|^import.*|a href|href|http://|https://|ftp://" />
-		</module>
 
 		<!-- Filters -->
 		<module name="SuppressionCommentFilter" />
@@ -163,7 +164,10 @@
 			<property name="forbiddenSummaryFragments"
 				value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )" />
 		</module>
-		<module name="JavadocParagraph" />
+		<module name="JavadocParagraph">
+			<property name="allowNewlineParagraph" value="false"/>
+		</module>
+
 		<module name="AtclauseOrder">
 			<property name="tagOrder"
 				value="@param, @return, @throws, @deprecated" />
@@ -175,16 +179,10 @@
 			<property name="target" value="VARIABLE_DEF" />
 		</module>
 		<module name="JavadocMethod">
-			<property name="scope" value="public" />
-			<property name="allowMissingParamTags" value="true" />
-			<property name="allowMissingThrowsTags" value="true" />
-			<property name="allowMissingReturnTag" value="true" />
-			<property name="minLineCount" value="0" />
 			<property name="allowedAnnotations" value="Override, Test" />
-			<property name="allowThrowsTagsForSubclasses" value="true" />
-			<property name="ignoreMethodNamesRegex"
-				value=".*(create|test).*" />
-			<property name="allowMissingJavadoc" value="true" />
+			<property name="allowMissingParamTags" value="true" />
+			<property name="allowMissingReturnTag" value="true" />
+			<property name="scope" value="public" />
 		</module>
 		<module name="SingleLineJavadoc">
 			<property name="ignoreInlineTags" value="false" />
