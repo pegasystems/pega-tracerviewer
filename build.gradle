@@ -30,9 +30,9 @@ dependencies {
 
     implementation 'gnu.getopt:java-getopt:1.0.13'
     
-    implementation 'com.github.pegasystems:fringeutils-common:v3.4.3'
+    implementation 'com.github.pegasystems:fringeutils-common:v3.4.4'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
 }
 
 java {
