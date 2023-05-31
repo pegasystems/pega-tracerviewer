@@ -25,6 +25,8 @@
 		<property name="optional" value="false" />
 	</module>
 
+    <module name="SuppressWithPlainTextCommentFilter"/>
+
 	<!-- Regexp -->
 	<module name="RegexpSingleline">
 		<property name="format" value="^(?!\s+\* $).*?\s+$" />
