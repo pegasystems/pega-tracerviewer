@@ -184,7 +184,7 @@
 			<property name="allowedAnnotations" value="Override, Test" />
 			<property name="allowMissingParamTags" value="true" />
 			<property name="allowMissingReturnTag" value="true" />
-			<property name="scope" value="public" />
+			<property name="accessModifiers" value="public" />
 		</module>
 		<module name="SingleLineJavadoc">
 			<property name="ignoreInlineTags" value="false" />
