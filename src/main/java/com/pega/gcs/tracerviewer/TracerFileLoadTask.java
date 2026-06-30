@@ -205,7 +205,8 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                         startidx = 0;
                     }
 
-                    index = KnuthMorrisPrattAlgorithm.indexOfWithPatternLength(byteBuffer, endTraceEventStr, startidx);
+                    // Use nesting-aware search to find the end of the TraceEvent block
+                    index = findEndOfTraceEvent(byteBuffer, startidx, charset);
 
                     if (index != -1) {
 
@@ -258,8 +259,8 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                                 startidx = index;
                             }
 
-                            index = KnuthMorrisPrattAlgorithm.indexOfWithPatternLength(byteBuffer, endTraceEventStr,
-                                    startidx);
+                            // Use nesting-aware search for subsequent events too
+                            index = findEndOfTraceEvent(byteBuffer, startidx, charset);
                         }
                     }
 
@@ -472,5 +473,47 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
             System.gc();
         }
+    }
+
+    /**
+     * Find the end position of a TraceEvent block with nesting awareness.
+     * Scans forward from startIdx counting open/close tag depth. Every
+     * &lt;TraceEvent (with optional attributes) increments depth, every
+     * &lt;/TraceEvent&gt; decrements it. Returns the position of the closing
+     * tag when depth reaches 0, or -1 if not found.
+     */
+    private static int findEndOfTraceEvent(byte[] buffer, int startIdx, Charset charset) {
+        String startTag = TRACEEVENT_START;
+        String endTag = TRACEEVENT_END;
+        byte[] startTagBytes = startTag.getBytes(charset);
+        byte[] endTagBytes = endTag.getBytes(charset);
+        int depth = 0;
+        int pos = startIdx;
+        int bufLen = buffer.length;
+
+        while (pos < bufLen) {
+            // Search for next occurrence of either start or end tag
+            int startPos = KnuthMorrisPrattAlgorithm.indexOf(buffer, startTagBytes, pos);
+            int endPos = KnuthMorrisPrattAlgorithm.indexOfWithPatternLength(buffer, endTagBytes, pos);
+
+            if (startPos == -1 && endPos == -1) {
+                break;
+            }
+
+            if (endPos != -1 && (startPos == -1 || endPos <= startPos)) {
+                // Found end tag first (or at same position)
+                depth--;
+                if (depth == 0) {
+                    return endPos + endTagBytes.length;
+                }
+                pos = endPos + endTagBytes.length;
+            } else if (startPos != -1) {
+                // Found start tag
+                depth++;
+                pos = startPos + startTagBytes.length;
+            }
+        }
+
+        return -1;
     }
 }
