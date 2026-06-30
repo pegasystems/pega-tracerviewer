@@ -477,9 +477,8 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
     /**
      * Find the end position of a TraceEvent block with nesting awareness.
-     * Scans forward from startIdx counting open/close tag depth. The caller
-     * is already positioned at the opening &lt;TraceEvent tag, so depth
-     * starts at 1. Every subsequent &lt;TraceEvent increments depth, every
+     * Scans forward from startIdx counting open/close tag depth. Every
+     * &lt;TraceEvent (with optional attributes) increments depth, every
      * &lt;/TraceEvent&gt; decrements it. Returns the position of the closing
      * tag when depth reaches 0, or -1 if not found.
      */
@@ -488,8 +487,8 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
         String endTag = TRACEEVENT_END;
         byte[] startTagBytes = startTag.getBytes(charset);
         byte[] endTagBytes = endTag.getBytes(charset);
-        int depth = 1;
-        int pos = startIdx + startTagBytes.length;
+        int depth = 0;
+        int pos = startIdx;
         int bufLen = buffer.length;
 
         while (pos < bufLen) {
