@@ -205,63 +205,90 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                         startidx = 0;
                     }
 
-                    // Use nesting-aware search to find the end of the TraceEvent block
-                    index = findEndOfTraceEvent(byteBuffer, startidx, charset);
+                    // Enhanced approach to handle embedded TraceEvent tags using depth tracking
+                    int depth = 0;
+                    int searchStartIdx = startidx;
 
-                    if (index != -1) {
+                    // Find all TraceEvent start and end tags to properly track nesting
+                    while ((!isCancelled()) && (searchStartIdx < byteBuffer.length)) {
+                        int nextStart = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventStr, searchStartIdx);
+                        int nextEnd = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, endTraceEventStr, searchStartIdx);
 
-                        while ((!isCancelled()) && (index != -1)) {
+                        // If no more start or end tags found
+                        if (nextStart == -1 && nextEnd == -1) {
+                            break;
+                        }
 
-                            int teseRead = index - startidx;
+                        // Determine which tag comes first
+                        int nextTagIndex = -1;
+                        boolean isStartTag = false;
 
-                            byte[] teseByteBuffer = new byte[teseRead];
+                        if (nextStart == -1) {
+                            nextTagIndex = nextEnd;
+                            isStartTag = false;
+                        } else if (nextEnd == -1) {
+                            nextTagIndex = nextStart;
+                            isStartTag = true;
+                        } else if (nextStart < nextEnd) {
+                            nextTagIndex = nextStart;
+                            isStartTag = true;
+                        } else {
+                            nextTagIndex = nextEnd;
+                            isStartTag = false;
+                        }
 
-                            System.arraycopy(byteBuffer, startidx, teseByteBuffer, 0, teseRead);
+                        // Handle the tag
+                        if (isStartTag) {
+                            // Only increment depth when we find a new start tag
+                            if (depth == 0) {
+                                // This is the beginning of a new top-level TraceEvent
+                                startidx = nextTagIndex;
+                            }
+                            depth++;
+                        } else {
+                            // This is an end tag
+                            depth--;
+                            if (depth == 0) {
+                                // This is the end of a complete top-level TraceEvent
+                                int eventEnd = nextTagIndex + endTraceEventStr.length;
 
-                            TraceEvent traceEvent = TraceEventFactory.getTraceEvent(traceEventIndex, teseByteBuffer,
-                                    saxReader);
+                                int teseRead = eventEnd - startidx;
+                                byte[] teseByteBuffer = new byte[teseRead];
+                                System.arraycopy(byteBuffer, startidx, teseByteBuffer, 0, teseRead);
 
-                            if ((tracerType == null) && (traceEvent != null)) {
+                                TraceEvent traceEvent = TraceEventFactory.getTraceEvent(traceEventIndex, teseByteBuffer,
+                                        saxReader);
 
-                                String dxApiInteractionId = traceEvent.getDxApiInteractionId();
+                                if ((tracerType == null) && (traceEvent != null)) {
 
-                                if ((dxApiInteractionId != null) && (!"".equals(dxApiInteractionId))) {
-                                    tracerType = TracerType.DX_API;
-                                } else {
-                                    tracerType = TracerType.NORMAL;
+                                    String dxApiInteractionId = traceEvent.getDxApiInteractionId();
+
+                                    if ((dxApiInteractionId != null) && (!"".equals(dxApiInteractionId))) {
+                                        tracerType = TracerType.DX_API;
+                                    } else {
+                                        tracerType = TracerType.NORMAL;
+                                    }
+
+                                    traceTableModel.setTracerType(tracerType);
                                 }
 
-                                traceTableModel.setTracerType(tracerType);
+                                if (traceEvent == null) {
+
+                                    errorCount++;
+
+                                    LOG.info("Error reading trace event id: " + traceEventIndex);
+
+                                    TraceEventKey traceEventKey = new TraceEventKey(traceEventIndex, -1, true);
+                                    traceEvent = new TraceEventEmpty(traceEventKey, Color.WHITE);
+                                }
+
+                                traceTableModel.addTraceEventToMap(traceEvent);
+
+                                traceEventIndex++;
                             }
-
-                            if (traceEvent == null) {
-
-                                errorCount++;
-
-                                LOG.info("Error reading trace event id: " + traceEventIndex);
-
-                                TraceEventKey traceEventKey = new TraceEventKey(traceEventIndex, -1, true);
-                                traceEvent = new TraceEventEmpty(traceEventKey, Color.WHITE);
-                            }
-
-                            traceTableModel.addTraceEventToMap(traceEvent);
-
-                            traceEventIndex++;
-
-                            // to handle eventxxxx.bin files, every serialised trace event entry is preceded
-                            // with some bytes of trace event length data. hence need to recalculate the
-                            // begin position.
-                            // startidx = index;
-                            startidx = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventStr, index);
-
-                            // cant find the start event hence set the startidx as last read position
-                            if (startidx == -1) {
-                                startidx = index;
-                            }
-
-                            // Use nesting-aware search for subsequent events too
-                            index = findEndOfTraceEvent(byteBuffer, startidx, charset);
                         }
+
+                        searchStartIdx = nextTagIndex + (isStartTag ? startTraceEventStr.length : endTraceEventStr.length);
                     }
 
                     int byteBufferlen = byteBuffer.length;
@@ -473,47 +500,5 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
             System.gc();
         }
-    }
-
-    /**
-     * Find the end position of a TraceEvent block with nesting awareness.
-     * Scans forward from startIdx counting open/close tag depth. Every
-     * &lt;TraceEvent (with optional attributes) increments depth, every
-     * &lt;/TraceEvent&gt; decrements it. Returns the position of the closing
-     * tag when depth reaches 0, or -1 if not found.
-     */
-    private static int findEndOfTraceEvent(byte[] buffer, int startIdx, Charset charset) {
-        String startTag = TRACEEVENT_START;
-        String endTag = TRACEEVENT_END;
-        byte[] startTagBytes = startTag.getBytes(charset);
-        byte[] endTagBytes = endTag.getBytes(charset);
-        int depth = 0;
-        int pos = startIdx;
-        int bufLen = buffer.length;
-
-        while (pos < bufLen) {
-            // Search for next occurrence of either start or end tag
-            int startPos = KnuthMorrisPrattAlgorithm.indexOf(buffer, startTagBytes, pos);
-            int endPos = KnuthMorrisPrattAlgorithm.indexOfWithPatternLength(buffer, endTagBytes, pos);
-
-            if (startPos == -1 && endPos == -1) {
-                break;
-            }
-
-            if (endPos != -1 && (startPos == -1 || endPos <= startPos)) {
-                // Found end tag first (or at same position)
-                depth--;
-                if (depth == 0) {
-                    return endPos + endTagBytes.length;
-                }
-                pos = endPos + endTagBytes.length;
-            } else if (startPos != -1) {
-                // Found start tag
-                depth++;
-                pos = startPos + startTagBytes.length;
-            }
-        }
-
-        return -1;
     }
 }
