@@ -46,7 +46,9 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
     private static final Log4j2Helper LOG = new Log4j2Helper(TracerFileLoadTask.class);
 
-    private static final String TRACEEVENT_START = "<TraceEvent";
+    private static final String TRACEEVENT_START = "<TraceEvent ";
+
+    private static final String TRACEEVENT_START_NO_ATTR = "<TraceEvent>";
 
     private static final String TRACEEVENT_END = "</TraceEvent>";
 
@@ -130,6 +132,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
         try {
 
             byte[] startTraceEventStr = TRACEEVENT_START.getBytes(charset);
+            byte[] startTraceEventNoAttrStr = TRACEEVENT_START_NO_ATTR.getBytes(charset);
             byte[] endTraceEventStr = TRACEEVENT_END.getBytes(charset);
 
             long totalread = 0;
@@ -212,25 +215,37 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                     // Find all TraceEvent start and end tags to properly track nesting
                     while ((!isCancelled()) && (searchStartIdx < byteBuffer.length)) {
                         int nextStart = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventStr, searchStartIdx);
+                        int nextStartNoAttr = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventNoAttrStr, searchStartIdx);
                         int nextEnd = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, endTraceEventStr, searchStartIdx);
 
                         // If no more start or end tags found
-                        if (nextStart == -1 && nextEnd == -1) {
+                        if (nextStart == -1 && nextStartNoAttr == -1 && nextEnd == -1) {
                             break;
                         }
 
-                        // Determine which tag comes first
+                        // Determine which tag comes first (both start patterns count as start tags)
                         int nextTagIndex = -1;
                         boolean isStartTag = false;
 
+                        // Find the earliest start tag (either with or without attributes)
+                        int earliestStart = -1;
                         if (nextStart == -1) {
+                            earliestStart = nextStartNoAttr;
+                        } else if (nextStartNoAttr == -1) {
+                            earliestStart = nextStart;
+                        } else {
+                            earliestStart = Math.min(nextStart, nextStartNoAttr);
+                        }
+
+                        if (earliestStart == -1) {
+                            // Only end tags found
                             nextTagIndex = nextEnd;
                             isStartTag = false;
                         } else if (nextEnd == -1) {
-                            nextTagIndex = nextStart;
+                            nextTagIndex = earliestStart;
                             isStartTag = true;
-                        } else if (nextStart < nextEnd) {
-                            nextTagIndex = nextStart;
+                        } else if (earliestStart < nextEnd) {
+                            nextTagIndex = earliestStart;
                             isStartTag = true;
                         } else {
                             nextTagIndex = nextEnd;
@@ -285,10 +300,24 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                                 traceTableModel.addTraceEventToMap(traceEvent);
 
                                 traceEventIndex++;
+
+                                // Advance startidx past this event for balance calculation.
+                                // This prevents the last complete event from being duplicated
+                                // in the balance array carried to the next buffer chunk.
+                                startidx = eventEnd;
                             }
                         }
 
-                        searchStartIdx = nextTagIndex + (isStartTag ? startTraceEventStr.length : endTraceEventStr.length);
+                        // Determine which pattern matched to advance searchStartIdx correctly
+                        int tagLen;
+                        if (nextStart == nextTagIndex) {
+                            tagLen = startTraceEventStr.length;
+                        } else if (nextStartNoAttr == nextTagIndex) {
+                            tagLen = startTraceEventNoAttrStr.length;
+                        } else {
+                            tagLen = endTraceEventStr.length;
+                        }
+                        searchStartIdx = nextTagIndex + tagLen;
                     }
 
                     int byteBufferlen = byteBuffer.length;
