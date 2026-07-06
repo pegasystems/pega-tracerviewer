@@ -213,7 +213,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                     // Find all TraceEvent start and end tags to properly track nesting
                     // Use single KMP search for base pattern "<TraceEvent" with context checking
                     int basePatternLen = baseTraceEventStr.length; // 12 bytes
-                    
+
                     while ((!isCancelled()) && (searchStartIdx < byteBuffer.length)) {
                         // Find next occurrence of "<TraceEvent" base pattern
                         int nextBase = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, baseTraceEventStr, searchStartIdx);
@@ -256,8 +256,8 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                                 int checkPos = nextTagIndex + basePatternLen;
                                 if (checkPos < byteBuffer.length) {
                                     byte nextChar = byteBuffer[checkPos];
-                                    if (nextChar != ' ' && nextChar != '\t' && nextChar != '\n' 
-                                        && nextChar != '\r' && nextChar != '>') {
+                                    if (nextChar != ' ' && nextChar != '\t' && nextChar != '\n'
+                                                  && nextChar != '\r' && nextChar != '>') {
                                         // Not a valid start tag (e.g., <TraceEventActStartTime>)
                                         // Skip this occurrence and continue searching
                                         searchStartIdx = nextTagIndex + basePatternLen;
@@ -278,7 +278,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                         } else {
                             // This is an end tag (either from </TraceEvent> pattern or from base pattern context check)
                             depth--;
-                            
+
                             if (depth == 0) {
                                 // This is the end of a complete top-level TraceEvent
                                 int eventEnd = nextTagIndex + endTraceEventStr.length;
@@ -316,7 +316,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                                 traceTableModel.addTraceEventToMap(traceEvent);
 
                                 traceEventIndex++;
-                                
+
                                 // Advance startidx past this event for balance calculation.
                                 // This prevents the last complete event from being duplicated
                                 // in the balance array carried to the next buffer chunk.

@@ -17,7 +17,7 @@ public class TraceEventGenAI extends TraceEvent {
 
         traceEventType = TraceEventType.GENAI;
     }
-/* 
+    /*
     @Override
     protected boolean checkStart() {
 
