@@ -17,7 +17,7 @@ public class TraceEventGenAI extends TraceEvent {
 
         traceEventType = TraceEventType.GENAI;
     }
-
+/* 
     @Override
     protected boolean checkStart() {
 
@@ -33,4 +33,5 @@ public class TraceEventGenAI extends TraceEvent {
 
         return eventName != null && eventName.endsWith("End");
     }
+*/
 }
