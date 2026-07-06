@@ -734,13 +734,13 @@ public abstract class TraceEvent implements Identifiable<TraceEventKey> {
 
         Attribute attribute = traceEventElement.attribute("rsname");
 
-        if (attribute != null) {
+        if ((attribute != null) && (!"".equals(attribute.getText()))) {
             ruleSet = attribute.getText();
         }
 
         attribute = traceEventElement.attribute("rsvers");
 
-        if (attribute != null) {
+        if ((attribute != null) && (!"".equals(attribute.getText()))) {
             ruleSet = ruleSet + " " + attribute.getText();
         }
 
