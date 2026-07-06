@@ -46,9 +46,8 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
     private static final Log4j2Helper LOG = new Log4j2Helper(TracerFileLoadTask.class);
 
-    private static final String TRACEEVENT_START = "<TraceEvent ";
-
-    private static final String TRACEEVENT_START_NO_ATTR = "<TraceEvent>";
+    // Base pattern for KMP search - matches both <TraceEvent " and <TraceEvent>
+    private static final String TRACEEVENT_BASE = "<TraceEvent";
 
     private static final String TRACEEVENT_END = "</TraceEvent>";
 
@@ -131,8 +130,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
         try {
 
-            byte[] startTraceEventStr = TRACEEVENT_START.getBytes(charset);
-            byte[] startTraceEventNoAttrStr = TRACEEVENT_START_NO_ATTR.getBytes(charset);
+            byte[] baseTraceEventStr = TRACEEVENT_BASE.getBytes(charset);
             byte[] endTraceEventStr = TRACEEVENT_END.getBytes(charset);
 
             long totalread = 0;
@@ -195,7 +193,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
                     }
 
-                    startidx = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventStr);
+                    startidx = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, baseTraceEventStr);
 
                     if (startidx == -1) {
 
@@ -213,43 +211,60 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                     int searchStartIdx = startidx;
 
                     // Find all TraceEvent start and end tags to properly track nesting
+                    // Use single KMP search for base pattern "<TraceEvent" with context checking
+                    int basePatternLen = baseTraceEventStr.length; // 12 bytes
+                    
                     while ((!isCancelled()) && (searchStartIdx < byteBuffer.length)) {
-                        int nextStart = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventStr, searchStartIdx);
-                        int nextStartNoAttr = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, startTraceEventNoAttrStr, searchStartIdx);
+                        // Find next occurrence of "<TraceEvent" base pattern
+                        int nextBase = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, baseTraceEventStr, searchStartIdx);
                         int nextEnd = KnuthMorrisPrattAlgorithm.indexOf(byteBuffer, endTraceEventStr, searchStartIdx);
 
-                        // If no more start or end tags found
-                        if (nextStart == -1 && nextStartNoAttr == -1 && nextEnd == -1) {
+                        // If no more base patterns or end tags found
+                        if (nextBase == -1 && nextEnd == -1) {
                             break;
                         }
 
-                        // Determine which tag comes first (both start patterns count as start tags)
+                        // Determine which tag comes first (base pattern or end tag)
                         int nextTagIndex = -1;
                         boolean isStartTag = false;
+                        boolean isPartOfEndTag = false; // true if base pattern is part of </TraceEvent>
 
-                        // Find the earliest start tag (either with or without attributes)
-                        int earliestStart = -1;
-                        if (nextStart == -1) {
-                            earliestStart = nextStartNoAttr;
-                        } else if (nextStartNoAttr == -1) {
-                            earliestStart = nextStart;
-                        } else {
-                            earliestStart = Math.min(nextStart, nextStartNoAttr);
-                        }
-
-                        if (earliestStart == -1) {
+                        if (nextBase == -1) {
                             // Only end tags found
                             nextTagIndex = nextEnd;
                             isStartTag = false;
                         } else if (nextEnd == -1) {
-                            nextTagIndex = earliestStart;
+                            nextTagIndex = nextBase;
                             isStartTag = true;
-                        } else if (earliestStart < nextEnd) {
-                            nextTagIndex = earliestStart;
+                        } else if (nextBase < nextEnd) {
+                            nextTagIndex = nextBase;
                             isStartTag = true;
                         } else {
                             nextTagIndex = nextEnd;
                             isStartTag = false;
+                        }
+
+                        // If we found a base pattern, check context to determine tag type
+                        if (isStartTag && nextTagIndex == nextBase) {
+                            // Check if this is actually part of </TraceEvent> (end tag)
+                            if (nextTagIndex > 0 && byteBuffer[nextTagIndex - 1] == '/') {
+                                // This is part of </TraceEvent>, treat as end tag
+                                isStartTag = false;
+                                isPartOfEndTag = true;
+                            } else {
+                                // Check if it's a valid start tag (followed by whitespace or >)
+                                int checkPos = nextTagIndex + basePatternLen;
+                                if (checkPos < byteBuffer.length) {
+                                    byte nextChar = byteBuffer[checkPos];
+                                    if (nextChar != ' ' && nextChar != '\t' && nextChar != '\n' 
+                                        && nextChar != '\r' && nextChar != '>') {
+                                        // Not a valid start tag (e.g., <TraceEventActStartTime>)
+                                        // Skip this occurrence and continue searching
+                                        searchStartIdx = nextTagIndex + basePatternLen;
+                                        continue;
+                                    }
+                                }
+                            }
                         }
 
                         // Handle the tag
@@ -261,8 +276,9 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                             }
                             depth++;
                         } else {
-                            // This is an end tag
+                            // This is an end tag (either from </TraceEvent> pattern or from base pattern context check)
                             depth--;
+                            
                             if (depth == 0) {
                                 // This is the end of a complete top-level TraceEvent
                                 int eventEnd = nextTagIndex + endTraceEventStr.length;
@@ -300,7 +316,7 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
                                 traceTableModel.addTraceEventToMap(traceEvent);
 
                                 traceEventIndex++;
-
+                                
                                 // Advance startidx past this event for balance calculation.
                                 // This prevents the last complete event from being duplicated
                                 // in the balance array carried to the next buffer chunk.
@@ -310,11 +326,26 @@ public class TracerFileLoadTask extends SwingWorker<Void, ReadCounterTaskInfo> {
 
                         // Determine which pattern matched to advance searchStartIdx correctly
                         int tagLen;
-                        if (nextStart == nextTagIndex) {
-                            tagLen = startTraceEventStr.length;
-                        } else if (nextStartNoAttr == nextTagIndex) {
-                            tagLen = startTraceEventNoAttrStr.length;
+                        if (isPartOfEndTag) {
+                            // The base pattern was part of </TraceEvent>, advance past the end tag
+                            tagLen = endTraceEventStr.length;
+                        } else if (isStartTag) {
+                            // Check if it's a start tag with attributes or without
+                            int checkPos = nextTagIndex + basePatternLen;
+                            if (checkPos < byteBuffer.length && byteBuffer[checkPos] == '>') {
+                                // It's <TraceEvent> (no attributes), length is basePatternLen + 1
+                                tagLen = basePatternLen + 1;
+                            } else {
+                                // It's <TraceEvent ...> (with attributes), use the end tag to find boundary
+                                // We need to find the closing > of this start tag
+                                int pos = checkPos;
+                                while (pos < byteBuffer.length && byteBuffer[pos] != '>') {
+                                    pos++;
+                                }
+                                tagLen = pos - nextTagIndex + 1; // from < to >
+                            }
                         } else {
+                            // It's an end tag from the </TraceEvent> pattern
                             tagLen = endTraceEventStr.length;
                         }
                         searchStartIdx = nextTagIndex + tagLen;
