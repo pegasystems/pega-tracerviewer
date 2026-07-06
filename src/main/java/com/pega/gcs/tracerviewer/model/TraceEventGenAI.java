@@ -9,7 +9,7 @@ package com.pega.gcs.tracerviewer.model;
 
 import org.dom4j.Element;
 
-public class TraceEventGenAI extends TraceEventNonActivity {
+public class TraceEventGenAI extends TraceEvent {
 
     public TraceEventGenAI(TraceEventKey traceEventKey, byte[] bytes, Element traceEventElement) {
 
@@ -21,28 +21,16 @@ public class TraceEventGenAI extends TraceEventNonActivity {
     @Override
     protected boolean checkStart() {
 
-        boolean start = false;
+        String eventName = getEventName();
 
-        String stepMethod = getStepMethod();
-
-        if ("Agent Execution Begin".equals(stepMethod)) {
-            start = true;
-        }
-
-        return start;
+        return eventName != null && eventName.endsWith("Begin");
     }
 
     @Override
     protected boolean checkEnd() {
 
-        boolean end = false;
+        String eventName = getEventName();
 
-        String stepMethod = getStepMethod();
-
-        if ("Agent Execution End".equals(stepMethod)) {
-            end = true;
-        }
-
-        return end;
+        return eventName != null && eventName.endsWith("End");
     }
 }
