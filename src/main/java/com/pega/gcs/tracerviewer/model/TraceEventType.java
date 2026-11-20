@@ -75,7 +75,10 @@ public enum TraceEventType {
     SOAP_MESSAGES            ("SOAP Messages"            , true ),
     STRATEGY                 ("Strategy"                 , true ),
     STREAM_RULES             ("Stream Rules"             , true ),
-    UNIT_TEST_CASE           ("Unit Test Case"           , true );
+    UNIT_TEST_CASE           ("Unit Test Case"           , true ),
+    AUTOMATION               ("Automation"               , true ),
+    GENAI                    ("GenAI"                    , true  , "Agent Execution Begin" , "Agent Execution End"),
+    VIEW_RULES               ("View Rules"               , true );
     // CHECKSTYLE:ON
     // @formatter:on
 

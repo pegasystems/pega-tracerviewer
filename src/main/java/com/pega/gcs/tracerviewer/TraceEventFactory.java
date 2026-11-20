@@ -34,6 +34,7 @@ import com.pega.gcs.tracerviewer.model.TraceEventAlert;
 import com.pega.gcs.tracerviewer.model.TraceEventAsyncDPLoad;
 import com.pega.gcs.tracerviewer.model.TraceEventAsynchronousActivity;
 import com.pega.gcs.tracerviewer.model.TraceEventAutoPopulateProperties;
+import com.pega.gcs.tracerviewer.model.TraceEventAutomation;
 import com.pega.gcs.tracerviewer.model.TraceEventCaseType;
 import com.pega.gcs.tracerviewer.model.TraceEventDBCache;
 import com.pega.gcs.tracerviewer.model.TraceEventDBQuery;
@@ -57,6 +58,7 @@ import com.pega.gcs.tracerviewer.model.TraceEventDeclareTrigger;
 import com.pega.gcs.tracerviewer.model.TraceEventException;
 import com.pega.gcs.tracerviewer.model.TraceEventFlow;
 import com.pega.gcs.tracerviewer.model.TraceEventFreeTextModel;
+import com.pega.gcs.tracerviewer.model.TraceEventGenAI;
 import com.pega.gcs.tracerviewer.model.TraceEventInteraction;
 import com.pega.gcs.tracerviewer.model.TraceEventKey;
 import com.pega.gcs.tracerviewer.model.TraceEventLinkedPageHit;
@@ -79,6 +81,7 @@ import com.pega.gcs.tracerviewer.model.TraceEventStreamRules;
 import com.pega.gcs.tracerviewer.model.TraceEventType;
 import com.pega.gcs.tracerviewer.model.TraceEventUnitTestCase;
 import com.pega.gcs.tracerviewer.model.TraceEventUnknown;
+import com.pega.gcs.tracerviewer.model.TraceEventViewRules;
 import com.pega.gcs.tracerviewer.model.TraceEventWhenRules;
 
 public class TraceEventFactory {
@@ -188,21 +191,9 @@ public class TraceEventFactory {
                         } else if (TraceEventType.ACTIVITY_STEP.matchName(eventType)) {
                             // ACTIVITY_STEPS
                             traceEvent = new TraceEventActivitySteps(traceEventKey, bytes, traceEventElement);
-                        } else if (TraceEventType.DATA_TRANSFORMS.matchName(eventType)) {
-                            // DATA_TRANSFORMS
-                            traceEvent = new TraceEventDataTransforms(traceEventKey, bytes, traceEventElement);
-                        } else if (TraceEventType.DATA_TRANSFORM_ACTION.matchName(eventType)) {
-                            // DATA_TRANSFORM_ACTION
-                            traceEvent = new TraceEventDataTransformAction(traceEventKey, bytes, traceEventElement);
-                        } else if (TraceEventType.EXCEPTION.matchName(eventType)) {
-                            // EXCEPTION
-                            traceEvent = new TraceEventException(traceEventKey, bytes, traceEventElement);
-                        } else if (TraceEventType.WHEN_RULES.matchName(eventType)) {
-                            // WHEN_RULES
-                            traceEvent = new TraceEventWhenRules(traceEventKey, bytes, traceEventElement);
-                        } else if (TraceEventType.ASYNC_DP_LOAD.matchName(eventType)) { // ---- Event Types ---- //
-                            // ASYNC_DP_LOAD
-                            traceEvent = new TraceEventAsyncDPLoad(traceEventKey, bytes, traceEventElement);
+                        } else if (TraceEventType.AUTOMATION.matchName(eventType)) {
+                            // AUTOMATION
+                            traceEvent = new TraceEventAutomation(traceEventKey, bytes, traceEventElement);
                         } else if (TraceEventType.ADAPTIVE_MODEL.matchName(eventType)) {
                             // ADAPTIVE_MODEL
                             traceEvent = new TraceEventAdaptiveModel(traceEventKey, bytes, traceEventElement);
@@ -272,12 +263,18 @@ public class TraceEventFactory {
                         } else if (TraceEventType.DECLARE_TRIGGER.matchName(eventType)) {
                             // DECLARE_TRIGGER
                             traceEvent = new TraceEventDeclareTrigger(traceEventKey, bytes, traceEventElement);
+                        } else if (TraceEventType.EXCEPTION.matchName(eventType)) {
+                            // EXCEPTION
+                            traceEvent = new TraceEventException(traceEventKey, bytes, traceEventElement);
                         } else if (TraceEventType.FLOW.matchName(eventType)) {
                             // FLOW
                             traceEvent = new TraceEventFlow(traceEventKey, bytes, traceEventElement);
                         } else if (TraceEventType.FREE_TEXT_MODEL.matchName(eventType)) {
                             // FREE_TEXT_MODEL
                             traceEvent = new TraceEventFreeTextModel(traceEventKey, bytes, traceEventElement);
+                        } else if (TraceEventType.GENAI.matchName(eventType)) {
+                            // GENAI
+                            traceEvent = new TraceEventGenAI(traceEventKey, bytes, traceEventElement);
                         } else if (TraceEventType.INTERACTION.matchName(eventType)) {
                             // INTERACTION
                             traceEvent = new TraceEventInteraction(traceEventKey, bytes, traceEventElement);
@@ -314,9 +311,6 @@ public class TraceEventFactory {
                         } else if (TraceEventType.REFERENCE_PROPERTIES.matchName(eventType)) {
                             // REFERENCE_PROPERTIES
                             traceEvent = new TraceEventReferenceProperties(traceEventKey, bytes, traceEventElement);
-                        } else if (TraceEventType.SOAP_MESSAGES.matchName(eventType)) {
-                            // SOAP_MESSAGES
-                            traceEvent = new TraceEventSoapMessages(traceEventKey, bytes, traceEventElement);
                         } else if (TraceEventType.SCORECARD.matchName(eventType)) {
                             // SCORECARD
                             traceEvent = new TraceEventScorecard(traceEventKey, bytes, traceEventElement);
@@ -326,6 +320,9 @@ public class TraceEventFactory {
                         } else if (TraceEventType.SERVICES.matchName(eventType)) {
                             // SERVICES
                             traceEvent = new TraceEventServices(traceEventKey, bytes, traceEventElement);
+                        } else if (TraceEventType.SOAP_MESSAGES.matchName(eventType)) {
+                            // SOAP_MESSAGES
+                            traceEvent = new TraceEventSoapMessages(traceEventKey, bytes, traceEventElement);
                         } else if (TraceEventType.STRATEGY.matchName(eventType)) {
                             // STRATEGY
                             traceEvent = new TraceEventStrategy(traceEventKey, bytes, traceEventElement);
@@ -335,6 +332,21 @@ public class TraceEventFactory {
                         } else if (TraceEventType.UNIT_TEST_CASE.matchName(eventType)) {
                             // UNIT_TEST_CASE
                             traceEvent = new TraceEventUnitTestCase(traceEventKey, bytes, traceEventElement);
+                        } else if (TraceEventType.VIEW_RULES.matchName(eventType)) {
+                            // VIEW_RULES
+                            traceEvent = new TraceEventViewRules(traceEventKey, bytes, traceEventElement);
+                        } else if (TraceEventType.WHEN_RULES.matchName(eventType)) {
+                            // WHEN_RULES
+                            traceEvent = new TraceEventWhenRules(traceEventKey, bytes, traceEventElement);
+                        } else if (TraceEventType.DATA_TRANSFORMS.matchName(eventType)) {
+                            // DATA_TRANSFORMS
+                            traceEvent = new TraceEventDataTransforms(traceEventKey, bytes, traceEventElement);
+                        } else if (TraceEventType.DATA_TRANSFORM_ACTION.matchName(eventType)) {
+                            // DATA_TRANSFORM_ACTION
+                            traceEvent = new TraceEventDataTransformAction(traceEventKey, bytes, traceEventElement);
+                        } else if (TraceEventType.ASYNC_DP_LOAD.matchName(eventType)) { // ---- Event Types ---- //
+                            // ASYNC_DP_LOAD
+                            traceEvent = new TraceEventAsyncDPLoad(traceEventKey, bytes, traceEventElement);
                         } else {
                             // UNKNOWN
                             traceEvent = new TraceEventUnknown(traceEventKey, bytes, traceEventElement);
